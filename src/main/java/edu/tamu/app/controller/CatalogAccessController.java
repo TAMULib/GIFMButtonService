@@ -8,7 +8,8 @@ import org.springframework.stereotype.Controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import edu.tamu.app.service.CatalogService;
+import edu.tamu.app.service.CatalogServiceFactory;
+import edu.tamu.app.service.VoyagerCatalogService;
 import edu.tamu.framework.aspect.annotation.ApiMapping;
 import edu.tamu.framework.aspect.annotation.Data;
 import edu.tamu.framework.aspect.annotation.SkipAop;
@@ -20,13 +21,14 @@ public class CatalogAccessController {
     private ObjectMapper objectMapper;
     
     @Autowired
-    private CatalogService catalogService;
+    private CatalogServiceFactory catalogServiceFactory;
 
-	@ApiMapping("get-holdings")
+	@ApiMapping("/get-holdings")
 	@SkipAop
 	public String getHoldingsByBibId(@Data String data) throws JsonProcessingException, IOException {
 		String bibId = "1892485";
-        catalogService.getHoldingsByBibId(bibId);
+		String catalogName = "evans";
+        catalogServiceFactory.getOrCreateCatalogService(catalogName).getHoldingsByBibId(bibId);
 		return null;
 	}
 }
