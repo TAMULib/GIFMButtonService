@@ -1,0 +1,68 @@
+package edu.tamu.app.service;
+
+public abstract class AbstractCatalogService implements CatalogService {
+	
+	private String name;
+	
+	private String type;
+	
+	private String host;
+	
+	private String port;
+	
+	private String app;
+	
+	private String protocol;
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public String getPort() {
+		return port;
+	}
+
+	public void setPort(String port) {
+		this.port = port;
+	}
+
+	public String getApp() {
+		return app;
+	}
+
+	public void setApp(String app) {
+		this.app = app;
+	}
+
+	public String getProtocol() {
+		return protocol;
+	}
+
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
+	}
+	
+	protected String getAPIBase() {
+		return getProtocol() +"://"+getHost()+":"+getPort()+"/"+getApp()+"/";
+	}
+}
