@@ -1,6 +1,7 @@
 package edu.tamu.app.controller;
 
 import edu.tamu.app.service.CatalogService;
+import edu.tamu.framework.util.HttpUtility;
 
 public class MockCatalogService implements CatalogService {
 	//TODO:  point to the localhost MockVoyagerServiceController endpoints
@@ -80,6 +81,18 @@ public class MockCatalogService implements CatalogService {
 
 	@Override
 	public void setProtocol(String protocol) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public HttpUtility getHttpUtility() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setHttpUtility(HttpUtility httpUtility) {
 		// TODO Auto-generated method stub
 		
 	}

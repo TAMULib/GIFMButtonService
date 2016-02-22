@@ -1,5 +1,7 @@
 package edu.tamu.app.service;
 
+import edu.tamu.framework.util.HttpUtility;
+
 public abstract class AbstractCatalogService implements CatalogService {
 	
 	private String name;
@@ -14,6 +16,16 @@ public abstract class AbstractCatalogService implements CatalogService {
 	
 	private String protocol;
 	
+	private HttpUtility httpUtility;
+	
+	public HttpUtility getHttpUtility() {
+		return httpUtility;
+	}
+
+	public void setHttpUtility(HttpUtility httpUtility) {
+		this.httpUtility = httpUtility;
+	}
+
 	public String getName() {
 		return name;
 	}

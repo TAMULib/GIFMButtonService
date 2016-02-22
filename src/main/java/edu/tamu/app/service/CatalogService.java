@@ -1,5 +1,7 @@
 package edu.tamu.app.service;
 
+import edu.tamu.framework.util.HttpUtility;
+
 public interface CatalogService {
 
 	String getHoldingsByBibId(String bibId);
@@ -26,6 +28,10 @@ public interface CatalogService {
 	
 	String getProtocol();
 	
-	void setProtocol(String protocol);	
+	void setProtocol(String protocol);
+	
+	HttpUtility getHttpUtility();
+	
+	void setHttpUtility(HttpUtility httpUtility);
 
 }

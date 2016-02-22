@@ -3,14 +3,10 @@ package edu.tamu.app.service;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +17,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import edu.tamu.framework.util.HttpUtility;
+
 @Service
 public class CatalogServiceFactory {
 
@@ -29,6 +27,9 @@ public class CatalogServiceFactory {
 	@Autowired
 	private ObjectMapper objectMapper;
 	
+	@Autowired
+	private HttpUtility httpUtility;
+
 	@Value("${catalogs.file.location:''}")
 	private String catalogsFile;
 	
@@ -72,8 +73,6 @@ public class CatalogServiceFactory {
 			while (catalogsIt.hasNext()) {
 				Entry<String, JsonNode> entry = catalogsIt.next();
 				
-				Map<String,String> catalogDetails = new HashMap<String,String>();
-				
 				String host =     entry.getValue().get("host"    ).asText();
 				String port =     entry.getValue().get("port"    ).asText();
 				String app  =     entry.getValue().get("app"     ).asText();
@@ -89,6 +88,7 @@ public class CatalogServiceFactory {
 					catalogService.setApp(app);
 					catalogService.setProtocol(protocol);
 					catalogService.setType("voyager");
+					catalogService.setHttpUtility(httpUtility);
 					return catalogService;
 				
 				default:
