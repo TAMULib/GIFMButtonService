@@ -1,10 +1,13 @@
 package edu.tamu.app.service;
 
+import java.util.List;
+
+import edu.tamu.app.model.CatalogHolding;
 import edu.tamu.framework.util.HttpUtility;
 
 public interface CatalogService {
 
-	String getHoldingsByBibId(String bibId);
+	List<CatalogHolding> getHoldingsByBibId(String bibId);
 	
 	String getName();
 	

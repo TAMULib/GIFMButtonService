@@ -1,5 +1,8 @@
 package edu.tamu.app.controller;
 
+import java.util.List;
+
+import edu.tamu.app.model.CatalogHolding;
 import edu.tamu.app.service.CatalogService;
 import edu.tamu.framework.util.HttpUtility;
 
@@ -8,7 +11,7 @@ public class MockCatalogService implements CatalogService {
 	
 	
 	@Override
-	public String getHoldingsByBibId(String bibId) {
+	public List<CatalogHolding> getHoldingsByBibId(String bibId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
