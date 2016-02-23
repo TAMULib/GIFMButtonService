@@ -80,39 +80,6 @@ class VoyagerCatalogService extends AbstractCatalogService {
 				catalogItem = null;
 	    		marcRecordLeader = null;
 			}
-			
-	    	// Data needed for button logic
-	    	
-	    	//make new request for each holding uri
-	    	/*
-	    	 * catalog = libcat
-	    	my $borrowSid = "Borrow";
-	    	my $holdSid   = "DocDel";
-	    	my $recallSid = "recall";
-	    	my $archSid   = "cushing"; 
-	    	my $remoteSid = "remotestorage";
-	    	my $inProcessSid = "InProcess";
-	    	
-	    	*/
-	    	/* (from initial holdings request)
-	    	 * marc record (item type)
-	    	*<marcRecord><leader>00302cx  a22001094  4500</leader>
-	    	*/
-	    	
-	    	/* Item Location
-	    	 * <itemData id="32" name="permLocation" code="stk">Evans Library or Annex</itemData>
-	    	 * <itemData id="0" name="tempLocation"/>
-	    	 * <itemData id="32" name="location" code="stk">Evans Library or Annex</itemData>
-	    	 */
-	    	
-	    	/* Item Type
-	    	 * <itemData name="typeCode">4</itemData>
-	    	 * <itemData name="typeDesc">normal</itemData>
-	    	 */
-	    	/*
-	    	*<itemData name="itemStatus">Charged - Due on 2016-03-16</itemData>
-	    	*<itemData name="itemStatusCode">2</itemData>
-	    	*/
 			return catalogHoldings;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
