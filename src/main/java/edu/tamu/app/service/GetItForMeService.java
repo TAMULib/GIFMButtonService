@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import edu.tamu.app.model.CatalogHolding;
 import edu.tamu.app.model.CushingButton;
 import edu.tamu.app.model.GetIt2DaysButton;
+import edu.tamu.app.model.GetIt4DaysButton;
 import edu.tamu.app.model.GetItForMeButton;
 
 @Service
@@ -25,6 +26,7 @@ public class GetItForMeService {
 		List<GetItForMeButton> eligibleButtons = new ArrayList<GetItForMeButton>();
 		eligibleButtons.add(new CushingButton());
 		eligibleButtons.add(new GetIt2DaysButton());
+		eligibleButtons.add(new GetIt4DaysButton());
 
 		catalogHoldings.forEach(holding -> {
 			System.out.println ("MARC Record Leader: "+holding.getMarcRecordLeader());
