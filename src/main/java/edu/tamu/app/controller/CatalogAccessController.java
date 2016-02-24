@@ -4,6 +4,7 @@ import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,8 +28,10 @@ public class CatalogAccessController {
     @Autowired
     private CatalogServiceFactory catalogServiceFactory;
     
-    @Autowired GetItForMeService getItForMeService;
-
+    @Autowired
+    GetItForMeService getItForMeService;
+    
+/*
 	@ApiMapping("/get-holdings")
 	@SkipAop
 	public ApiResponse getHoldings(@Data String data) throws JsonProcessingException, IOException {
@@ -36,26 +39,18 @@ public class CatalogAccessController {
 		getHoldingsByBibId(bibId);
 		return new ApiResponse(SUCCESS,"Excellent");
 	}
-	
+*/	
 	@ApiMapping("/get-buttons")
 	@SkipAop
 	public ApiResponse getButtonsByBibId() {
 		String bibId = "1892485";
-		try {
-			getHoldingsByBibId(bibId);
-			return new ApiResponse(SUCCESS,"<a href=\"#\">Button for "+bibId+"</a>");
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return new ApiResponse(ERROR);
+		Map<String,Map<String,String>> buttonContents = getItForMeService.getButtonsByBibId(bibId);
+		return new ApiResponse(SUCCESS,buttonContents);
+//		return new ApiResponse(ERROR);
 	}
-	
+/*	
 	private String getHoldingsByBibId(String bibId) throws JsonProcessingException, IOException {
 		return getItForMeService.getButtonsByBibId(bibId);
 	}
-
+*/
 }

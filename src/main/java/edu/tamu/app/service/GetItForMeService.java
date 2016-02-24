@@ -23,11 +23,13 @@ public class GetItForMeService {
 	@Autowired
 	private CatalogServiceFactory catalogServiceFactory;
 	
-	public String getButtonsByBibId(String bibId) {
+	public Map<String,Map<String,String>> getButtonsByBibId(String bibId) {
 		List<CatalogHolding> catalogHoldings = catalogServiceFactory.getOrCreateCatalogService("evans").getHoldingsByBibId(bibId);
 		System.out.println("\n\nCATALOG HOLDINGS FOR "+bibId);
 		
 		List<GetItForMeButton> eligibleButtons = new ArrayList<GetItForMeButton>();
+		Map<String,Map<String,String>> validButtons = new HashMap<String,Map<String,String>>();
+		
 		eligibleButtons.add(new CushingButton());
 		eligibleButtons.add(new GetIt2DaysButton());
 		eligibleButtons.add(new GetIt4DaysButton());
@@ -35,7 +37,7 @@ public class GetItForMeService {
 		eligibleButtons.add(new RecallItButton());
 		eligibleButtons.add(new GetIt2DaysDocDelButton());
 		eligibleButtons.add(new BorrowItNowButton());
-
+		
 		catalogHoldings.forEach(holding -> {
 //			System.out.println ("MARC Record Leader: "+holding.getMarcRecordLeader());
 			//if configured, check for single item monograph
@@ -60,6 +62,10 @@ public class GetItForMeService {
 						System.out.println("We want the button with text: "+button.getLinkText());
 						System.out.println("It looks like: ");
 						System.out.println(button.getLinkTemplate(parameters));
+						Map<String,String> buttonContent = new HashMap<String,String>();
+						buttonContent.put("linkText",button.getLinkText());
+						buttonContent.put("linkHref",button.getLinkTemplate(parameters));
+						validButtons.put(holding.getMfhd(), buttonContent);
 					} else {
 						System.out.println ("We should skip the button with text: "+button.getLinkText());
 					}
@@ -69,7 +75,7 @@ public class GetItForMeService {
 		});
 		
 		
-		return null;
+		return validButtons;
 	}
 	
 	//some logical button generating logic

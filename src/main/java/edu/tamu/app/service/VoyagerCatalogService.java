@@ -53,11 +53,13 @@ class VoyagerCatalogService extends AbstractCatalogService {
 				int childCount = childNodes.getLength();
 				
 				String marcRecordLeader = null;
+				String mfhd = null;
 				Map<String,Map<String,String>> catalogItem = new HashMap<String,Map<String,String>>();
 				for (int j=0;j<childCount;j++) {
 					Node child = childNodes.item(j);
 					if (child.getNodeName().equals("marcRecord")) {
 						marcRecordLeader = child.getFirstChild().getTextContent();
+						mfhd = child.getChildNodes().item(1).getTextContent();
 					} else if (child.getNodeName().equals("item")) {
 						NodeList items = child.getChildNodes();
 						int count = items.getLength();
@@ -79,7 +81,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
 						}
 					}
 				}
-				catalogHoldings.add(new CatalogHolding(marcRecordLeader,catalogItem));
+				catalogHoldings.add(new CatalogHolding(marcRecordLeader,mfhd,catalogItem));
 				catalogItem = null;
 	    		marcRecordLeader = null;
 			}
