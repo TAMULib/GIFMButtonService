@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import edu.tamu.app.model.BorrowItNowButton;
 import edu.tamu.app.model.CatalogHolding;
 import edu.tamu.app.model.CushingButton;
 import edu.tamu.app.model.GetIt1WeekButton;
@@ -33,6 +34,7 @@ public class GetItForMeService {
 		eligibleButtons.add(new GetIt1WeekButton());
 		eligibleButtons.add(new RecallItButton());
 		eligibleButtons.add(new GetIt2DaysDocDelButton());
+		eligibleButtons.add(new BorrowItNowButton());
 
 		catalogHoldings.forEach(holding -> {
 			System.out.println ("MARC Record Leader: "+holding.getMarcRecordLeader());
@@ -48,6 +50,9 @@ public class GetItForMeService {
 					Map<String,String> parameters = new HashMap<String,String>();
 					for (String parameterKey:parameterKeys) {
 						parameters.put(parameterKey,items.get(parameterKey));
+					}
+					if (parameters.containsKey("isbn")) {
+						parameters.put("isbn", "placeHolderValue");
 					}
 					if (button.checkLocation(items.get("permLocationCode")) && button.checkItemType(items.get("typeCode")) && button.checkItemStatus(items.get("itemStatusCode"))) {
 						System.out.println("We want the button with text: "+button.getLinkText());

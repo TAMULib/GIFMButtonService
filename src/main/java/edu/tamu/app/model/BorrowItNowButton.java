@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
-public final class GetIt2DaysDocDelButton extends AbstractGetItForMeButton {
+public final class BorrowItNowButton extends AbstractGetItForMeButton {
 	
-	public GetIt2DaysDocDelButton() {
+	public BorrowItNowButton() {
 		this.templateParameterKeys = new ArrayList<String>();
 		this.templateParameterKeys.add("callNumber");
 		this.templateParameterKeys.add("location");
@@ -34,25 +34,24 @@ public final class GetIt2DaysDocDelButton extends AbstractGetItForMeButton {
 	//button shows for all item status
 	@Override
 	public boolean checkItemStatus(String itemStatusCode) {
-		Integer[] itemStatuses = {1,11};
+		Integer[] itemStatuses = {2,3,4,5,6,7,12,13,14,17,18};
 		return Arrays.asList(itemStatuses).contains(itemStatusCode);
 	}
 
 	@Override
 	public String getLinkTemplate(Map<String,String> templateParameters) {
 		//String callNumber, String locationName
-		return "getitforme.library.tamu.edu/illiad/EVANSLocal/openurl.asp?Action=10&Form=30&sid="+this.getSID()+
-				"&rfe_dat="+templateParameters.get("callNumber")+":"+templateParameters.get("location");
+		return "gwla.relaisd2d.com/service-proxy/?command=mkauth&LS=TEXASAM&PI=TEXASAM&query=isbn%3D"+templateParameters.get("isbn");
 	}
 	
 	@Override
 	public String getLinkText() {
-		return "Get It: 2 days";
+		return "Borrow It Now";
 	}
 
 	@Override
 	public String getSID() {
-		return "libcat:DocDel";
+		return "libcat:Borrow";
 	}
 
 }
