@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.CatalogHolding;
+import edu.tamu.app.model.CushingButton;
 
 @Service
 public class GetItForMeService {
@@ -23,6 +24,7 @@ public class GetItForMeService {
 				System.out.println("URI: "+uri);
 				items.forEach((k,v) -> {
 					System.out.println(k+": "+v);
+//					CushingButton.checkItemStatus(itemStatusCode)
 				});
 			});
 		});
