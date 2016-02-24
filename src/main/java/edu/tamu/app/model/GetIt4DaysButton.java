@@ -31,7 +31,7 @@ public final class GetIt4DaysButton extends AbstractGetItForMeButton {
 
 	//button shows for all item status
 	@Override
-	public boolean checkItemStatus(String itemStatusCode) {
+	public boolean checkItemStatus(int itemStatusCode) {
 		return true;
 	}
 

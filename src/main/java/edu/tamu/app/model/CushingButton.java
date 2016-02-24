@@ -30,7 +30,7 @@ public final class CushingButton extends AbstractGetItForMeButton {
 
 	//button shows for all item statuses
 	@Override
-	public boolean checkItemStatus(String itemStatusCode) {
+	public boolean checkItemStatus(int itemStatusCode) {
 		return true;
 	}
 

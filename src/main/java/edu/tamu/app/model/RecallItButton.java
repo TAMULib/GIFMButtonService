@@ -33,7 +33,7 @@ public final class RecallItButton extends AbstractGetItForMeButton {
 
 	//button shows for all item status
 	@Override
-	public boolean checkItemStatus(String itemStatusCode) {
+	public boolean checkItemStatus(int itemStatusCode) {
 		Integer[] itemStatuses = {2,3,4,6,7};
 		return Arrays.asList(itemStatuses).contains(itemStatusCode);
 	}

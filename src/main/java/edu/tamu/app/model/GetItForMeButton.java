@@ -7,7 +7,7 @@ public interface GetItForMeButton {
 	boolean checkRecordType(String marcRecord);
 	boolean checkLocation(String locationCode);
 	boolean checkItemType(String typeCode);
-	boolean checkItemStatus(String itemStatusCode);
+	boolean checkItemStatus(int itemStatusCode);
 	String getSID();
 	String getLinkTemplate(Map<String,String> templateParameters);
 	List<String> getTemplateParameterKeys();

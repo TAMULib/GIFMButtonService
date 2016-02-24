@@ -33,7 +33,7 @@ public final class GetIt2DaysDocDelButton extends AbstractGetItForMeButton {
 
 	//button shows for all item status
 	@Override
-	public boolean checkItemStatus(String itemStatusCode) {
+	public boolean checkItemStatus(int itemStatusCode) {
 		Integer[] itemStatuses = {1,11};
 		return Arrays.asList(itemStatuses).contains(itemStatusCode);
 	}

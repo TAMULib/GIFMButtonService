@@ -32,8 +32,8 @@ public final class GetIt2DaysButton extends AbstractGetItForMeButton {
 
 	//button shows for item status of 22 only
 	@Override
-	public boolean checkItemStatus(String itemStatusCode) {
-		if (Integer.parseInt(itemStatusCode) == 22) {
+	public boolean checkItemStatus(int itemStatusCode) {
+		if (itemStatusCode == 22) {
 			return true;
 		}
 		return false;

@@ -33,7 +33,7 @@ public final class BorrowItNowButton extends AbstractGetItForMeButton {
 
 	//button shows for all item status
 	@Override
-	public boolean checkItemStatus(String itemStatusCode) {
+	public boolean checkItemStatus(int itemStatusCode) {
 		Integer[] itemStatuses = {2,3,4,5,6,7,12,13,14,17,18};
 		return Arrays.asList(itemStatuses).contains(itemStatusCode);
 	}

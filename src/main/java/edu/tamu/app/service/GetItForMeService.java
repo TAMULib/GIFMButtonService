@@ -37,15 +37,17 @@ public class GetItForMeService {
 		eligibleButtons.add(new BorrowItNowButton());
 
 		catalogHoldings.forEach(holding -> {
-			System.out.println ("MARC Record Leader: "+holding.getMarcRecordLeader());
+//			System.out.println ("MARC Record Leader: "+holding.getMarcRecordLeader());
 			//if configured, check for single item monograph
 			//button.checkRecordType(marcRecord)
 			holding.getCatalogItems().forEach((uri,items) -> {
 				System.out.println("Checking: "+uri);
 				for (GetItForMeButton button:eligibleButtons) {
-					System.out.println(items.get("permLocationCode"));
-					System.out.println(items.get("typeCode"));
-					System.out.println(items.get("itemStatusCode"));
+					System.out.println ("Analyzing: "+button.toString());
+
+					System.out.println("Location: "+items.get("permLocationCode")+": "+button.checkLocation(items.get("permLocationCode")));
+					System.out.println("TypeDesc: "+items.get("typeDesc")+": "+button.checkItemType(items.get("typeDesc")));
+					System.out.println("Status: "+items.get("itemStatusCode")+": "+button.checkItemStatus(Integer.parseInt(items.get("itemStatusCode"))));
 					List<String> parameterKeys = button.getTemplateParameterKeys();
 					Map<String,String> parameters = new HashMap<String,String>();
 					for (String parameterKey:parameterKeys) {
@@ -54,13 +56,14 @@ public class GetItForMeService {
 					if (parameters.containsKey("isbn")) {
 						parameters.put("isbn", "placeHolderValue");
 					}
-					if (button.checkLocation(items.get("permLocationCode")) && button.checkItemType(items.get("typeCode")) && button.checkItemStatus(items.get("itemStatusCode"))) {
+					if (button.checkLocation(items.get("permLocationCode")) && button.checkItemType(items.get("typeDesc")) && button.checkItemStatus(Integer.parseInt(items.get("itemStatusCode")))) {
 						System.out.println("We want the button with text: "+button.getLinkText());
 						System.out.println("It looks like: ");
 						System.out.println(button.getLinkTemplate(parameters));
 					} else {
 						System.out.println ("We should skip the button with text: "+button.getLinkText());
 					}
+					System.out.println("\n\n");
 				}
 			});
 		});

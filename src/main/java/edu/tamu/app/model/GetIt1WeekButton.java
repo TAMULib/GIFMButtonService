@@ -33,7 +33,7 @@ public final class GetIt1WeekButton extends AbstractGetItForMeButton {
 
 	//button shows for all item status
 	@Override
-	public boolean checkItemStatus(String itemStatusCode) {
+	public boolean checkItemStatus(int itemStatusCode) {
 		Integer[] itemStatuses = {5,12,13,14,17,18};
 		return Arrays.asList(itemStatuses).contains(itemStatusCode);
 	}
