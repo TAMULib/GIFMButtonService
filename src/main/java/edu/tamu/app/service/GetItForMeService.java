@@ -12,6 +12,7 @@ import edu.tamu.app.model.CatalogHolding;
 import edu.tamu.app.model.CushingButton;
 import edu.tamu.app.model.GetIt1WeekButton;
 import edu.tamu.app.model.GetIt2DaysButton;
+import edu.tamu.app.model.GetIt2DaysDocDelButton;
 import edu.tamu.app.model.GetIt4DaysButton;
 import edu.tamu.app.model.GetItForMeButton;
 import edu.tamu.app.model.RecallItButton;
@@ -31,6 +32,7 @@ public class GetItForMeService {
 		eligibleButtons.add(new GetIt4DaysButton());
 		eligibleButtons.add(new GetIt1WeekButton());
 		eligibleButtons.add(new RecallItButton());
+		eligibleButtons.add(new GetIt2DaysDocDelButton());
 
 		catalogHoldings.forEach(holding -> {
 			System.out.println ("MARC Record Leader: "+holding.getMarcRecordLeader());
