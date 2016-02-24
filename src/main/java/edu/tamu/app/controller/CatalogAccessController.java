@@ -4,6 +4,7 @@ import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class CatalogAccessController {
 	@SkipAop
 	public ApiResponse getButtonsByBibId() {
 		String bibId = "1892485";
-		Map<String,Map<String,String>> buttonContents = getItForMeService.getButtonsByBibId(bibId);
+		Map<String,List<Map<String,String>>> buttonContents = getItForMeService.getButtonsByBibId(bibId);
 		return new ApiResponse(SUCCESS,buttonContents);
 //		return new ApiResponse(ERROR);
 	}
