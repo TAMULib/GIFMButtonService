@@ -1,11 +1,9 @@
 package edu.tamu.app.model;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-public final class GetIt2DaysButton implements GetItForMeButton {
-	private List<String> templateParameterKeys;
+public final class GetIt2DaysButton extends AbstractGetItForMeButton {
 	
 	public GetIt2DaysButton() {
 		this.templateParameterKeys = new ArrayList<String>();
@@ -48,11 +46,6 @@ public final class GetIt2DaysButton implements GetItForMeButton {
 				"&rfe_dat="+templateParameters.get("callNumber")+":"+templateParameters.get("location")+"&Notes="+templateParameters.get("itemBarcode");
 	}
 	
-	@Override
-	public List<String> getTemplateParameterKeys() {
-		return this.templateParameterKeys;
-	}
-
 	@Override
 	public String getLinkText() {
 		return "Get it: 2 days";

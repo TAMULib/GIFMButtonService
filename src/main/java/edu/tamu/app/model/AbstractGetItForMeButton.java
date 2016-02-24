@@ -1,25 +1,21 @@
 package edu.tamu.app.model;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-public final class CushingButton extends AbstractGetItForMeButton {
+public class AbstractGetItForMeButton implements GetItForMeButton {
+	protected List<String> templateParameterKeys;
 	
-	public CushingButton() {
-		this.templateParameterKeys = new ArrayList<String>();
-		this.templateParameterKeys.add("callNumber");
-		this.templateParameterKeys.add("location");
-	}
-
 	//button shows for all record types
 	@Override
 	public boolean checkRecordType(String marcRecord) {
 		return true;
 	}
 
+	//button shows for all record locations
 	@Override
 	public boolean checkLocation(String locationCode) {
-		return locationCode.contains("cush");
+		return true;
 	}
 
 	//button shows for all item types
@@ -28,7 +24,7 @@ public final class CushingButton extends AbstractGetItForMeButton {
 		return true;
 	}
 
-	//button shows for all item statuses
+	//button shows for item status of 22 only
 	@Override
 	public boolean checkItemStatus(String itemStatusCode) {
 		return true;
@@ -37,18 +33,22 @@ public final class CushingButton extends AbstractGetItForMeButton {
 	@Override
 	public String getLinkTemplate(Map<String,String> templateParameters) {
 		//String callNumber, String locationName
-		return "aeon.library.tamu.edu/aeonnew/openurl.asp?sid="+this.getSID()+
-				"&callnumber="+templateParameters.get("callNumber")+"&location="+templateParameters.get("location");
+		return "default template";
 	}
 	
 	@Override
+	public List<String> getTemplateParameterKeys() {
+		return this.templateParameterKeys;
+	}
+
+	@Override
 	public String getLinkText() {
-		return "Request from Cushing";
+		return "Default Link Text";
 	}
 
 	@Override
 	public String getSID() {
-		return "libcat:cushing";
+		return "libcat:InProcess";
 	}
 
 }
