@@ -1,5 +1,6 @@
 package edu.tamu.app.model;
 
+import java.util.List;
 import java.util.Map;
 
 public interface GetItForMeButton {
@@ -9,5 +10,6 @@ public interface GetItForMeButton {
 	boolean checkItemStatus(String itemStatusCode);
 	String getSID();
 	String getLinkTemplate(Map<String,String> templateParameters);
+	List<String> getTemplateParameterKeys();
 	String getLinkText();
 }

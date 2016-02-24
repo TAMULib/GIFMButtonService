@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public final class CushingButton implements GetItForMeButton {
+public final class GetIt2DaysButton implements GetItForMeButton {
 	private List<String> templateParameterKeys;
 	
-	public CushingButton() {
+	public GetIt2DaysButton() {
 		this.templateParameterKeys = new ArrayList<String>();
 		this.templateParameterKeys.add("callNumber");
 		this.templateParameterKeys.add("location");
+		this.templateParameterKeys.add("itemBarcode");
 	}
 
 	//button shows for all record types
@@ -19,9 +20,10 @@ public final class CushingButton implements GetItForMeButton {
 		return true;
 	}
 
+	//button shows for all record locations
 	@Override
 	public boolean checkLocation(String locationCode) {
-		return locationCode.contains("cush");
+		return true;
 	}
 
 	//button shows for all item types
@@ -30,17 +32,20 @@ public final class CushingButton implements GetItForMeButton {
 		return true;
 	}
 
-	//button shows for all item statuses
+	//button shows for item status of 22 only
 	@Override
 	public boolean checkItemStatus(String itemStatusCode) {
-		return true;
+		if (Integer.parseInt(itemStatusCode) == 22) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override
 	public String getLinkTemplate(Map<String,String> templateParameters) {
 		//String callNumber, String locationName
-		return "aeon.library.tamu.edu/aeonnew/openurl.asp?sid="+this.getSID()+
-				"&callnumber="+templateParameters.get("callNumber")+"&location="+templateParameters.get("location");
+		return "getitforme.library.tamu.edu/illiad/EVANSLocal/openurl.asp?Action=10&Form=30&sid="+this.getSID()+
+				"&rfe_dat="+templateParameters.get("callNumber")+":"+templateParameters.get("location")+"&Notes="+templateParameters.get("itemBarcode");
 	}
 	
 	@Override
@@ -50,12 +55,12 @@ public final class CushingButton implements GetItForMeButton {
 
 	@Override
 	public String getLinkText() {
-		return "Request from Cushing";
+		return "Get it: 2 days";
 	}
 
 	@Override
 	public String getSID() {
-		return "libcat:cushing";
+		return "libcat:InProcess";
 	}
 
 }

@@ -1,13 +1,16 @@
 package edu.tamu.app.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.CatalogHolding;
 import edu.tamu.app.model.CushingButton;
+import edu.tamu.app.model.GetIt2DaysButton;
 import edu.tamu.app.model.GetItForMeButton;
 
 @Service
@@ -21,6 +24,7 @@ public class GetItForMeService {
 		
 		List<GetItForMeButton> eligibleButtons = new ArrayList<GetItForMeButton>();
 		eligibleButtons.add(new CushingButton());
+		eligibleButtons.add(new GetIt2DaysButton());
 
 		catalogHoldings.forEach(holding -> {
 			System.out.println ("MARC Record Leader: "+holding.getMarcRecordLeader());
@@ -32,8 +36,15 @@ public class GetItForMeService {
 					System.out.println(items.get("permLocationCode"));
 					System.out.println(items.get("typeCode"));
 					System.out.println(items.get("itemStatusCode"));
+					List<String> parameterKeys = button.getTemplateParameterKeys();
+					Map<String,String> parameters = new HashMap<String,String>();
+					for (String parameterKey:parameterKeys) {
+						parameters.put(parameterKey,items.get(parameterKey));
+					}
 					if (button.checkLocation(items.get("permLocationCode")) && button.checkItemType(items.get("typeCode")) && button.checkItemStatus(items.get("itemStatusCode"))) {
-						System.out.println ("We want the button with text: "+button.getLinkText());
+						System.out.println("We want the button with text: "+button.getLinkText());
+						System.out.println("It looks like: ");
+						System.out.println(button.getLinkTemplate(parameters));
 					} else {
 						System.out.println ("We should skip the button with text: "+button.getLinkText());
 					}
