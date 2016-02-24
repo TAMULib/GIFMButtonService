@@ -70,6 +70,9 @@ class VoyagerCatalogService extends AbstractCatalogService {
 
 							int itemDataCount = itemDataNode.getLength();
 							for (int l=0;l<itemDataCount;l++) {
+								if (itemDataNode.item(l).getAttributes().getNamedItem("code") != null) {
+									itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent()+"Code",itemDataNode.item(l).getAttributes().getNamedItem("code").getTextContent());
+								}
 								itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent(),itemDataNode.item(l).getTextContent());
 							}
 							catalogItem.put(child.getAttributes().getNamedItem("href").getTextContent(),itemData);

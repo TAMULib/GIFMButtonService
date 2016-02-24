@@ -1,5 +1,6 @@
 package edu.tamu.app.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.CatalogHolding;
 import edu.tamu.app.model.CushingButton;
+import edu.tamu.app.model.GetItForMeButton;
 
 @Service
 public class GetItForMeService {
@@ -17,15 +19,25 @@ public class GetItForMeService {
 		List<CatalogHolding> catalogHoldings = catalogServiceFactory.getOrCreateCatalogService("evans").getHoldingsByBibId(bibId);
 		System.out.println("\n\nCATALOG HOLDINGS FOR "+bibId);
 		
+		List<GetItForMeButton> eligibleButtons = new ArrayList<GetItForMeButton>();
+		eligibleButtons.add(new CushingButton());
+
 		catalogHoldings.forEach(holding -> {
 			System.out.println ("MARC Record Leader: "+holding.getMarcRecordLeader());
 			//if configured, check for single item monograph
+			//button.checkRecordType(marcRecord)
 			holding.getCatalogItems().forEach((uri,items) -> {
-				System.out.println("URI: "+uri);
-				items.forEach((k,v) -> {
-					System.out.println(k+": "+v);
-//					CushingButton.checkItemStatus(itemStatusCode)
-				});
+				System.out.println("Checking: "+uri);
+				for (GetItForMeButton button:eligibleButtons) {
+					System.out.println(items.get("permLocationCode"));
+					System.out.println(items.get("typeCode"));
+					System.out.println(items.get("itemStatusCode"));
+					if (button.checkLocation(items.get("permLocationCode")) && button.checkItemType(items.get("typeCode")) && button.checkItemStatus(items.get("itemStatusCode"))) {
+						System.out.println ("We want the button with text: "+button.getLinkText());
+					} else {
+						System.out.println ("We should skip the button with text: "+button.getLinkText());
+					}
+				}
 			});
 		});
 		

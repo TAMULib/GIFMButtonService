@@ -1,23 +1,13 @@
 package edu.tamu.app.model;
 
+import java.util.Map;
+
 public interface GetItForMeButton {
-	public static boolean checkRecordType(String marcRecord) {
-		return false;
-	}
-	
-	public static boolean checkLocation(String locationCode) {
-		return false;
-	}
-
-	public static boolean checkItemType(String typeCode) {
-		return false;
-	}
-
-	public static boolean checkItemStatus(int itemStatusCode) {
-		return false;
-	}
-
-	public static String getSID() {
-		return null;
-	}
+	boolean checkRecordType(String marcRecord);
+	boolean checkLocation(String locationCode);
+	boolean checkItemType(String typeCode);
+	boolean checkItemStatus(String itemStatusCode);
+	String getSID();
+	String getLinkTemplate(Map<String,String> templateParameters);
+	String getLinkText();
 }
