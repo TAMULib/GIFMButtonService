@@ -30,8 +30,6 @@ class VoyagerCatalogService extends AbstractCatalogService {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	//private Map<String,Map<String,String>> catalogs = new HashMap<String,Map<String,String>>();
-	
 	public List<CatalogHolding> getHoldingsByBibId(String bibId) {
 		try {
 			logger.debug("Asking for holdings from: "+getAPIBase()+"record/"+bibId+"/holdings?view=items");

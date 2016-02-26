@@ -24,14 +24,12 @@ public final class BorrowItNowButton extends AbstractGetItForMeButton {
 		return Arrays.asList(locationCodes).contains(locationCode);
 	}
 
-	//button shows for all item types
 	@Override
 	public boolean checkItemType(String itemTypeCode) {
 		String[] itemTypeCodes = {"curr", "normal", "14d", "newbook"};
 		return Arrays.asList(itemTypeCodes).contains(itemTypeCode);
 	}
 
-	//button shows for all item status
 	@Override
 	public boolean checkItemStatus(int itemStatusCode) {
 		Integer[] itemStatuses = {2,3,4,5,6,7,12,13,14,17,18};
@@ -40,7 +38,6 @@ public final class BorrowItNowButton extends AbstractGetItForMeButton {
 
 	@Override
 	public String getLinkTemplate(Map<String,String> templateParameters) {
-		//String callNumber, String locationName
 		return "gwla.relaisd2d.com/service-proxy/?command=mkauth&LS=TEXASAM&PI=TEXASAM&query=isbn%3D"+templateParameters.get("isbn");
 	}
 	

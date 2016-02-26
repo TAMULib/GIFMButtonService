@@ -86,36 +86,6 @@ public class CatalogServiceFactory {
 					break;
 				}
 			}
-
-			/*
-			Iterator<Entry<String, JsonNode>> catalogsIt = catalogsJson.get("catalogs").fields();
-			while (catalogsIt.hasNext()) {
-				Entry<String, JsonNode> entry = catalogsIt.next();
-				if (entry.getKey().equals(name)) {
-					String host =     entry.getValue().get("host"    ).asText();
-					String port =     entry.getValue().get("port"    ).asText();
-					String app  =     entry.getValue().get("app"     ).asText();
-					String protocol = entry.getValue().get("protocol").asText();
-	
-					
-					switch(	entry.getValue().get("type").asText() )
-					{
-					case "voyager":
-						catalogService = new VoyagerCatalogService();
-						catalogService.setHost(host);
-						catalogService.setPort(port);
-						catalogService.setApp(app);
-						catalogService.setProtocol(protocol);
-						catalogService.setType("voyager");
-						catalogService.setHttpUtility(httpUtility);
-						return catalogService;
-					
-					default:
-						return null;
-					}
-				}
-			}
-			*/
 		}
 		return catalogService;
 	}

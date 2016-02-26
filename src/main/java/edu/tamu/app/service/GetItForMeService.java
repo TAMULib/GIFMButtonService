@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,9 @@ public class GetItForMeService {
 	@Autowired
 	private CatalogServiceFactory catalogServiceFactory;
 	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	
 	public List<CatalogHolding> getHoldingsByBibId(String catalogName, String bibId) {
 		return catalogServiceFactory.getOrCreateCatalogService(catalogName).getHoldingsByBibId(bibId);
 	}
@@ -30,7 +35,7 @@ public class GetItForMeService {
 	public Map<String,List<Map<String,String>>> getButtonsByBibId(String catalogName,String bibId) {
 		List<CatalogHolding> catalogHoldings = this.getHoldingsByBibId(catalogName,bibId);
 		if (catalogHoldings != null) {
-			System.out.println("\n\nCATALOG HOLDINGS FOR "+bibId);
+			logger.debug("\n\nCATALOG HOLDINGS FOR "+bibId);
 			
 			List<GetItForMeButton> eligibleButtons = new ArrayList<GetItForMeButton>();
 			Map<String,List<Map<String,String>>> validButtons = new HashMap<String,List<Map<String,String>>>();
@@ -44,18 +49,18 @@ public class GetItForMeService {
 			eligibleButtons.add(new BorrowItNowButton());
 			
 			catalogHoldings.forEach(holding -> {
-	//			System.out.println ("MARC Record Leader: "+holding.getMarcRecordLeader());
-				//if configured, check for single item monograph
+				logger.debug("MARC Record Leader: "+holding.getMarcRecordLeader());
+				//todo: if configured, check for single item monograph
 				//button.checkRecordType(marcRecord)
 				validButtons.put(holding.getMfhd(), new ArrayList<Map<String,String>>());
 				holding.getCatalogItems().forEach((uri,items) -> {
-					System.out.println("Checking: "+uri);
+					logger.debug("Checking holding URI: "+uri);
 					for (GetItForMeButton button:eligibleButtons) {
-						System.out.println ("Analyzing: "+button.toString());
+						logger.debug("Analyzing: "+button.toString());
 	
-						System.out.println("Location: "+items.get("permLocationCode")+": "+button.checkLocation(items.get("permLocationCode")));
-						System.out.println("TypeDesc: "+items.get("typeDesc")+": "+button.checkItemType(items.get("typeDesc")));
-						System.out.println("Status: "+items.get("itemStatusCode")+": "+button.checkItemStatus(Integer.parseInt(items.get("itemStatusCode"))));
+						logger.debug("Location: "+items.get("permLocationCode")+": "+button.checkLocation(items.get("permLocationCode")));
+						logger.debug("TypeDesc: "+items.get("typeDesc")+": "+button.checkItemType(items.get("typeDesc")));
+						logger.debug("Status: "+items.get("itemStatusCode")+": "+button.checkItemStatus(Integer.parseInt(items.get("itemStatusCode"))));
 						List<String> parameterKeys = button.getTemplateParameterKeys();
 						Map<String,String> parameters = new HashMap<String,String>();
 						for (String parameterKey:parameterKeys) {
@@ -66,18 +71,16 @@ public class GetItForMeService {
 							parameters.put("isbn", "placeHolderValue");
 						}
 						if (button.checkLocation(items.get("permLocationCode")) && button.checkItemType(items.get("typeDesc")) && button.checkItemStatus(Integer.parseInt(items.get("itemStatusCode")))) {
-							System.out.println("We want the button with text: "+button.getLinkText());
-							System.out.println("It looks like: ");
-							System.out.println(button.getLinkTemplate(parameters));
+							logger.debug("We want the button with text: "+button.getLinkText());
+							logger.debug("It looks like: ");
+							logger.debug(button.getLinkTemplate(parameters));
 							Map<String,String> buttonContent = new HashMap<String,String>();
 							buttonContent.put("linkText",button.getLinkText());
 							buttonContent.put("linkHref",button.getLinkTemplate(parameters));
-	//						validButtons.put(holding.getMfhd(), buttonContent);
 							validButtons.get(holding.getMfhd()).add(buttonContent);
 						} else {
-							System.out.println ("We should skip the button with text: "+button.getLinkText());
+							logger.debug("We should skip the button with text: "+button.getLinkText());
 						}
-						System.out.println("\n\n");
 					}
 				});
 			});
@@ -85,40 +88,4 @@ public class GetItForMeService {
 		}
 		return null;
 	}
-	
-	//some logical button generating logic
-	
-	
-	// Data needed for button logic
-	
-	/*
-	 * catalog = libcat
-	my $borrowSid = "Borrow";
-	my $holdSid   = "DocDel";
-	my $recallSid = "recall";
-	my $archSid   = "cushing"; 
-	my $remoteSid = "remotestorage";
-	my $inProcessSid = "InProcess";
-	
-	*/
-	/* (from initial holdings request)
-	 * marc record (item type)
-	*<marcRecord><leader>00302cx  a22001094  4500</leader>
-	*/
-	
-	/* Item Location
-	 * <itemData id="32" name="permLocation" code="stk">Evans Library or Annex</itemData>
-	 * <itemData id="0" name="tempLocation"/>
-	 * <itemData id="32" name="location" code="stk">Evans Library or Annex</itemData>
-	 */
-	
-	/* Item Type
-	 * <itemData name="typeCode">4</itemData>
-	 * <itemData name="typeDesc">normal</itemData>
-	 */
-	/*
-	*<itemData name="itemStatus">Charged - Due on 2016-03-16</itemData>
-	*<itemData name="itemStatusCode">2</itemData>
-	*/
-
 }

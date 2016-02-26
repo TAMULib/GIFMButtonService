@@ -32,7 +32,6 @@ public class AbstractGetItForMeButton implements GetItForMeButton {
 
 	@Override
 	public String getLinkTemplate(Map<String,String> templateParameters) {
-		//String callNumber, String locationName
 		return "default template";
 	}
 	
