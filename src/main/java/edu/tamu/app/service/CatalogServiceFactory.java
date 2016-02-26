@@ -4,9 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,8 +48,7 @@ public class CatalogServiceFactory {
 	}
 	
 	
-	private CatalogService buildFromName(String name)
-	{
+	private CatalogService buildFromName(String name) {
 		CatalogService catalogService = null;
 	
 		if (!catalogsFile.equals("")) {
@@ -69,39 +66,57 @@ public class CatalogServiceFactory {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		
+			JsonNode newCatalog = catalogsJson.get("catalogs").get(name);
+			if (newCatalog != null) {
+				String host = newCatalog.get("host").asText();
+				String port = newCatalog.get("port").asText();
+				String app = newCatalog.get("app").asText();
+				String protocol = newCatalog.get("protocol").asText();
+				
+				switch(newCatalog.get("type").asText()) {
+					case "voyager":
+						catalogService = new VoyagerCatalogService();
+						catalogService.setHost(host);
+						catalogService.setPort(port);
+						catalogService.setApp(app);
+						catalogService.setProtocol(protocol);
+						catalogService.setType("voyager");
+						catalogService.setHttpUtility(httpUtility);
+					break;
+				}
+			}
+
+			/*
 			Iterator<Entry<String, JsonNode>> catalogsIt = catalogsJson.get("catalogs").fields();
 			while (catalogsIt.hasNext()) {
 				Entry<String, JsonNode> entry = catalogsIt.next();
-				
-				String host =     entry.getValue().get("host"    ).asText();
-				String port =     entry.getValue().get("port"    ).asText();
-				String app  =     entry.getValue().get("app"     ).asText();
-				String protocol = entry.getValue().get("protocol").asText();
-
-				
-				switch(	entry.getValue().get("type").asText() )
-				{
-				case "voyager":
-					catalogService = new VoyagerCatalogService();
-					catalogService.setHost(host);
-					catalogService.setPort(port);
-					catalogService.setApp(app);
-					catalogService.setProtocol(protocol);
-					catalogService.setType("voyager");
-					catalogService.setHttpUtility(httpUtility);
-					return catalogService;
-				
-				default:
-					return null;
+				if (entry.getKey().equals(name)) {
+					String host =     entry.getValue().get("host"    ).asText();
+					String port =     entry.getValue().get("port"    ).asText();
+					String app  =     entry.getValue().get("app"     ).asText();
+					String protocol = entry.getValue().get("protocol").asText();
+	
+					
+					switch(	entry.getValue().get("type").asText() )
+					{
+					case "voyager":
+						catalogService = new VoyagerCatalogService();
+						catalogService.setHost(host);
+						catalogService.setPort(port);
+						catalogService.setApp(app);
+						catalogService.setProtocol(protocol);
+						catalogService.setType("voyager");
+						catalogService.setHttpUtility(httpUtility);
+						return catalogService;
+					
+					default:
+						return null;
+					}
 				}
-				
 			}
-		}
-		else
-		{
-			return null;
+			*/
 		}
 		return catalogService;
 	}
-
 }

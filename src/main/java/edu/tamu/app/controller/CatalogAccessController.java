@@ -1,7 +1,7 @@
 package edu.tamu.app.controller;
 
-import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
+import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 
 import java.io.IOException;
 import java.util.List;
@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.tamu.app.service.CatalogServiceFactory;
 import edu.tamu.app.service.GetItForMeService;
 import edu.tamu.framework.aspect.annotation.ApiMapping;
-import edu.tamu.framework.aspect.annotation.Data;
 import edu.tamu.framework.aspect.annotation.SkipAop;
 import edu.tamu.framework.model.ApiResponse;
 
@@ -27,27 +27,23 @@ public class CatalogAccessController {
     private ObjectMapper objectMapper;
     
     @Autowired
-    private CatalogServiceFactory catalogServiceFactory;
-    
-    @Autowired
     GetItForMeService getItForMeService;
     
-/*
 	@ApiMapping("/get-holdings")
 	@SkipAop
-	public ApiResponse getHoldings(@Data String data) throws JsonProcessingException, IOException {
-		String bibId = "1892485";
-		getHoldingsByBibId(bibId);
-		return new ApiResponse(SUCCESS,"Excellent");
+	public ApiResponse getHoldings(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId) throws JsonProcessingException, IOException {
+		return new ApiResponse(SUCCESS,getItForMeService.getHoldingsByBibId(catalogName,bibId));
 	}
-*/	
+
 	@ApiMapping("/get-buttons")
 	@SkipAop
-	public ApiResponse getButtonsByBibId() {
-		String bibId = "1892485";
-		Map<String,List<Map<String,String>>> buttonContents = getItForMeService.getButtonsByBibId(bibId);
-		return new ApiResponse(SUCCESS,buttonContents);
-//		return new ApiResponse(ERROR);
+	public ApiResponse getButtonsByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId) {
+		System.out.println("\n\n\ncatalogName: "+catalogName);
+		Map<String,List<Map<String,String>>> buttonContents = getItForMeService.getButtonsByBibId(catalogName, bibId);
+		if (buttonContents != null) {
+			return new ApiResponse(SUCCESS,buttonContents);
+		}
+		return new ApiResponse(ERROR,"Catalog or Holding not found");
 	}
 /*	
 	private String getHoldingsByBibId(String bibId) throws JsonProcessingException, IOException {
