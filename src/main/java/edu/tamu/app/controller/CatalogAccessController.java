@@ -4,6 +4,9 @@ import static edu.tamu.framework.enums.ApiResponseType.ERROR;
 import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -34,12 +37,39 @@ public class CatalogAccessController {
 		return new ApiResponse(SUCCESS,getItForMeService.getHoldingsByBibId(catalogName,bibId));
 	}
 
+	@ApiMapping("/get-html-buttons")
+	@SkipAop
+	public ApiResponse getHtmlButtonsByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId, @RequestParam(value="returnType",defaultValue="html") String returnType) {
+		Map<String,List<Map<String,String>>> buttonData = getItForMeService.getButtonsByBibId(catalogName, bibId);
+		if (buttonData != null) {
+			Map<String,List<String>> buttonContents = new HashMap<String,List<String>>();
+			for (Map.Entry<String, List<Map<String,String>>> entry : buttonData.entrySet()) {
+			    buttonContents.put(entry.getKey(),new ArrayList<String>());
+			    Iterator<Map<String,String>> buttonPropIterator = entry.getValue().iterator();
+			    while (buttonPropIterator.hasNext()) {
+				    String html = "<a class=\"button-gifm\" href=\"{linkHref}\">{linkText}</a>";
+			    	Map<String,String> buttonProperties = (Map<String, String>) buttonPropIterator.next();
+			    	
+			    	Iterator<String> propKeysIterator = buttonProperties.keySet().iterator();
+			    	while (propKeysIterator.hasNext()) {
+			    		String propKey = (String) propKeysIterator.next();
+			    		html = html.replace("{"+propKey+"}",buttonProperties.get(propKey));
+			    	}
+			    	buttonContents.get(entry.getKey()).add(html);
+			    	
+			    }
+			}
+			return new ApiResponse(SUCCESS,buttonContents);
+		}
+		return new ApiResponse(ERROR,"Catalog or Holding not found");
+	}
+
 	@ApiMapping("/get-buttons")
 	@SkipAop
-	public ApiResponse getButtonsByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId) {
-		Map<String,List<Map<String,String>>> buttonContents = getItForMeService.getButtonsByBibId(catalogName, bibId);
-		if (buttonContents != null) {
-			return new ApiResponse(SUCCESS,buttonContents);
+	public ApiResponse getButtonsByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId, @RequestParam(value="returnType",defaultValue="html") String returnType) {
+		Map<String,List<Map<String,String>>> buttonData = getItForMeService.getButtonsByBibId(catalogName, bibId);
+		if (buttonData != null) {
+			return new ApiResponse(SUCCESS,buttonData);
 		}
 		return new ApiResponse(ERROR,"Catalog or Holding not found");
 	}
