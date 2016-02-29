@@ -50,7 +50,7 @@ public class GetItForMeService {
 			
 			catalogHoldings.forEach(holding -> {
 				logger.debug("MARC Record Leader: "+holding.getMarcRecordLeader());
-				//todo: if configured, check for single item monograph
+				//TODO: if configured, check for single item monograph
 				//button.checkRecordType(marcRecord)
 				validButtons.put(holding.getMfhd(), new ArrayList<Map<String,String>>());
 				holding.getCatalogItems().forEach((uri,items) -> {
@@ -66,7 +66,7 @@ public class GetItForMeService {
 						for (String parameterKey:parameterKeys) {
 							parameters.put(parameterKey,items.get(parameterKey));
 						}
-						//ToDo ISBN will need to either be passed in as an argument or found through another API
+						//TODO ISBN will need to either be passed in as an argument or found through another API
 						if (parameters.containsKey("isbn")) {
 							parameters.put("isbn", "placeHolderValue");
 						}
