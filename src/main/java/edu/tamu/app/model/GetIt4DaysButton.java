@@ -9,12 +9,8 @@ public final class GetIt4DaysButton extends AbstractGetItForMeButton {
 	public GetIt4DaysButton() {
 		this.templateParameterKeys = new ArrayList<String>();
 		this.templateParameterKeys.add("itemBarcode");
-	}
-
-	//button shows for all record types
-	@Override
-	public boolean fitsRecordType(String marcRecord) {
-		return true;
+		setLinkText("Get it: 4 days");
+		setSID("libcat:remotestorage");		
 	}
 
 	@Override
@@ -23,33 +19,10 @@ public final class GetIt4DaysButton extends AbstractGetItForMeButton {
 		return Arrays.asList(locationCodes).contains(locationCode);
 	}
 
-	//button shows for all item types
-	@Override
-	public boolean fitsItemType(String typeCode) {
-		return true;
-	}
-
-	//button shows for all item status
-	@Override
-	public boolean fitsItemStatus(int itemStatusCode) {
-		return true;
-	}
-
 	@Override
 	public String getLinkTemplate(Map<String,String> templateParameters) {
 		//String callNumber, String locationName
 		return "getitforme.library.tamu.edu/illiad/EVANSLocal/openurl.asp?Action=10&Form=30&sid="+this.getSID()+
 				"&rfe_dat="+templateParameters.get("itemBarcode");
 	}
-	
-	@Override
-	public String getLinkText() {
-		return "Get it: 4 days";
-	}
-
-	@Override
-	public String getSID() {
-		return "libcat:remotestorage";
-	}
-
 }

@@ -3,8 +3,11 @@ package edu.tamu.app.model;
 import java.util.List;
 import java.util.Map;
 
-public class AbstractGetItForMeButton implements GetItForMeButton {
+public abstract class AbstractGetItForMeButton implements GetItForMeButton {
 	protected List<String> templateParameterKeys;
+	
+	private String linkText="Default Link Text";
+	private String SID="libcat:InProcess";
 	
 	//button shows for all record types
 	@Override
@@ -42,12 +45,22 @@ public class AbstractGetItForMeButton implements GetItForMeButton {
 
 	@Override
 	public String getLinkText() {
-		return "Default Link Text";
+		return linkText;
 	}
 
 	@Override
 	public String getSID() {
-		return "libcat:InProcess";
+		return SID;
+	}
+
+	@Override
+	public void setSID(String SID) {
+		this.SID = SID;
+	}
+
+	@Override
+	public void setLinkText(String linkText) {
+		this.linkText = linkText;		
 	}
 
 }

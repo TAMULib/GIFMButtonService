@@ -10,24 +10,8 @@ public final class GetIt2DaysButton extends AbstractGetItForMeButton {
 		this.templateParameterKeys.add("callNumber");
 		this.templateParameterKeys.add("location");
 		this.templateParameterKeys.add("itemBarcode");
-	}
-
-	//button shows for all record types
-	@Override
-	public boolean fitsRecordType(String marcRecord) {
-		return true;
-	}
-
-	//button shows for all record locations
-	@Override
-	public boolean fitsLocation(String locationCode) {
-		return true;
-	}
-
-	//button shows for all item types
-	@Override
-	public boolean fitsItemType(String typeCode) {
-		return true;
+		setLinkText("Get it: 2 days");
+		setSID("libcat:InProcess");
 	}
 
 	//button shows for item status of 22 only
@@ -45,15 +29,4 @@ public final class GetIt2DaysButton extends AbstractGetItForMeButton {
 		return "getitforme.library.tamu.edu/illiad/EVANSLocal/openurl.asp?Action=10&Form=30&sid="+this.getSID()+
 				"&rfe_dat="+templateParameters.get("callNumber")+":"+templateParameters.get("location")+"&Notes="+templateParameters.get("itemBarcode");
 	}
-	
-	@Override
-	public String getLinkText() {
-		return "Get it: 2 days";
-	}
-
-	@Override
-	public String getSID() {
-		return "libcat:InProcess";
-	}
-
 }

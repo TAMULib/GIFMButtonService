@@ -10,12 +10,8 @@ public final class GetIt1WeekButton extends AbstractGetItForMeButton {
 		this.templateParameterKeys = new ArrayList<String>();
 		this.templateParameterKeys.add("callNumber");
 		this.templateParameterKeys.add("location");
-	}
-
-	//button shows for all record types
-	@Override
-	public boolean fitsRecordType(String marcRecord) {
-		return true;
+		setLinkText("Get it: 1 week");
+		setSID("libcat:Borrow");
 	}
 
 	@Override
@@ -44,15 +40,4 @@ public final class GetIt1WeekButton extends AbstractGetItForMeButton {
 		return "getitforme.library.tamu.edu/illiad/EVANSLocal/openurl.asp?Action=10&Form=30&sid="+this.getSID()+
 				"&rfe_dat="+templateParameters.get("callNumber")+":"+templateParameters.get("location");
 	}
-	
-	@Override
-	public String getLinkText() {
-		return "Get it: 1 week";
-	}
-
-	@Override
-	public String getSID() {
-		return "libcat:Borrow";
-	}
-
 }

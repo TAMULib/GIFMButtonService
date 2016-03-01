@@ -9,7 +9,9 @@ public interface GetItForMeButton {
 	boolean fitsItemType(String typeCode);
 	boolean fitsItemStatus(int itemStatusCode);
 	String getSID();
+	void setSID(String SID);
 	String getLinkTemplate(Map<String,String> templateParameters);
 	List<String> getTemplateParameterKeys();
 	String getLinkText();
+	void setLinkText(String linkText);
 }
