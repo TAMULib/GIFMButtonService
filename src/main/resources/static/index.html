@@ -6,36 +6,14 @@
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="shortcut icon" href="resources/images/favicon.ico" type="image/x-icon" />
+	<link rel="stylesheet" href="../static/css/bootstrap.min.css" type="text/css" />
 
 	<style type="text/css">
+		/* Hide the page until the WRO css is loaded by the javascript */
 		body {
 			display: none;
 		}
 		
-		.column {
-			width: 20%;
-			min-width: 200px;
-			display: inline-block;
-			vertical-align: top;
-			padding: 2%;
-		}
-
-		.holding {
-			margin: 20px;
-			padding: 10px;
-		}
-
-		#theOverriddenButtons .button-gifm {
-			border-radius: 0;
-			border: 2px solid #0769AD;
-			background-color: #5DB8F4;
-			color: #fff;
-		}
-
-		#theOverriddenButtons .button-gifm:hover {
-			background-color: #dfdfdf;
-		}
-
 		form#getButtons {
 			margin: 40px;
 			margin-bottom: 0;
@@ -47,6 +25,23 @@
 			margin: 4px;
 			padding: 6px;
 		}
+		
+		body > .container .row > div {
+			min-height: 120px;
+		}
+
+		/* Demonstrates how the default button styling can be overridden */
+		#theOverriddenButtons .button-gifm {
+			border-radius: 0;
+			border: 2px solid #0769AD;
+			background-color: #5DB8F4;
+			color: #fff;
+		}
+
+		#theOverriddenButtons .button-gifm:hover {
+			background-color: #dfdfdf;
+		}
+
 	</style>
 
 	<script src="../static/js/lib/modernizr-2.8.3.min.js"></script>
@@ -70,39 +65,50 @@
 	<header class="container-fluid site-title">
 		<div class="container">
 			<div class="row">
-				<div class="col-lg-3">
+				<div class="col-md-3">
 					<h1 class="tamu-lib"><a href="http://library.tamu.edu">Texas A&amp;M University Libraries</a></h1>
 				</div>
-				<div class="col-lg-9">
+				<div class="col-md-9">
 					<div class="site"><h3><a href="home">GIFM Viewer</a></h3></div>
 				</div>
 			</div>
 		</div>
 	</header>
-	<form id="getButtons">
-		<label>Enter a BIBID to generate GIFM Buttons</label>
-		<input type="text" name="bibId" id="bibId" value="1892485" />
-		<input type="submit" value="Get Buttons" />
-	</form>
-	<div class="column">
-		<h2>The Stylable HTML Buttons</h2>
-		<div id="theButtons"></div>
-	</div>
-	<div class="column">
-		<h2>The Custom Styled HTML Buttons</h2>
-		<div id="theOverriddenButtons"></div>
-	</div>
-
-	<div class="column">
-		<h2>The JSON Buttons</h2>
-		<div id="theJson"></div>
-	</div>
-
-	<div class="column">
-		<h2>The Voyager API Data</h2>
-		<div id="theData"></div>
-	</div>
-	
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12 col-md-6">
+				<form id="getButtons">
+					<label for="bibId">Enter a BIBID to generate GIFM Buttons</label>
+					<div class="input-group">
+						<input type="text" class="form-control" name="bibId" id="bibId" value="1892485" />
+						<span class="input-group-btn">
+							<input class="btn btn-default" type="submit" value="Get Buttons" />
+			      		</span>
+					</div>
+				</form>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-6 col-md-3">
+				<h3>The Default Buttons</h3>
+				<div id="theButtons"></div>
+			</div>
+			<div class="col-xs-6 col-md-3">
+				<h3>The Custom Styled Buttons</h3>
+				<div id="theOverriddenButtons"></div>
+			</div>
+		
+			<div class="col-xs-6 col-md-3">
+				<h3>The JSON Buttons</h3>
+				<div id="theJson"></div>
+			</div>
+		
+			<div class="col-xs-6 col-md-3">
+				<h3>The Voyager API Data</h3>
+				<div id="theData"></div>
+			</div>
+		</div>
+	</div>	
 	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.1.min.js"></script>
 	<script src="../static/js/lib/bootstrap.min.js"></script>
 	<script type="text/javascript">
@@ -111,7 +117,7 @@
 		$(document).ready(function() {
 			$('head').append('<link rel="stylesheet" type="text/css" href="'+gifmBase+'wro/app.css">');
 			$("#getButtons").submit(function() {
-				getButtons($(this).children("#bibId").val());
+				getButtons($(this).find("#bibId").val());
 				return false;
 			});
 
