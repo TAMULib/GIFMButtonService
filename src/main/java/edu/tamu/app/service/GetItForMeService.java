@@ -58,9 +58,9 @@ public class GetItForMeService {
 					for (GetItForMeButton button:eligibleButtons) {
 						logger.debug("Analyzing: "+button.toString());
 	
-						logger.debug("Location: "+items.get("permLocationCode")+": "+button.checkLocation(items.get("permLocationCode")));
-						logger.debug("TypeDesc: "+items.get("typeDesc")+": "+button.checkItemType(items.get("typeDesc")));
-						logger.debug("Status: "+items.get("itemStatusCode")+": "+button.checkItemStatus(Integer.parseInt(items.get("itemStatusCode"))));
+						logger.debug("Location: "+items.get("permLocationCode")+": "+button.fitsLocation(items.get("permLocationCode")));
+						logger.debug("TypeDesc: "+items.get("typeDesc")+": "+button.fitsItemType(items.get("typeDesc")));
+						logger.debug("Status: "+items.get("itemStatusCode")+": "+button.fitsItemStatus(Integer.parseInt(items.get("itemStatusCode"))));
 						List<String> parameterKeys = button.getTemplateParameterKeys();
 						Map<String,String> parameters = new HashMap<String,String>();
 						for (String parameterKey:parameterKeys) {
@@ -70,7 +70,7 @@ public class GetItForMeService {
 						if (parameters.containsKey("isbn")) {
 							parameters.put("isbn", "placeHolderValue");
 						}
-						if (button.checkLocation(items.get("permLocationCode")) && button.checkItemType(items.get("typeDesc")) && button.checkItemStatus(Integer.parseInt(items.get("itemStatusCode")))) {
+						if (button.fitsLocation(items.get("permLocationCode")) && button.fitsItemType(items.get("typeDesc")) && button.fitsItemStatus(Integer.parseInt(items.get("itemStatusCode")))) {
 							logger.debug("We want the button with text: "+button.getLinkText());
 							logger.debug("It looks like: ");
 							logger.debug(button.getLinkTemplate(parameters));
