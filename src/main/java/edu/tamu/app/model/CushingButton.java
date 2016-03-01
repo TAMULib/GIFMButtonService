@@ -13,24 +13,24 @@ public final class CushingButton extends AbstractGetItForMeButton {
 
 	//button shows for all record types
 	@Override
-	public boolean checkRecordType(String marcRecord) {
+	public boolean fitsRecordType(String marcRecord) {
 		return true;
 	}
 
 	@Override
-	public boolean checkLocation(String locationCode) {
+	public boolean fitsLocation(String locationCode) {
 		return locationCode.contains("cush");
 	}
 
 	//button shows for all item types
 	@Override
-	public boolean checkItemType(String typeCode) {
+	public boolean fitsItemType(String typeCode) {
 		return true;
 	}
 
 	//button shows for all item statuses
 	@Override
-	public boolean checkItemStatus(int itemStatusCode) {
+	public boolean fitsItemStatus(int itemStatusCode) {
 		return true;
 	}
 

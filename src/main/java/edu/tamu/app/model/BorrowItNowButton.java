@@ -14,24 +14,24 @@ public final class BorrowItNowButton extends AbstractGetItForMeButton {
 
 	//button shows for all record types
 	@Override
-	public boolean checkRecordType(String marcRecord) {
+	public boolean fitsRecordType(String marcRecord) {
 		return true;
 	}
 
 	@Override
-	public boolean checkLocation(String locationCode) {
+	public boolean fitsLocation(String locationCode) {
 		String[] locationCodes = {"base", "bsc", "curr", "curr,text", "nbs","stk", "stk,mov1", "tdoc", "udoc", "wein", "psel,stk", "west,audio", "west,nbs", "west,stk", "west,udoc"};
 		return Arrays.asList(locationCodes).contains(locationCode);
 	}
 
 	@Override
-	public boolean checkItemType(String itemTypeCode) {
+	public boolean fitsItemType(String itemTypeCode) {
 		String[] itemTypeCodes = {"curr", "normal", "14d", "newbook"};
 		return Arrays.asList(itemTypeCodes).contains(itemTypeCode);
 	}
 
 	@Override
-	public boolean checkItemStatus(int itemStatusCode) {
+	public boolean fitsItemStatus(int itemStatusCode) {
 		Integer[] itemStatuses = {2,3,4,5,6,7,12,13,14,17,18};
 		return Arrays.asList(itemStatuses).contains(itemStatusCode);
 	}
