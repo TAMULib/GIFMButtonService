@@ -10,12 +10,8 @@ public final class RecallItButton extends AbstractGetItForMeButton {
 		this.templateParameterKeys = new ArrayList<String>();
 		this.templateParameterKeys.add("callNumber");
 		this.templateParameterKeys.add("location");
-	}
-
-	//button shows for all record types
-	@Override
-	public boolean fitsRecordType(String marcRecord) {
-		return true;
+		setLinkText("Recall It!");
+		setSID("libcat:Borrow");
 	}
 
 	@Override
@@ -24,7 +20,7 @@ public final class RecallItButton extends AbstractGetItForMeButton {
 		return Arrays.asList(locationCodes).contains(locationCode);
 	}
 
-	//button shows for all item types
+	//button shows for curr, normal, 14d, and newbook item types
 	@Override
 	public boolean fitsItemType(String itemTypeCode) {
 		String[] itemTypeCodes = {"curr", "normal", "14d", "newbook"};
@@ -44,15 +40,4 @@ public final class RecallItButton extends AbstractGetItForMeButton {
 		return "getitforme.library.tamu.edu/illiad/EVANSLocal/openurl.asp?Action=10&Form=30&sid="+this.getSID()+
 				"&rfe_dat="+templateParameters.get("callNumber")+":"+templateParameters.get("location");
 	}
-	
-	@Override
-	public String getLinkText() {
-		return "Recall It!";
-	}
-
-	@Override
-	public String getSID() {
-		return "libcat:Borrow";
-	}
-
 }

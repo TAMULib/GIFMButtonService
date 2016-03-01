@@ -10,12 +10,8 @@ public final class GetIt2DaysDocDelButton extends AbstractGetItForMeButton {
 		this.templateParameterKeys = new ArrayList<String>();
 		this.templateParameterKeys.add("callNumber");
 		this.templateParameterKeys.add("location");
-	}
-
-	//button shows for all record types
-	@Override
-	public boolean fitsRecordType(String marcRecord) {
-		return true;
+		setLinkText("Get It: 2 days");
+		setSID("libcat:DocDel");		
 	}
 
 	@Override
@@ -24,14 +20,14 @@ public final class GetIt2DaysDocDelButton extends AbstractGetItForMeButton {
 		return Arrays.asList(locationCodes).contains(locationCode);
 	}
 
-	//button shows for all item types
+	//button shows for curr, normal, 14d, and newbook item types
 	@Override
 	public boolean fitsItemType(String itemTypeCode) {
 		String[] itemTypeCodes = {"curr", "normal", "14d", "newbook"};
 		return Arrays.asList(itemTypeCodes).contains(itemTypeCode);
 	}
 
-	//button shows for all item status
+	//button shows for item status 1 and 11
 	@Override
 	public boolean fitsItemStatus(int itemStatusCode) {
 		Integer[] itemStatuses = {1,11};
@@ -44,15 +40,4 @@ public final class GetIt2DaysDocDelButton extends AbstractGetItForMeButton {
 		return "getitforme.library.tamu.edu/illiad/EVANSLocal/openurl.asp?Action=10&Form=30&sid="+this.getSID()+
 				"&rfe_dat="+templateParameters.get("callNumber")+":"+templateParameters.get("location");
 	}
-	
-	@Override
-	public String getLinkText() {
-		return "Get It: 2 days";
-	}
-
-	@Override
-	public String getSID() {
-		return "libcat:DocDel";
-	}
-
 }

@@ -9,46 +9,19 @@ public final class CushingButton extends AbstractGetItForMeButton {
 		this.templateParameterKeys = new ArrayList<String>();
 		this.templateParameterKeys.add("callNumber");
 		this.templateParameterKeys.add("location");
-	}
-
-	//button shows for all record types
-	@Override
-	public boolean fitsRecordType(String marcRecord) {
-		return true;
+		setLinkText("Request from Cushing");
+		setSID("libcat:cushing");
 	}
 
 	@Override
 	public boolean fitsLocation(String locationCode) {
 		return locationCode.contains("cush");
 	}
-
-	//button shows for all item types
-	@Override
-	public boolean fitsItemType(String typeCode) {
-		return true;
-	}
-
-	//button shows for all item statuses
-	@Override
-	public boolean fitsItemStatus(int itemStatusCode) {
-		return true;
-	}
-
+	
 	@Override
 	public String getLinkTemplate(Map<String,String> templateParameters) {
 		//String callNumber, String locationName
 		return "aeon.library.tamu.edu/aeonnew/openurl.asp?sid="+this.getSID()+
 				"&callnumber="+templateParameters.get("callNumber")+"&location="+templateParameters.get("location");
 	}
-	
-	@Override
-	public String getLinkText() {
-		return "Request from Cushing";
-	}
-
-	@Override
-	public String getSID() {
-		return "libcat:cushing";
-	}
-
 }

@@ -10,12 +10,8 @@ public final class BorrowItNowButton extends AbstractGetItForMeButton {
 		this.templateParameterKeys = new ArrayList<String>();
 		this.templateParameterKeys.add("callNumber");
 		this.templateParameterKeys.add("location");
-	}
-
-	//button shows for all record types
-	@Override
-	public boolean fitsRecordType(String marcRecord) {
-		return true;
+		setLinkText("Borrow It Now");
+		setSID("libcat:Borrow");		
 	}
 
 	@Override
@@ -24,6 +20,7 @@ public final class BorrowItNowButton extends AbstractGetItForMeButton {
 		return Arrays.asList(locationCodes).contains(locationCode);
 	}
 
+	//button shows for curr, normal, 14d, and newbook item types
 	@Override
 	public boolean fitsItemType(String itemTypeCode) {
 		String[] itemTypeCodes = {"curr", "normal", "14d", "newbook"};
@@ -40,15 +37,4 @@ public final class BorrowItNowButton extends AbstractGetItForMeButton {
 	public String getLinkTemplate(Map<String,String> templateParameters) {
 		return "gwla.relaisd2d.com/service-proxy/?command=mkauth&LS=TEXASAM&PI=TEXASAM&query=isbn%3D"+templateParameters.get("isbn");
 	}
-	
-	@Override
-	public String getLinkText() {
-		return "Borrow It Now";
-	}
-
-	@Override
-	public String getSID() {
-		return "libcat:Borrow";
-	}
-
 }
