@@ -41,6 +41,10 @@
 		#theOverriddenButtons .button-gifm:hover {
 			background-color: #dfdfdf;
 		}
+		
+		.checkbox-inline, .radio-inline {
+			vertical-align: bottom;
+		}
 
 	</style>
 
@@ -85,6 +89,12 @@
 							<input class="btn btn-default" type="submit" value="Get Buttons" />
 			      		</span>
 					</div>
+					<label class="radio-inline">
+						<input type="radio" class="catalog-name" name="catalogName" value="evans" checked /> Evans
+					</label>
+					<label class="radio-inline">
+						<input type="radio" class="catalog-name" name="catalogName" value="msl" /> MSL
+					</label>
 				</form>
 			</div>
 		</div>
@@ -117,14 +127,14 @@
 		$(document).ready(function() {
 			$('head').append('<link rel="stylesheet" type="text/css" href="'+gifmBase+'wro/app.css">');
 			$("#getButtons").submit(function() {
-				getButtons($(this).find("#bibId").val());
+				getButtons($(this).find(".catalog-name:checked").val(),$(this).find("#bibId").val());
 				return false;
 			});
 
-			function getButtons(bibId) {
+			function getButtons(catalogName, bibId) {
 				$.ajax({
 					url: gifmBase+"catalog-access/get-html-buttons",
-					data: {"bibId": bibId}
+					data: {"catalogName":catalogName,"bibId": bibId}
 				}).then(function(data) {
 					$("#theButtons").html("");
 					$.each(data.payload.HashMap,function(mfhd,buttons) {
