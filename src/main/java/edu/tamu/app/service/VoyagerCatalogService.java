@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -32,14 +31,24 @@ class VoyagerCatalogService extends AbstractCatalogService {
 	
 	public List<CatalogHolding> getHoldingsByBibId(String bibId) {
 		try {
+			
+			//we get the isbn from the highest level view of the record
+			logger.debug("Asking for Record from: "+getAPIBase()+"record/"+bibId+"/?view=full");
+			String recordResult = this.getHttpUtility().makeHttpRequest(getAPIBase()+"record/"+bibId+"/?view=full","GET");
+	        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+	    	DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+	    	
+	    	Document doc = dBuilder.parse(new InputSource(new StringReader(recordResult)));
+	    	
+	    	doc.getDocumentElement().normalize();
+
+	    	String isbn = doc.getElementsByTagName("datafield").item(1).getChildNodes().item(0).getTextContent().split(" ")[0];
+					
 			logger.debug("Asking for holdings from: "+getAPIBase()+"record/"+bibId+"/holdings?view=items");
 			String result = this.getHttpUtility().makeHttpRequest(getAPIBase()+"record/"+bibId+"/holdings?view=items","GET");
 			logger.debug("Received holdings from: "+getAPIBase()+"record/"+bibId+"/holdings?view=items");
 
-	        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-	    	DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-	    	
-	    	Document doc = dBuilder.parse(new InputSource(new StringReader(result)));
+	    	doc = dBuilder.parse(new InputSource(new StringReader(result)));
 	    	
 	    	doc.getDocumentElement().normalize();
 			NodeList holdings = doc.getElementsByTagName("holding");
@@ -58,6 +67,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
 				String mfhd = childNodes.item(0).getChildNodes().item(1).getTextContent();
 				logger.debug("MarcRecordLeader: "+marcRecordLeader);
 				logger.debug("MFHD: "+mfhd);
+				logger.debug("ISBN: "+isbn);
 				logger.debug("Item URL: "+childNodes.item(1).getAttributes().getNamedItem("href").getTextContent());
 				String itemsResult = this.getHttpUtility().makeHttpRequest(childNodes.item(1).getAttributes().getNamedItem("href").getTextContent(),"GET");
 
@@ -75,9 +85,8 @@ class VoyagerCatalogService extends AbstractCatalogService {
 					itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent(),itemDataNode.item(l).getTextContent());
 				}
 				catalogItem.put(childNodes.item(1).getAttributes().getNamedItem("href").getTextContent(),itemData);
-				catalogHoldings.add(new CatalogHolding(marcRecordLeader,mfhd,catalogItem));
+				catalogHoldings.add(new CatalogHolding(marcRecordLeader,mfhd,isbn,catalogItem));
 				catalogItem = null;
-	    		marcRecordLeader = null;
 			}
 			return catalogHoldings;
 		} catch (IOException e) {

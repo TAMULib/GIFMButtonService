@@ -63,13 +63,15 @@ public class GetItForMeService {
 						logger.debug("Status: "+items.get("itemStatusCode")+": "+button.fitsItemStatus(Integer.parseInt(items.get("itemStatusCode"))));
 						List<String> parameterKeys = button.getTemplateParameterKeys();
 						Map<String,String> parameters = new HashMap<String,String>();
+						
 						for (String parameterKey:parameterKeys) {
 							parameters.put(parameterKey,items.get(parameterKey));
 						}
-						//TODO ISBN will need to either be passed in as an argument or found through another API
+
 						if (parameters.containsKey("isbn")) {
-							parameters.put("isbn", "placeHolderValue");
+							parameters.put("isbn", holding.getIsbn());
 						}
+						
 						if (button.fitsLocation(items.get("permLocationCode")) && button.fitsItemType(items.get("typeDesc")) && button.fitsItemStatus(Integer.parseInt(items.get("itemStatusCode")))) {
 							logger.debug("We want the button with text: "+button.getLinkText());
 							logger.debug("It looks like: ");
