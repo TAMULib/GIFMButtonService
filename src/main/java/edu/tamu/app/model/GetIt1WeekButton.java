@@ -20,7 +20,7 @@ public final class GetIt1WeekButton extends AbstractGetItForMeButton {
 		return Arrays.asList(locationCodes).contains(locationCode);
 	}
 
-	//button shows for all item types
+	//button shows for curr, normal, 14d, and newbook item types
 	@Override
 	public boolean fitsItemType(String itemTypeCode) {
 		String[] itemTypeCodes = {"curr", "normal", "14d", "newbook"};
