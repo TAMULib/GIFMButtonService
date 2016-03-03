@@ -39,4 +39,8 @@ public class CatalogHolding {
 	public void setCatalogItems(Map<String, Map<String, String>> catalogItems) {
 		this.catalogItems = catalogItems;
 	}
+	
+	public boolean isMultiVolume() {
+		return (this.getCatalogItems().size() > 1);
+	}
 }
