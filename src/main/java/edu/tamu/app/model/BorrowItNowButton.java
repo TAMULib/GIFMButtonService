@@ -8,8 +8,7 @@ public final class BorrowItNowButton extends AbstractGetItForMeButton {
 	
 	public BorrowItNowButton() {
 		this.templateParameterKeys = new ArrayList<String>();
-		this.templateParameterKeys.add("callNumber");
-		this.templateParameterKeys.add("location");
+		this.templateParameterKeys.add("isbn");
 		setLinkText("Borrow It Now");
 		setSID("libcat:Borrow");		
 	}
