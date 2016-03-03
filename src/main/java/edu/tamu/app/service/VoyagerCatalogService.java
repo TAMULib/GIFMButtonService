@@ -53,31 +53,36 @@ class VoyagerCatalogService extends AbstractCatalogService {
 				NodeList childNodes = holdings.item(i).getChildNodes();
 				int childCount = childNodes.getLength();
 				logger.debug("The Count of Children: "+childCount);
-				Map<String,Map<String,String>> catalogItem = new HashMap<String,Map<String,String>>();
+				Map<String,Map<String,String>> catalogItems = new HashMap<String,Map<String,String>>();
 				String marcRecordLeader = childNodes.item(0).getFirstChild().getTextContent();
 				String mfhd = childNodes.item(0).getChildNodes().item(1).getTextContent();
 				logger.debug("MarcRecordLeader: "+marcRecordLeader);
 				logger.debug("MFHD: "+mfhd);
 				logger.debug("Item URL: "+childNodes.item(1).getAttributes().getNamedItem("href").getTextContent());
-				String itemsResult = this.getHttpUtility().makeHttpRequest(childNodes.item(1).getAttributes().getNamedItem("href").getTextContent(),"GET");
 
-				logger.debug("Got Item details from: "+childNodes.item(1).getAttributes().getNamedItem("href").getTextContent());
-				doc = dBuilder.parse(new InputSource(new StringReader(itemsResult)));
-				doc.getDocumentElement().normalize();
-				NodeList itemDataNode = doc.getElementsByTagName("itemData");
+				for (int j=0;j<childCount;j++) {
+					if (childNodes.item(j).getNodeName() == "item") {
+						System.out.println("Item URL: "+childNodes.item(j).getAttributes().getNamedItem("href").getTextContent());
+						String itemResult = this.getHttpUtility().makeHttpRequest(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),"GET");
 
-				int itemDataCount = itemDataNode.getLength();
-				Map<String,String> itemData = new HashMap<String,String>();
-				for (int l=0;l<itemDataCount;l++) {
-					if (itemDataNode.item(l).getAttributes().getNamedItem("code") != null) {
-						itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent()+"Code",itemDataNode.item(l).getAttributes().getNamedItem("code").getTextContent());
+						logger.debug("Got Item details from: "+childNodes.item(j).getAttributes().getNamedItem("href").getTextContent());
+						doc = dBuilder.parse(new InputSource(new StringReader(itemResult)));
+						doc.getDocumentElement().normalize();
+						NodeList itemDataNode = doc.getElementsByTagName("itemData");
+
+						int itemDataCount = itemDataNode.getLength();
+						Map<String,String> itemData = new HashMap<String,String>();
+						for (int l=0;l<itemDataCount;l++) {
+							if (itemDataNode.item(l).getAttributes().getNamedItem("code") != null) {
+								itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent()+"Code",itemDataNode.item(l).getAttributes().getNamedItem("code").getTextContent());
+							}
+							itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent(),itemDataNode.item(l).getTextContent());
+						}
+						catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),itemData);
 					}
-					itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent(),itemDataNode.item(l).getTextContent());
 				}
-				catalogItem.put(childNodes.item(1).getAttributes().getNamedItem("href").getTextContent(),itemData);
-				catalogHoldings.add(new CatalogHolding(marcRecordLeader,mfhd,catalogItem));
-				catalogItem = null;
-	    		marcRecordLeader = null;
+				catalogHoldings.add(new CatalogHolding(marcRecordLeader,mfhd,new HashMap<String,Map<String,String>>(catalogItems)));
+				catalogItems.clear();
 			}
 			return catalogHoldings;
 		} catch (IOException e) {
