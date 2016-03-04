@@ -79,12 +79,14 @@ public class GetItForMeService {
 							if (holding.isMultiVolume()) {
 								logger.debug("Generating a multi volume button");
 								buttonContent.put("linkText",button.getLinkText()+" | "+itemData.get("enumeration")+" "+itemData.get("chron"));
+								//TODO find out how a multi-volume link should be represented.
 								buttonContent.put("linkHref",button.getLinkTemplate(parameters));
 							} else {
 								logger.debug("Generating a single item button");
 								buttonContent.put("linkText",button.getLinkText());
 								buttonContent.put("linkHref",button.getLinkTemplate(parameters));
 							}
+							buttonContent.put("cssClasses", button.getCssClasses());
 							validButtons.get(holding.getMfhd()).add(buttonContent);
 						} else {
 							logger.debug("We should skip the button with text: "+button.getLinkText());

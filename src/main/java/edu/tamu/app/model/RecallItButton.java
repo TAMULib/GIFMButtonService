@@ -12,6 +12,7 @@ public final class RecallItButton extends AbstractGetItForMeButton {
 		this.templateParameterKeys.add("location");
 		setLinkText("Recall It!");
 		setSID("libcat:Borrow");
+		setCssClasses(this.getCssClasses()+" button-recallit");
 	}
 
 	@Override

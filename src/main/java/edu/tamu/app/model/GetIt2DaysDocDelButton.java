@@ -11,7 +11,8 @@ public final class GetIt2DaysDocDelButton extends AbstractGetItForMeButton {
 		this.templateParameterKeys.add("callNumber");
 		this.templateParameterKeys.add("location");
 		setLinkText("Get It: 2 days");
-		setSID("libcat:DocDel");		
+		setSID("libcat:DocDel");
+		setCssClasses(this.getCssClasses()+" button-docdel");
 	}
 
 	@Override
