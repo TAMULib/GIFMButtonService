@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -41,10 +42,42 @@ class VoyagerCatalogService extends AbstractCatalogService {
 	    	Document doc = dBuilder.parse(new InputSource(new StringReader(recordResult)));
 	    	
 	    	doc.getDocumentElement().normalize();
-
-	    	String isbn = doc.getElementsByTagName("datafield").item(1).getChildNodes().item(0).getTextContent().split(" ")[0];
-					
-			logger.debug("Asking for holdings from: "+getAPIBase()+"record/"+bibId+"/holdings?view=items");
+	    	NodeList dataFields = doc.getElementsByTagName("datafield");
+	    	int dataFieldCount = dataFields.getLength();
+	    	String isbn = "";
+	    	String title = "";
+	    	String author = "";
+	    	String publisher = "";
+	    	String place = "";
+	    	String year = "";
+	    	for (int i=0;i<dataFieldCount;i++) {
+	    		Node currentNode = dataFields.item(i);
+	    		System.out.println("\n\nCurrent Node Text: "+currentNode.getTextContent());
+	    		switch (currentNode.getAttributes().getNamedItem("tag").getTextContent()) {
+	    			case "020":
+	    				isbn = currentNode.getChildNodes().item(0).getTextContent();
+    				break;
+	    			case "245":
+	    				title = currentNode.getChildNodes().item(0).getTextContent();
+	    			break;
+	    			case "100":
+	    				author = currentNode.getChildNodes().item(0).getTextContent();
+	    			break;
+	    			case "264":
+	    				NodeList publisherDataNodes = currentNode.getChildNodes();
+	    				int childCount = publisherDataNodes.getLength();
+	    				publisher = publisherDataNodes.item(0).getTextContent();
+	    				if (childCount > 1) {
+	    					place = publisherDataNodes.item(1).getTextContent();
+	    				}
+	    				if (childCount > 2) {
+	    					year = publisherDataNodes.item(2).getTextContent();
+	    				}
+	    			break;
+	    		}
+	    	}
+	    	
+	    	logger.debug("Asking for holdings from: "+getAPIBase()+"record/"+bibId+"/holdings?view=items");
 			String result = this.getHttpUtility().makeHttpRequest(getAPIBase()+"record/"+bibId+"/holdings?view=items","GET");
 			logger.debug("Received holdings from: "+getAPIBase()+"record/"+bibId+"/holdings?view=items");
 
@@ -91,7 +124,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
 						catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),itemData);
 					}
 				}
-				catalogHoldings.add(new CatalogHolding(marcRecordLeader,mfhd,isbn,new HashMap<String,Map<String,String>>(catalogItems)));
+				catalogHoldings.add(new CatalogHolding(marcRecordLeader,mfhd,isbn,title,author,publisher,place,year,new HashMap<String,Map<String,String>>(catalogItems)));
 				catalogItems.clear();
 			}
 			return catalogHoldings;
