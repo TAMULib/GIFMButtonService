@@ -65,9 +65,9 @@ class VoyagerCatalogService extends AbstractCatalogService {
 	    			case "264":
 	    				NodeList publisherDataNodes = currentNode.getChildNodes();
 	    				int childCount = publisherDataNodes.getLength();
-	    				publisher = publisherDataNodes.item(0).getTextContent();
+	    				place = publisherDataNodes.item(0).getTextContent();
 	    				if (childCount > 1) {
-	    					place = publisherDataNodes.item(1).getTextContent();
+	    					publisher = publisherDataNodes.item(1).getTextContent();
 	    				}
 	    				if (childCount > 2) {
 	    					year = publisherDataNodes.item(2).getTextContent();
