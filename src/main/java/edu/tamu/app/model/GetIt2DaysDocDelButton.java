@@ -5,8 +5,10 @@ import java.util.Arrays;
 import java.util.Map;
 
 public final class GetIt2DaysDocDelButton extends AbstractGetItForMeButton {
+	private String[] locationCodes;
 	
-	public GetIt2DaysDocDelButton() {
+	public GetIt2DaysDocDelButton(String[] locationCodes) {
+		this.locationCodes = locationCodes;
 		this.templateParameterKeys = new ArrayList<String>();
 		this.templateParameterKeys.add("callNumber");
 		this.templateParameterKeys.add("location");
@@ -22,8 +24,7 @@ public final class GetIt2DaysDocDelButton extends AbstractGetItForMeButton {
 
 	@Override
 	public boolean fitsLocation(String locationCode) {
-		String[] locationCodes = {"base", "bsc", "curr", "curr,text", "nbs","stk", "stk,mov1", "tdoc", "udoc", "wein", "psel,stk", "west,audio", "west,nbs", "west,stk", "west,udoc"};
-		return Arrays.asList(locationCodes).contains(locationCode);
+		return Arrays.asList(this.locationCodes).contains(locationCode);
 	}
 
 	//button shows for curr, normal, 14d, and newbook item types

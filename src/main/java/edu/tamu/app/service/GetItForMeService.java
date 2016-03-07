@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.CatalogHolding;
@@ -28,6 +29,9 @@ public class GetItForMeService {
 	@Value("${activeButtons}")
 	private String[] activeButtons;
 	
+	@Autowired
+	ApplicationContext applicationContext;
+	
 	private List<GetItForMeButton> registeredButtons = new ArrayList<GetItForMeButton>();
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -41,7 +45,8 @@ public class GetItForMeService {
 	private void registerButtons() {
 		for (String activeButton:activeButtons) {
 			try {
-				GetItForMeButton c = (GetItForMeButton) Class.forName(this.buttonsPackage+"."+activeButton).getDeclaredConstructor().newInstance();
+				String[] locationCodes = applicationContext.getEnvironment().getProperty(activeButton+".locationCodes").split(";");
+				GetItForMeButton c = (GetItForMeButton) Class.forName(this.buttonsPackage+"."+activeButton).getDeclaredConstructor(String[].class).newInstance(new Object[]{locationCodes});
 				this.registeredButtons.add(c);
 			} catch (InstantiationException e) {
 				// TODO Auto-generated catch block
