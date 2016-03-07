@@ -1,29 +1,34 @@
 package edu.tamu.app.service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import edu.tamu.app.model.BorrowItNowButton;
 import edu.tamu.app.model.CatalogHolding;
-import edu.tamu.app.model.CushingButton;
-import edu.tamu.app.model.GetIt1WeekButton;
-import edu.tamu.app.model.GetIt2DaysButton;
-import edu.tamu.app.model.GetIt2DaysDocDelButton;
-import edu.tamu.app.model.GetIt4DaysButton;
 import edu.tamu.app.model.GetItForMeButton;
-import edu.tamu.app.model.RecallItButton;
 
 @Service
 public class GetItForMeService {
 	@Autowired
 	private CatalogServiceFactory catalogServiceFactory;
+	
+	@Value("${buttonsPackage}")
+	private String buttonsPackage;
+	
+	@Value("#{'${activeButtons}'.split(';')}")
+	private String[] activeButtons;
+	
+	private List<GetItForMeButton> registeredButtons = new ArrayList<GetItForMeButton>();
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -32,21 +37,47 @@ public class GetItForMeService {
 		return catalogServiceFactory.getOrCreateCatalogService(catalogName).getHoldingsByBibId(bibId);
 	}
 	
+	@PostConstruct
+	private void registerButtons() {
+		for (String activeButton:activeButtons) {
+			try {
+				GetItForMeButton c = (GetItForMeButton) Class.forName(this.buttonsPackage+"."+activeButton).getDeclaredConstructor().newInstance();
+				this.registeredButtons.add(c);
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private List<GetItForMeButton> getRegisteredButtons() {
+		return this.registeredButtons;
+	}
+	
 	public Map<String,List<Map<String,String>>> getButtonsByBibId(String catalogName,String bibId) {
 		List<CatalogHolding> catalogHoldings = this.getHoldingsByBibId(catalogName,bibId);
 		if (catalogHoldings != null) {
 			logger.debug("\n\nCATALOG HOLDINGS FOR "+bibId);
 			
-			List<GetItForMeButton> eligibleButtons = new ArrayList<GetItForMeButton>();
 			Map<String,List<Map<String,String>>> validButtons = new HashMap<String,List<Map<String,String>>>();
-			
-			eligibleButtons.add(new CushingButton());
-			eligibleButtons.add(new GetIt2DaysButton());
-			eligibleButtons.add(new GetIt4DaysButton());
-			eligibleButtons.add(new GetIt1WeekButton());
-			eligibleButtons.add(new RecallItButton());
-			eligibleButtons.add(new GetIt2DaysDocDelButton());
-			eligibleButtons.add(new BorrowItNowButton());
 			
 			catalogHoldings.forEach(holding -> {
 				logger.debug("MARC Record Leader: "+holding.getMarcRecordLeader());
@@ -55,7 +86,7 @@ public class GetItForMeService {
 				validButtons.put(holding.getMfhd(), new ArrayList<Map<String,String>>());
 				holding.getCatalogItems().forEach((uri,itemData) -> {
 					logger.debug("Checking holding URI: "+uri);
-					for (GetItForMeButton button:eligibleButtons) {
+					for (GetItForMeButton button:this.getRegisteredButtons()) {
 						logger.debug("Analyzing: "+button.toString());
 	
 						logger.debug("Location: "+itemData.get("permLocationCode")+": "+button.fitsLocation(itemData.get("permLocationCode")));
