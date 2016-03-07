@@ -54,7 +54,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
 	    		Node currentNode = dataFields.item(i);
 	    		switch (currentNode.getAttributes().getNamedItem("tag").getTextContent()) {
 	    			case "020":
-	    				isbn = currentNode.getChildNodes().item(0).getTextContent();
+	    				isbn = currentNode.getChildNodes().item(0).getTextContent().split(" ")[0];;
     				break;
 	    			case "245":
 	    				title = currentNode.getChildNodes().item(0).getTextContent();
