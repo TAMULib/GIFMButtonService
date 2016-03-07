@@ -25,7 +25,7 @@ public class GetItForMeService {
 	@Value("${buttonsPackage}")
 	private String buttonsPackage;
 	
-	@Value("#{'${activeButtons}'.split(';')}")
+	@Value("${activeButtons}")
 	private String[] activeButtons;
 	
 	private List<GetItForMeButton> registeredButtons = new ArrayList<GetItForMeButton>();
