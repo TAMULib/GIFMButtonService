@@ -1,7 +1,10 @@
 package edu.tamu.app.model;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class CatalogHolding {
 	private String marcRecordLeader;
@@ -102,5 +105,12 @@ public class CatalogHolding {
 	
 	public boolean isMultiVolume() {
 		return (this.getCatalogItems().size() > 1);
+	}
+	
+	public String getValueByPropertyName(String propertyName) throws Exception {
+		Class<?> c = Class.forName(this.getClass().getCanonicalName());
+	    Method m = null;
+		m = c.getDeclaredMethod("get"+StringUtils.capitalize(propertyName));
+		return (String) m.invoke(this);
 	}
 }

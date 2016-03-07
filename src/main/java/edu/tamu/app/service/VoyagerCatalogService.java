@@ -52,7 +52,6 @@ class VoyagerCatalogService extends AbstractCatalogService {
 	    	String year = "";
 	    	for (int i=0;i<dataFieldCount;i++) {
 	    		Node currentNode = dataFields.item(i);
-	    		System.out.println("\n\nCurrent Node Text: "+currentNode.getTextContent());
 	    		switch (currentNode.getAttributes().getNamedItem("tag").getTextContent()) {
 	    			case "020":
 	    				isbn = currentNode.getChildNodes().item(0).getTextContent();
@@ -105,7 +104,6 @@ class VoyagerCatalogService extends AbstractCatalogService {
 
 				for (int j=0;j<childCount;j++) {
 					if (childNodes.item(j).getNodeName() == "item") {
-						System.out.println("Item URL: "+childNodes.item(j).getAttributes().getNamedItem("href").getTextContent());
 						String itemResult = this.getHttpUtility().makeHttpRequest(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),"GET");
 
 						logger.debug("Got Item details from: "+childNodes.item(j).getAttributes().getNamedItem("href").getTextContent());

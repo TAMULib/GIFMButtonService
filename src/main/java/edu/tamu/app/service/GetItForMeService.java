@@ -1,12 +1,10 @@
 package edu.tamu.app.service;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,33 +71,14 @@ public class GetItForMeService {
 						String[] getParameterFromHolding = {"isbn","title","author","publisher","place","year"};
 						for (String parameterName:getParameterFromHolding) {
 							if (parameters.containsKey(parameterName)) {
-								Class<?> c = null;
 								try {
-									c = Class.forName("edu.tamu.app.model.CatalogHolding");
-								} catch (Exception e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-						        Method m = null;
-								try {
-									m = c.getDeclaredMethod("get"+StringUtils.capitalize(parameterName));
-								} catch (Exception e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-						        try {
-									parameters.put(parameterName, (String) m.invoke(holding));
+									parameters.put(parameterName, holding.getValueByPropertyName(parameterName));
 								} catch (Exception e) {
-									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
 							}
 						}
 						
-						if (parameters.containsKey("isbn")) {
-							parameters.put("isbn", holding.getIsbn());
-						}
-
 						if (button.fitsLocation(itemData.get("permLocationCode")) && button.fitsItemType(itemData.get("typeDesc")) && button.fitsItemStatus(Integer.parseInt(itemData.get("itemStatusCode")))) {
 							logger.debug("We want the button with text: "+button.getLinkText());
 							logger.debug("It looks like: ");
