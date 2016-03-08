@@ -5,11 +5,10 @@ import java.util.Arrays;
 import java.util.Map;
 
 public final class GetIt2DaysDocDelButton extends AbstractGetItForMeButton {
-	private Boolean inheritLocationTest = false;
-	private Boolean inheritItemTypeTest = false;
-	private Boolean inheritItemStatusTest = false;
+	private String[] locationCodes;
 	
-	public GetIt2DaysDocDelButton(String[] configuredLocationCodes,String[] configuredItemTypeCodes, Integer[] configuredItemStatusCodes, String configuredLinkText) {
+	public GetIt2DaysDocDelButton(String[] locationCodes) {
+		this.locationCodes = locationCodes;
 		this.templateParameterKeys = new ArrayList<String>();
 		this.templateParameterKeys.add("callNumber");
 		this.templateParameterKeys.add("location");
@@ -18,52 +17,28 @@ public final class GetIt2DaysDocDelButton extends AbstractGetItForMeButton {
 		this.templateParameterKeys.add("author");
 		this.templateParameterKeys.add("isbn");
 		this.templateParameterKeys.add("publisher");
-		if (configuredLocationCodes != null) {
-			this.setLocationCodes(configuredLocationCodes);
-		} else {
-			this.inheritLocationTest = true;
-		}
-		if (configuredItemTypeCodes != null) {
-			this.setItemTypes(configuredItemTypeCodes);
-		} else {
-			this.inheritItemTypeTest = true;
-		}
-		if (configuredItemStatusCodes != null) {
-			this.setItemStatusCodes(configuredItemStatusCodes);
-		} else {
-			this.inheritItemStatusTest = true;
-		}
-
-		setLinkText((configuredLinkText!=null) ? configuredLinkText:"Get It: 2 days");
+		setLinkText("Get It: 2 days");
 		setSID("libcat:DocDel");
 		setCssClasses(this.getCssClasses()+" button-docdel");
 	}
 
 	@Override
 	public boolean fitsLocation(String locationCode) {
-		if (inheritLocationTest) {
-			return super.fitsLocation(locationCode);
-		} else {
-			return Arrays.asList(this.locationCodes).contains(locationCode);
-		}
+		return Arrays.asList(this.locationCodes).contains(locationCode);
 	}
 
+	//button shows for curr, normal, 14d, and newbook item types
 	@Override
 	public boolean fitsItemType(String itemTypeCode) {
-		if (inheritItemTypeTest) {
-			return super.fitsItemType(itemTypeCode);
-		} else {
-			return Arrays.asList(this.itemTypeCodes).contains(itemTypeCode);
-		}
+		String[] itemTypeCodes = {"curr", "normal", "14d", "newbook","ser"};
+		return Arrays.asList(itemTypeCodes).contains(itemTypeCode);
 	}
 
+	//button shows for item status 1 and 11
 	@Override
 	public boolean fitsItemStatus(int itemStatusCode) {
-		if (inheritItemStatusTest) {
-			return super.fitsItemStatus(itemStatusCode);
-		} else {
-			return Arrays.asList(this.itemStatusCodes).contains(itemStatusCode);
-		}
+		Integer[] itemStatuses = {1,11};
+		return Arrays.asList(itemStatuses).contains(itemStatusCode);
 	}
 
 	@Override

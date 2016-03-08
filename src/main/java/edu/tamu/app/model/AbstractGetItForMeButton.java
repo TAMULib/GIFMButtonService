@@ -6,10 +6,6 @@ import java.util.Map;
 public abstract class AbstractGetItForMeButton implements GetItForMeButton {
 	protected List<String> templateParameterKeys;
 	
-	protected String[] locationCodes;
-	protected String[] itemTypeCodes;
-	protected Integer[] itemStatusCodes;
-	
 	private String linkText="Default Link Text";
 	private String SID="libcat:InProcess";
 	private String cssClasses = "button-gifm";
@@ -77,16 +73,5 @@ public abstract class AbstractGetItForMeButton implements GetItForMeButton {
 	public void setCssClasses(String cssClasses) {
 		this.cssClasses = cssClasses;
 	}
-	
-	public void setLocationCodes(String[] locationCodes) {
-		this.locationCodes = locationCodes;
-	}
-	
-	public void setItemTypes(String[] itemTypeCodes) {
-		this.itemTypeCodes = itemTypeCodes;
-	}
 
-	public void setItemStatusCodes(Integer[] itemStatusCodes) {
-		this.itemStatusCodes = itemStatusCodes;
-	}
 }
