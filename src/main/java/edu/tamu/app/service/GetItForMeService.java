@@ -1,18 +1,15 @@
 package edu.tamu.app.service;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.CatalogHolding;
@@ -23,16 +20,10 @@ public class GetItForMeService {
 	@Autowired
 	private CatalogServiceFactory catalogServiceFactory;
 	
-	@Value("${buttonsPackage}")
-	private String buttonsPackage;
-	
-	@Value("${activeButtons}")
-	private String[] activeButtons;
+	private List<GetItForMeButton> registeredButtons;
 	
 	@Autowired
 	ApplicationContext applicationContext;
-	
-	private List<GetItForMeButton> registeredButtons = new ArrayList<GetItForMeButton>();
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -41,42 +32,16 @@ public class GetItForMeService {
 		return catalogServiceFactory.getOrCreateCatalogService(catalogName).getHoldingsByBibId(bibId);
 	}
 	
-	@PostConstruct
-	private void registerButtons() {
-		for (String activeButton:activeButtons) {
-			try {
-				String[] locationCodes = applicationContext.getEnvironment().getProperty(activeButton+".locationCodes").split(";");
-				GetItForMeButton c = (GetItForMeButton) Class.forName(this.buttonsPackage+"."+activeButton).getDeclaredConstructor(String[].class).newInstance(new Object[]{locationCodes});
-				this.registeredButtons.add(c);
-			} catch (InstantiationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+	@Autowired
+	@Lazy
+	private void setRegisteredButtons(List<GetItForMeButton> registeredButtons) {
+		this.registeredButtons = registeredButtons;
 	}
-	
+
 	private List<GetItForMeButton> getRegisteredButtons() {
 		return this.registeredButtons;
 	}
-	
+
 	public Map<String,List<Map<String,String>>> getButtonsByBibId(String catalogName,String bibId) {
 		List<CatalogHolding> catalogHoldings = this.getHoldingsByBibId(catalogName,bibId);
 		if (catalogHoldings != null) {
@@ -97,6 +62,7 @@ public class GetItForMeService {
 						logger.debug("Location: "+itemData.get("permLocationCode")+": "+button.fitsLocation(itemData.get("permLocationCode")));
 						logger.debug("TypeDesc: "+itemData.get("typeDesc")+": "+button.fitsItemType(itemData.get("typeDesc")));
 						logger.debug("Status: "+itemData.get("itemStatusCode")+": "+button.fitsItemStatus(Integer.parseInt(itemData.get("itemStatusCode"))));
+
 						List<String> parameterKeys = button.getTemplateParameterKeys();
 						Map<String,String> parameters = new HashMap<String,String>();
 						
