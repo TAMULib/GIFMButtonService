@@ -10,7 +10,6 @@ public final class GetIt2DaysDocDelButton extends AbstractGetItForMeButton {
 		this.templateParameterKeys = new ArrayList<String>();
 		this.templateParameterKeys.add("callNumber");
 		this.templateParameterKeys.add("location");
-		this.templateParameterKeys.add("location");
 		this.templateParameterKeys.add("title");
 		this.templateParameterKeys.add("author");
 		this.templateParameterKeys.add("isbn");
