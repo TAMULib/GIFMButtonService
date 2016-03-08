@@ -48,6 +48,7 @@ public class GetItForMeService {
 				String[] itemTypeCodes = environment.getProperty(activeButton+".itemTypeCodes",String[].class);
 				Integer[] itemStatusCodes = environment.getProperty(activeButton+".itemStatusCodes",Integer[].class);
 				String linkText = environment.getProperty(activeButton+".linkText");
+				String SID = environment.getProperty(activeButton+".SID");
 				
 				GetItForMeButton c = (GetItForMeButton) Class.forName(buttonsPackage+"."+activeButton).newInstance();
 				if (rawLocationCodes != null) {
@@ -61,6 +62,9 @@ public class GetItForMeService {
 				}
 				if (linkText != null) {
 					c.setLinkText(linkText);
+				}
+				if (SID != null) {
+					c.setSID(SID);
 				}
 				
 				this.registeredButtons.add(c);
