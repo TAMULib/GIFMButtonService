@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -33,8 +34,10 @@ public class GetItForMeService {
 	}
 	
 	@Autowired
-	@Lazy
+	@DependsOn("registeredButtons")
 	private void setRegisteredButtons(List<GetItForMeButton> registeredButtons) {
+		System.out.println("\n\n\n\nGETTING BUTTONS");
+		System.out.println(registeredButtons.size());
 		this.registeredButtons = registeredButtons;
 	}
 

@@ -55,6 +55,7 @@ public abstract class AbstractGetItForMeButton implements GetItForMeButton {
 
 	@Override
 	public void setLinkText(String linkText) {
+		System.out.println("LINKTEXT: "+linkText);
 		this.linkText = linkText;		
 	}
 
@@ -79,14 +80,27 @@ public abstract class AbstractGetItForMeButton implements GetItForMeButton {
 	}
 	
 	public void setLocationCodes(String[] locationCodes) {
+		System.out.println("\n\nCODES");
+		for(String locationCode:locationCodes) {
+			System.out.println(locationCode);
+		}
 		this.locationCodes = locationCodes;
 	}
 	
-	public void setItemTypes(String[] itemTypeCodes) {
+	public void setItemTypeCodes(String[] itemTypeCodes) {
+		System.out.println("\n\nTYPES");
+		for(String locationCode:itemTypeCodes) {
+			System.out.println(locationCode);
+		}
 		this.itemTypeCodes = itemTypeCodes;
 	}
 
 	public void setItemStatusCodes(Integer[] itemStatusCodes) {
+		System.out.println("\n\nSTATUS");
+		for(Integer locationCode:itemStatusCodes) {
+			System.out.println(locationCode);
+		}
+
 		this.itemStatusCodes = itemStatusCodes;
 	}
 }

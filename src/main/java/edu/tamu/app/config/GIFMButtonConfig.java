@@ -1,11 +1,14 @@
 package edu.tamu.app.config;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -20,28 +23,46 @@ public class GIFMButtonConfig {
 	@Resource
 	Environment environment;
 	
-	private List<GetItForMeButton> registeredButtons = new ArrayList<GetItForMeButton>();
+	private List<GetItForMeButton> registeredButtons;
+
+	@Resource
+	private ApplicationContext applicationContext;
 	
 	
 
 	GIFMButtonConfig() {};
 	
+	@PostConstruct
 	public void registerButtons() {
 		String buttonsPackage = environment.getProperty("buttonsPackage");
 		String[] activeButtons = environment.getProperty("activeButtons",String[].class);
 		System.out.println("\n\n\nCONFIGURING");
-		for (String button:activeButtons) {
-			System.out.println(button);
-		}
+		AutowireCapableBeanFactory bf = this.applicationContext.getAutowireCapableBeanFactory();
 
 		for (String activeButton:activeButtons) {
+			System.out.println("Registering: "+activeButton);
 			try {
-				String[] locationCodes = environment.getProperty(activeButton+".locationCodes").split(";");
+				String rawLocationCodes = environment.getProperty(activeButton+".locationCodes");
 				String[] itemTypeCodes = environment.getProperty(activeButton+".itemTypeCodes",String[].class);
 				Integer[] itemStatusCodes = environment.getProperty(activeButton+".itemStatusCodes",Integer[].class);
 				String linkText = environment.getProperty(activeButton+".linkText");
-				GetItForMeButton c = (GetItForMeButton) Class.forName(buttonsPackage+"."+activeButton).getDeclaredConstructor(String[].class,String[].class,Integer[].class,String.class).newInstance(new Object[]{locationCodes,itemTypeCodes,itemStatusCodes, linkText});
-				this.registeredButtons.add(c);
+				GetItForMeButton c = (GetItForMeButton) Class.forName(buttonsPackage+"."+activeButton).newInstance();
+				if (rawLocationCodes != null) {
+					c.setLocationCodes(rawLocationCodes.split(";"));
+				}
+				if (itemTypeCodes != null) {
+					c.setItemTypeCodes(itemTypeCodes);
+				}
+				if (itemStatusCodes != null) {
+					c.setItemStatusCodes(itemStatusCodes);
+				}
+				if (linkText != null) {
+					c.setLinkText(linkText);
+				}
+				System.out.println("Registered: "+activeButton);
+//				GetItForMeButton newBean = bf.createBean(c.getClass());
+				GetItForMeButton newBean = (GetItForMeButton) bf.autowire(c.getClass(), AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,true);
+				this.registeredButtons.add((GetItForMeButton) bf.initializeBean(newBean, activeButton));
 			} catch (InstantiationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -49,12 +70,6 @@ public class GIFMButtonConfig {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (SecurityException e) {
@@ -65,11 +80,14 @@ public class GIFMButtonConfig {
 				e.printStackTrace();
 			}
 		}
+		bf.autowire(ArrayList.class, AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,true);
+		bf.initializeBean(this.registeredButtons, "registeredButtons");			
 	}
-
+/*
 	@Bean(name="registeredButtons")
 	public List<GetItForMeButton> getRegisteredButtons() {
-		this.registerButtons();
+		System.out.println("Button Count: "+this.registeredButtons.size());
 		return new ArrayList<GetItForMeButton>(this.registeredButtons);
 	}
+	*/
 }
