@@ -1,6 +1,5 @@
 package edu.tamu.app.service;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.CatalogHolding;
@@ -30,7 +29,7 @@ public class GetItForMeService {
 	private String[] activeButtons;
 	
 	@Autowired
-	ApplicationContext applicationContext;
+	Environment environment;
 	
 	private List<GetItForMeButton> registeredButtons = new ArrayList<GetItForMeButton>();
 	
@@ -45,8 +44,25 @@ public class GetItForMeService {
 	private void registerButtons() {
 		for (String activeButton:activeButtons) {
 			try {
-				String[] locationCodes = applicationContext.getEnvironment().getProperty(activeButton+".locationCodes").split(";");
-				GetItForMeButton c = (GetItForMeButton) Class.forName(this.buttonsPackage+"."+activeButton).getDeclaredConstructor(String[].class).newInstance(new Object[]{locationCodes});
+				String rawLocationCodes = environment.getProperty(activeButton+".locationCodes");
+				String[] itemTypeCodes = environment.getProperty(activeButton+".itemTypeCodes",String[].class);
+				Integer[] itemStatusCodes = environment.getProperty(activeButton+".itemStatusCodes",Integer[].class);
+				String linkText = environment.getProperty(activeButton+".linkText");
+				
+				GetItForMeButton c = (GetItForMeButton) Class.forName(buttonsPackage+"."+activeButton).newInstance();
+				if (rawLocationCodes != null) {
+					c.setLocationCodes(rawLocationCodes.split(";"));
+				}
+				if (itemTypeCodes != null) {
+					c.setItemTypeCodes(itemTypeCodes);
+				}
+				if (itemStatusCodes != null) {
+					c.setItemStatusCodes(itemStatusCodes);
+				}
+				if (linkText != null) {
+					c.setLinkText(linkText);
+				}
+				
 				this.registeredButtons.add(c);
 			} catch (InstantiationException e) {
 				// TODO Auto-generated catch block
@@ -55,12 +71,6 @@ public class GetItForMeService {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (SecurityException e) {
