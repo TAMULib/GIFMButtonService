@@ -69,19 +69,19 @@ public class GetItForMeService {
 				
 				this.registeredButtons.add(c);
 			} catch (InstantiationException e) {
-				// TODO Auto-generated catch block
+				logger.error("Tried to instantiate an instance of "+activeButton, e);
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
+				logger.error("Tried to access something on a "+activeButton, e);
 				e.printStackTrace();
 			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
+				logger.error("Tried to access something on a "+activeButton, e);
 				e.printStackTrace();
 			} catch (SecurityException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
+				logger.error("Couldn't find class: "+activeButton, e);
 				e.printStackTrace();
 			}
 		}
