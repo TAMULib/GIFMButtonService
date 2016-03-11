@@ -12,6 +12,15 @@ public final class BorrowItNowButton extends AbstractGetItForMeButton {
 		setSID("libcat:Borrow");
 		setCssClasses(this.getCssClasses()+" button-borrowitnow");
 	}
+	
+	@Override
+	public boolean fitsRecordType(String marcLeader) {
+		//holding must be a single item monograph; we can inspect the marcLeader to find out if we have one
+		if (marcLeader.substring(6,8).contentEquals("am")) {
+			return true;
+		}
+		return false;
+	}
 
 	@Override
 	public String getLinkTemplate(Map<String,String> templateParameters) {

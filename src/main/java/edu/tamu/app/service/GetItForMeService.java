@@ -103,8 +103,6 @@ public class GetItForMeService {
 			
 			catalogHoldings.forEach(holding -> {
 				logger.debug("MARC Record Leader: "+holding.getMarcRecordLeader());
-				//TODO: if configured, check for single item monograph
-				//button.checkRecordType(marcRecord)
 				validButtons.put(holding.getMfhd(), new ArrayList<Map<String,String>>());
 				holding.getCatalogItems().forEach((uri,itemData) -> {
 					logger.debug("Checking holding URI: "+uri);
@@ -132,7 +130,7 @@ public class GetItForMeService {
 							}
 						}
 						
-						if (button.fitsLocation(itemData.get("permLocationCode")) && button.fitsItemType(itemData.get("typeDesc")) && button.fitsItemStatus(Integer.parseInt(itemData.get("itemStatusCode")))) {
+						if (button.fitsRecordType(holding.getMarcRecordLeader()) && button.fitsLocation(itemData.get("permLocationCode")) && button.fitsItemType(itemData.get("typeDesc")) && button.fitsItemStatus(Integer.parseInt(itemData.get("itemStatusCode")))) {
 							logger.debug("We want the button with text: "+button.getLinkText());
 							logger.debug("It looks like: ");
 							logger.debug(button.getLinkTemplate(parameters));

@@ -50,6 +50,9 @@ class VoyagerCatalogService extends AbstractCatalogService {
 	    	String publisher = "";
 	    	String place = "";
 	    	String year = "";
+	    	
+			String marcRecordLeader = doc.getElementsByTagName("leader").item(0).getTextContent();
+
 	    	for (int i=0;i<dataFieldCount;i++) {
 	    		Node currentNode = dataFields.item(i);
 	    		switch (currentNode.getAttributes().getNamedItem("tag").getTextContent()) {
@@ -95,7 +98,6 @@ class VoyagerCatalogService extends AbstractCatalogService {
 				int childCount = childNodes.getLength();
 				logger.debug("The Count of Children: "+childCount);
 				Map<String,Map<String,String>> catalogItems = new HashMap<String,Map<String,String>>();
-				String marcRecordLeader = childNodes.item(0).getFirstChild().getTextContent();
 				String mfhd = childNodes.item(0).getChildNodes().item(1).getTextContent();
 				logger.debug("MarcRecordLeader: "+marcRecordLeader);
 				logger.debug("MFHD: "+mfhd);
