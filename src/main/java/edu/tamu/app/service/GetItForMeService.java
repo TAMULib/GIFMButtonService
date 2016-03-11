@@ -1,6 +1,7 @@
 package edu.tamu.app.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.CatalogHolding;
 import edu.tamu.app.model.GetItForMeButton;
+import edu.tamu.app.utilities.sort.VolumeComparator;
+
 
 @Service
 public class GetItForMeService {
@@ -134,9 +137,10 @@ public class GetItForMeService {
 							logger.debug("It looks like: ");
 							logger.debug(button.getLinkTemplate(parameters));
 							Map<String,String> buttonContent = new HashMap<String,String>();
+							//multi-volume is a special case, we need to enrich the default button text with item level details
 							if (holding.isMultiVolume()) {
 								logger.debug("Generating a multi volume button");
-								buttonContent.put("linkText",button.getLinkText()+" | "+itemData.get("enumeration")+" "+itemData.get("chron"));
+								buttonContent.put("linkText",itemData.get("enumeration")+" "+itemData.get("chron")+" | "+button.getLinkText());
 								//TODO find out how a multi-volume link should be represented.
 								buttonContent.put("linkHref",button.getLinkTemplate(parameters));
 							} else {
@@ -149,6 +153,10 @@ public class GetItForMeService {
 						} else {
 							logger.debug("We should skip the button with text: "+button.getLinkText());
 						}
+					}
+					//for multi-volumes, get the items somewhat ordered by volume (there's no real definition of the order to work from)
+					if (holding.isMultiVolume()) {
+						Collections.sort(validButtons.get(holding.getMfhd()), new VolumeComparator());
 					}
 				});
 			});
