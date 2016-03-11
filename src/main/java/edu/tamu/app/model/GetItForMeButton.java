@@ -11,11 +11,11 @@ import java.util.Map;
  */
 public interface GetItForMeButton {
 	/**
-	 * Button eligibility test based on an item's type
-	 * @param String itemRecordType
+	 * Button eligibility test based on an item's record type
+	 * @param String marcRecord
 	 * @return boolean
 	 */
-	boolean fitsRecordType(String itemRecordType);
+	boolean fitsRecordType(String marcRecord);
 	
 	/**
 	 * Button eligibility test based on an item's location
