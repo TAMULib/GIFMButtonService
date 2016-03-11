@@ -1,7 +1,6 @@
 package edu.tamu.app.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 
 public final class GetIt2DaysDocDelButton extends AbstractGetItForMeButton {
@@ -19,21 +18,6 @@ public final class GetIt2DaysDocDelButton extends AbstractGetItForMeButton {
 		setLinkText("Get It: 2 days");
 		setSID("libcat:DocDel");
 		setCssClasses(this.getCssClasses()+" button-docdel");
-	}
-
-	@Override
-	public boolean fitsLocation(String locationCode) {
-		return (this.locationCodes != null) ? Arrays.asList(this.locationCodes).contains(locationCode):super.fitsLocation(locationCode);
-	}
-
-	@Override
-	public boolean fitsItemType(String itemTypeCode) {
-		return (this.itemTypeCodes != null) ? Arrays.asList(this.itemTypeCodes).contains(itemTypeCode):super.fitsItemType(itemTypeCode);
-	}
-
-	@Override
-	public boolean fitsItemStatus(int itemStatusCode) {
-		return (this.itemStatusCodes != null) ? Arrays.asList(this.itemStatusCodes).contains(itemStatusCode):super.fitsItemStatus(itemStatusCode);
 	}
 
 	@Override

@@ -1,7 +1,6 @@
 package edu.tamu.app.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 
 public final class GetIt4DaysButton extends AbstractGetItForMeButton {
@@ -18,11 +17,6 @@ public final class GetIt4DaysButton extends AbstractGetItForMeButton {
 
 		setLinkText("Get it: 4 days");
 		setSID("libcat:remotestorage");		
-	}
-
-	@Override
-	public boolean fitsLocation(String locationCode) {
-		return (this.locationCodes != null) ? Arrays.asList(this.locationCodes).contains(locationCode):super.fitsLocation(locationCode);
 	}
 
 	@Override

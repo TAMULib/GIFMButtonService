@@ -1,5 +1,6 @@
 package edu.tamu.app.model;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -20,22 +21,19 @@ public abstract class AbstractGetItForMeButton implements GetItForMeButton {
 		return true;
 	}
 
-	//button shows for all record locations
 	@Override
 	public boolean fitsLocation(String locationCode) {
-		return true;
+		return (this.locationCodes != null) ? Arrays.asList(this.locationCodes).contains(locationCode):true;
 	}
 
-	//button shows for all item types
 	@Override
-	public boolean fitsItemType(String typeCode) {
-		return true;
+	public boolean fitsItemType(String itemTypeCode) {
+		return (this.itemTypeCodes != null) ? Arrays.asList(this.itemTypeCodes).contains(itemTypeCode):true;
 	}
 
-	//button shows for all item statuses
 	@Override
 	public boolean fitsItemStatus(int itemStatusCode) {
-		return true;
+		return (this.itemStatusCodes != null) ? Arrays.asList(this.itemStatusCodes).contains(itemStatusCode):true;
 	}
 
 	@Override

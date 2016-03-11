@@ -1,7 +1,6 @@
 package edu.tamu.app.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 
 public final class GetIt2DaysButton extends AbstractGetItForMeButton {
@@ -18,11 +17,6 @@ public final class GetIt2DaysButton extends AbstractGetItForMeButton {
 
 		setLinkText("Get it: 2 days");
 		setSID("libcat:InProcess");
-	}
-
-	@Override
-	public boolean fitsItemStatus(int itemStatusCode) {
-		return (this.itemStatusCodes != null) ? Arrays.asList(this.itemStatusCodes).contains(itemStatusCode):super.fitsItemStatus(itemStatusCode);
 	}
 
 	@Override
