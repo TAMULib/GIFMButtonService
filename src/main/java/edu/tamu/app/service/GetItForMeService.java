@@ -154,7 +154,7 @@ public class GetItForMeService {
 						logger.debug("Status: "+itemData.get("itemStatusCode")+": "+button.fitsItemStatus(Integer.parseInt(itemData.get("itemStatusCode"))));
 						
 						//test the current item against the current GetItForMe button's requirements for eligibility
-						if (button.fitsLocation(itemData.get("permLocationCode")) && button.fitsItemType(itemData.get("typeDesc")) && button.fitsItemStatus(Integer.parseInt(itemData.get("itemStatusCode")))) {
+						if (button.fitsRecordType(holding.getMarcRecordLeader()) && button.fitsLocation(itemData.get("permLocationCode")) && button.fitsItemType(itemData.get("typeDesc")) && button.fitsItemStatus(Integer.parseInt(itemData.get("itemStatusCode")))) {
 							//used to build the button's link from the template parameter keys it provides
 							List<String> parameterKeys = button.getTemplateParameterKeys();
 							Map<String,String> parameters = new HashMap<String,String>();
