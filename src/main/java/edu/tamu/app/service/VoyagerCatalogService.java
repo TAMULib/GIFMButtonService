@@ -53,55 +53,55 @@ class VoyagerCatalogService extends AbstractCatalogService {
 			logger.debug("Asking for Record from: "+getAPIBase()+"record/"+bibId+"/?view=full");
 			String recordResult = this.getHttpUtility().makeHttpRequest(getAPIBase()+"record/"+bibId+"/?view=full","GET");
 	        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-	    	DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-	    	
-	    	Document doc = dBuilder.parse(new InputSource(new StringReader(recordResult)));
-	    	
-	    	doc.getDocumentElement().normalize();
-	    	NodeList dataFields = doc.getElementsByTagName("datafield");
-	    	int dataFieldCount = dataFields.getLength();
-	    	String isbn = "";
-	    	String title = "";
-	    	String author = "";
-	    	String publisher = "";
-	    	String place = "";
-	    	String year = "";
+		    	DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+		    	
+		    	Document doc = dBuilder.parse(new InputSource(new StringReader(recordResult)));
+		    	
+		    	doc.getDocumentElement().normalize();
+		    	NodeList dataFields = doc.getElementsByTagName("datafield");
+		    	int dataFieldCount = dataFields.getLength();
+		    	String isbn = "";
+		    	String title = "";
+		    	String author = "";
+		    	String publisher = "";
+		    	String place = "";
+		    	String year = "";
 	    	
 			String marcRecordLeader = doc.getElementsByTagName("leader").item(0).getTextContent();
 
-	    	for (int i=0;i<dataFieldCount;i++) {
-	    		Node currentNode = dataFields.item(i);
-	    		switch (currentNode.getAttributes().getNamedItem("tag").getTextContent()) {
-	    			case "020":
-	    				isbn = currentNode.getChildNodes().item(0).getTextContent().split(" ")[0];;
-    				break;
-	    			case "245":
-	    				title = currentNode.getChildNodes().item(0).getTextContent();
-	    			break;
-	    			case "100":
-	    				author = currentNode.getChildNodes().item(0).getTextContent();
-	    			break;
-	    			case "264":
-	    				NodeList publisherDataNodes = currentNode.getChildNodes();
-	    				int childCount = publisherDataNodes.getLength();
-	    				place = publisherDataNodes.item(0).getTextContent();
-	    				if (childCount > 1) {
-	    					publisher = publisherDataNodes.item(1).getTextContent();
-	    				}
-	    				if (childCount > 2) {
-	    					year = publisherDataNodes.item(2).getTextContent();
-	    				}
-	    			break;
-	    		}
-	    	}
+		    	for (int i=0;i<dataFieldCount;i++) {
+		    		Node currentNode = dataFields.item(i);
+		    		switch (currentNode.getAttributes().getNamedItem("tag").getTextContent()) {
+		    			case "020":
+		    				isbn = currentNode.getChildNodes().item(0).getTextContent().split(" ")[0];;
+	    				break;
+		    			case "245":
+		    				title = currentNode.getChildNodes().item(0).getTextContent();
+		    			break;
+		    			case "100":
+		    				author = currentNode.getChildNodes().item(0).getTextContent();
+		    			break;
+		    			case "264":
+		    				NodeList publisherDataNodes = currentNode.getChildNodes();
+		    				int childCount = publisherDataNodes.getLength();
+		    				place = publisherDataNodes.item(0).getTextContent();
+		    				if (childCount > 1) {
+		    					publisher = publisherDataNodes.item(1).getTextContent();
+		    				}
+		    				if (childCount > 2) {
+		    					year = publisherDataNodes.item(2).getTextContent();
+		    				}
+		    			break;
+		    		}
+		    	}
 	    	
-	    	logger.debug("Asking for holdings from: "+getAPIBase()+"record/"+bibId+"/holdings?view=items");
+		    	logger.debug("Asking for holdings from: "+getAPIBase()+"record/"+bibId+"/holdings?view=items");
 			String result = this.getHttpUtility().makeHttpRequest(getAPIBase()+"record/"+bibId+"/holdings?view=items","GET");
 			logger.debug("Received holdings from: "+getAPIBase()+"record/"+bibId+"/holdings?view=items");
 
-	    	doc = dBuilder.parse(new InputSource(new StringReader(result)));
-	    	
-	    	doc.getDocumentElement().normalize();
+		    	doc = dBuilder.parse(new InputSource(new StringReader(result)));
+		    	
+		    	doc.getDocumentElement().normalize();
 			NodeList holdings = doc.getElementsByTagName("holding");
 			int holdingCount = holdings.getLength();
 			
