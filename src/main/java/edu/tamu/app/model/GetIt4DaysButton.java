@@ -1,8 +1,15 @@
 package edu.tamu.app.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
+
+/**
+ * The GetIt4Days Button represents a request for an item that is in a Remote Storage Facility
+ * 
+ * @author Jason Savell <jsavell@library.tamu.edu>
+ * @author Michael Nichols <mnichols@library.tamu.edu>
+ *
+ */
 
 public final class GetIt4DaysButton extends AbstractGetItForMeButton {
 	
@@ -18,12 +25,6 @@ public final class GetIt4DaysButton extends AbstractGetItForMeButton {
 
 		setLinkText("Get it: 4 days");
 		setSID("libcat:remotestorage");		
-	}
-
-	@Override
-	public boolean fitsLocation(String locationCode) {
-		String[] locationCodes = {"rs,hdr", "rs,jlf"};
-		return Arrays.asList(locationCodes).contains(locationCode);
 	}
 
 	@Override

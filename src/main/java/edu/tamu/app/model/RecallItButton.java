@@ -1,8 +1,15 @@
 package edu.tamu.app.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
+
+/**
+ * The RecallIt Button represents a request for a checked out item.
+ * 
+ * @author Jason Savell <jsavell@library.tamu.edu>
+ * @author Michael Nichols <mnichols@library.tamu.edu>
+ *
+ */
 
 public final class RecallItButton extends AbstractGetItForMeButton {
 	
@@ -13,26 +20,6 @@ public final class RecallItButton extends AbstractGetItForMeButton {
 		setLinkText("Recall It!");
 		setSID("libcat:Borrow");
 		setCssClasses(this.getCssClasses()+" button-recallit");
-	}
-
-	@Override
-	public boolean fitsLocation(String locationCode) {
-		String[] locationCodes = {"base", "bsc", "curr", "curr,text", "nbs","stk", "stk,mov1", "tdoc", "udoc", "wein", "psel,stk", "west,audio", "west,nbs", "west,stk", "west,udoc"};
-		return Arrays.asList(locationCodes).contains(locationCode);
-	}
-
-	//button shows for curr, normal, 14d, and newbook item types
-	@Override
-	public boolean fitsItemType(String itemTypeCode) {
-		String[] itemTypeCodes = {"curr", "normal", "14d", "newbook","ser"};
-		return Arrays.asList(itemTypeCodes).contains(itemTypeCode);
-	}
-
-	//button shows for all item status
-	@Override
-	public boolean fitsItemStatus(int itemStatusCode) {
-		Integer[] itemStatuses = {2,3,4,6,7};
-		return Arrays.asList(itemStatuses).contains(itemStatusCode);
 	}
 
 	@Override

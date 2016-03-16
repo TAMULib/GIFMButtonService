@@ -1,6 +1,7 @@
 package edu.tamu.app.service;
 
 import java.io.IOException;
+
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,16 +25,31 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.model.CatalogHolding;
 
+/**
+ * A CatalogService implementation for interfacing with the Voyager REST VXWS api   
+ * 
+ * @author Jason Savell <jsavell@library.tamu.edu>
+ * @author James Creel <jcreel@library.tamu.edu>
+ *
+ */
+
 class VoyagerCatalogService extends AbstractCatalogService {
 	@Autowired
 	private ObjectMapper objectMapper;
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
+	/**
+	 * Fetches holdings from the Voyager API and translates them into catalogHoldings
+	 * 
+	 * @param bibId
+	 * 				String
+	 * 
+	 * @return List<CatalogHolding>
+	 * 
+	 */
 	public List<CatalogHolding> getHoldingsByBibId(String bibId) {
 		try {
-			
-			//we get the isbn from the highest level view of the record
 			logger.debug("Asking for Record from: "+getAPIBase()+"record/"+bibId+"/?view=full");
 			String recordResult = this.getHttpUtility().makeHttpRequest(getAPIBase()+"record/"+bibId+"/?view=full","GET");
 	        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -50,6 +66,9 @@ class VoyagerCatalogService extends AbstractCatalogService {
 	    	String publisher = "";
 	    	String place = "";
 	    	String year = "";
+	    	
+			String marcRecordLeader = doc.getElementsByTagName("leader").item(0).getTextContent();
+
 	    	for (int i=0;i<dataFieldCount;i++) {
 	    		Node currentNode = dataFields.item(i);
 	    		switch (currentNode.getAttributes().getNamedItem("tag").getTextContent()) {
@@ -95,7 +114,6 @@ class VoyagerCatalogService extends AbstractCatalogService {
 				int childCount = childNodes.getLength();
 				logger.debug("The Count of Children: "+childCount);
 				Map<String,Map<String,String>> catalogItems = new HashMap<String,Map<String,String>>();
-				String marcRecordLeader = childNodes.item(0).getFirstChild().getTextContent();
 				String mfhd = childNodes.item(0).getChildNodes().item(1).getTextContent();
 				logger.debug("MarcRecordLeader: "+marcRecordLeader);
 				logger.debug("MFHD: "+mfhd);

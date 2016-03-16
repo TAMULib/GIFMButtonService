@@ -3,6 +3,14 @@ package edu.tamu.app.model;
 import java.util.ArrayList;
 import java.util.Map;
 
+/**
+ * The GetIt2Days Button represents a request for any item that is 'In Process'
+ * 
+ * @author Jason Savell <jsavell@library.tamu.edu>
+ * @author Michael Nichols <mnichols@library.tamu.edu>
+ *
+ */
+
 public final class GetIt2DaysButton extends AbstractGetItForMeButton {
 	
 	public GetIt2DaysButton() {
@@ -10,17 +18,13 @@ public final class GetIt2DaysButton extends AbstractGetItForMeButton {
 		this.templateParameterKeys.add("callNumber");
 		this.templateParameterKeys.add("location");
 		this.templateParameterKeys.add("itemBarcode");
+		this.templateParameterKeys.add("title");
+		this.templateParameterKeys.add("author");
+		this.templateParameterKeys.add("isbn");
+		this.templateParameterKeys.add("publisher");
+
 		setLinkText("Get it: 2 days");
 		setSID("libcat:InProcess");
-	}
-
-	//button shows for item status of 22 only
-	@Override
-	public boolean fitsItemStatus(int itemStatusCode) {
-		if (itemStatusCode == 22) {
-			return true;
-		}
-		return false;
 	}
 
 	@Override
