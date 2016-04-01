@@ -15,6 +15,10 @@ public final class CushingButton extends AbstractGetItForMeButton {
 	
 	public CushingButton() {
 		this.templateParameterKeys = new ArrayList<String>();
+		this.templateParameterKeys.add("title");
+		this.templateParameterKeys.add("author");
+		this.templateParameterKeys.add("isbn");
+		this.templateParameterKeys.add("publisher");
 		this.templateParameterKeys.add("callNumber");
 		this.templateParameterKeys.add("location");
 		setLinkText("Request from Cushing");
@@ -29,8 +33,12 @@ public final class CushingButton extends AbstractGetItForMeButton {
 	
 	@Override
 	public String getLinkTemplate(Map<String,String> templateParameters) {
-		//String callNumber, String locationName
 		return "aeon.library.tamu.edu/aeonnew/openurl.asp?sid="+this.getSID()+
-				"&callnumber="+templateParameters.get("callNumber")+"&location="+templateParameters.get("location");
+				"&title="+templateParameters.get("title")+
+				"&author="+templateParameters.get("author")+
+				"&isbn="+templateParameters.get("isbn")+
+				"&publisher="+templateParameters.get("publisher")+
+				"&callnumber="+templateParameters.get("callNumber")+
+				"&location="+templateParameters.get("location");
 	}
 }
