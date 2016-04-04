@@ -67,6 +67,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
 	    	String publisher = "";
 	    	String place = "";
 	    	String year = "";
+	    	String genre = "";
 	    	
 			String marcRecordLeader = doc.getElementsByTagName("leader").item(0).getTextContent();
 
@@ -75,9 +76,11 @@ class VoyagerCatalogService extends AbstractCatalogService {
 	    		switch (currentNode.getAttributes().getNamedItem("tag").getTextContent()) {
 	    			case "022":
 	    				issn = currentNode.getChildNodes().item(0).getTextContent();
+	    				genre = "journal";
 	    			break;
 	    			case "020":
 	    				isbn = currentNode.getChildNodes().item(0).getTextContent().split(" ")[0];
+	    				genre = "book";
     				break;
 	    			case "245":
 	    				title = currentNode.getChildNodes().item(0).getTextContent();
@@ -144,7 +147,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
 						catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),itemData);
 					}
 				}
-				catalogHoldings.add(new CatalogHolding(marcRecordLeader,mfhd,issn,isbn,title,author,publisher,place,year,new HashMap<String,Map<String,String>>(catalogItems)));
+				catalogHoldings.add(new CatalogHolding(marcRecordLeader,mfhd,issn,isbn,title,author,publisher,place,year,genre,new HashMap<String,Map<String,String>>(catalogItems)));
 				catalogItems.clear();
 			}
 			return catalogHoldings;

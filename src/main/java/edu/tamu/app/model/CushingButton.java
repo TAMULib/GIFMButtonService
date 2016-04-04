@@ -20,6 +20,7 @@ public final class CushingButton extends AbstractGetItForMeButton {
 		this.templateParameterKeys.add("issn");
 		this.templateParameterKeys.add("isbn");
 		this.templateParameterKeys.add("publisher");
+		this.templateParameterKeys.add("genre");
 		this.templateParameterKeys.add("callNumber");
 		this.templateParameterKeys.add("location");
 		setLinkText("Request from Cushing");
@@ -37,9 +38,10 @@ public final class CushingButton extends AbstractGetItForMeButton {
 		return "aeon.library.tamu.edu/aeonnew/openurl.asp?sid="+this.getSID()+
 				"&title="+templateParameters.get("title")+
 				"&author="+templateParameters.get("author")+
-				"&issn="+templateParameters.get("issn")+
 				"&isbn="+templateParameters.get("isbn")+
+				"&issn="+templateParameters.get("issn")+
 				"&publisher="+templateParameters.get("publisher")+
+				"&genre="+templateParameters.get("genre")+
 				"&callnumber="+templateParameters.get("callNumber")+
 				"&location="+templateParameters.get("location");
 	}

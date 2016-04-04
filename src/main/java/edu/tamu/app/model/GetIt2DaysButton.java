@@ -15,14 +15,16 @@ public final class GetIt2DaysButton extends AbstractGetItForMeButton {
 	
 	public GetIt2DaysButton() {
 		this.templateParameterKeys = new ArrayList<String>();
+		this.templateParameterKeys.add("title");
+		this.templateParameterKeys.add("author");
+		this.templateParameterKeys.add("isbn");
+		this.templateParameterKeys.add("issn");
+		this.templateParameterKeys.add("publisher");
+		this.templateParameterKeys.add("genre");
 		this.templateParameterKeys.add("callNumber");
 		this.templateParameterKeys.add("location");
 		this.templateParameterKeys.add("itemBarcode");
-		this.templateParameterKeys.add("title");
-		this.templateParameterKeys.add("author");
-		this.templateParameterKeys.add("issn");
-		this.templateParameterKeys.add("isbn");
-		this.templateParameterKeys.add("publisher");
+
 
 		setLinkText("Get it: 2 days");
 		setSID("libcat:InProcess");
@@ -33,9 +35,10 @@ public final class GetIt2DaysButton extends AbstractGetItForMeButton {
 		return "getitforme.library.tamu.edu/illiad/EVANSLocal/openurl.asp?Action=10&Form=30&sid="+this.getSID()+
 				"&title="+templateParameters.get("title")+
 				"&author="+templateParameters.get("author")+
-				"&issn="+templateParameters.get("issn")+
 				"&isbn="+templateParameters.get("isbn")+
+				"&issn="+templateParameters.get("issn")+
 				"&publisher="+templateParameters.get("publisher")+
+				"&genre="+templateParameters.get("genre")+
 				"&rfe_dat="+templateParameters.get("callNumber")+":"+templateParameters.get("location")+
 				"&Notes="+templateParameters.get("itemBarcode");
 	}
