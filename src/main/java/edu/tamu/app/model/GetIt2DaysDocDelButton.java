@@ -19,6 +19,7 @@ public final class GetIt2DaysDocDelButton extends AbstractGetItForMeButton {
 		this.templateParameterKeys.add("location");
 		this.templateParameterKeys.add("title");
 		this.templateParameterKeys.add("author");
+		this.templateParameterKeys.add("issn");
 		this.templateParameterKeys.add("isbn");
 		this.templateParameterKeys.add("publisher");
 		this.templateParameterKeys.add("itemBarcode");
@@ -31,8 +32,12 @@ public final class GetIt2DaysDocDelButton extends AbstractGetItForMeButton {
 	@Override
 	public String getLinkTemplate(Map<String,String> templateParameters) {
 		return "getitforme.library.tamu.edu/illiad/EVANSLocal/openurl.asp?Action=10&Form=30&sid="+this.getSID()+
-				"&title="+templateParameters.get("title")+"&author="+templateParameters.get("author")+"&isbn="+templateParameters.get("isbn")+
-				"&publisher="+templateParameters.get("publisher")+"&rfe_dat="+templateParameters.get("callNumber")+":"+templateParameters.get("location")+
+				"&title="+templateParameters.get("title")+
+				"&author="+templateParameters.get("author")+
+				"&issn="+templateParameters.get("issn")+
+				"&isbn="+templateParameters.get("isbn")+
+				"&publisher="+templateParameters.get("publisher")+
+				"&rfe_dat="+templateParameters.get("callNumber")+":"+templateParameters.get("location")+
 				"&Notes="+templateParameters.get("itemBarcode");
 	}
 }

@@ -17,6 +17,7 @@ public final class CushingButton extends AbstractGetItForMeButton {
 		this.templateParameterKeys = new ArrayList<String>();
 		this.templateParameterKeys.add("title");
 		this.templateParameterKeys.add("author");
+		this.templateParameterKeys.add("issn");
 		this.templateParameterKeys.add("isbn");
 		this.templateParameterKeys.add("publisher");
 		this.templateParameterKeys.add("callNumber");
@@ -36,6 +37,7 @@ public final class CushingButton extends AbstractGetItForMeButton {
 		return "aeon.library.tamu.edu/aeonnew/openurl.asp?sid="+this.getSID()+
 				"&title="+templateParameters.get("title")+
 				"&author="+templateParameters.get("author")+
+				"&issn="+templateParameters.get("issn")+
 				"&isbn="+templateParameters.get("isbn")+
 				"&publisher="+templateParameters.get("publisher")+
 				"&callnumber="+templateParameters.get("callNumber")+

@@ -60,6 +60,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
 	    	doc.getDocumentElement().normalize();
 	    	NodeList dataFields = doc.getElementsByTagName("datafield");
 	    	int dataFieldCount = dataFields.getLength();
+	    	String issn = "";
 	    	String isbn = "";
 	    	String title = "";
 	    	String author = "";
@@ -72,8 +73,11 @@ class VoyagerCatalogService extends AbstractCatalogService {
 	    	for (int i=0;i<dataFieldCount;i++) {
 	    		Node currentNode = dataFields.item(i);
 	    		switch (currentNode.getAttributes().getNamedItem("tag").getTextContent()) {
+	    			case "022":
+	    				issn = currentNode.getChildNodes().item(0).getTextContent();
+	    			break;
 	    			case "020":
-	    				isbn = currentNode.getChildNodes().item(0).getTextContent().split(" ")[0];;
+	    				isbn = currentNode.getChildNodes().item(0).getTextContent().split(" ")[0];
     				break;
 	    			case "245":
 	    				title = currentNode.getChildNodes().item(0).getTextContent();
@@ -140,7 +144,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
 						catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),itemData);
 					}
 				}
-				catalogHoldings.add(new CatalogHolding(marcRecordLeader,mfhd,isbn,title,author,publisher,place,year,new HashMap<String,Map<String,String>>(catalogItems)));
+				catalogHoldings.add(new CatalogHolding(marcRecordLeader,mfhd,issn,isbn,title,author,publisher,place,year,new HashMap<String,Map<String,String>>(catalogItems)));
 				catalogItems.clear();
 			}
 			return catalogHoldings;

@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 public class CatalogHolding {
 	private String marcRecordLeader;
 	private String mfhd;
+	private String issn;
 	private String isbn;
 	private String title;
 	private String author;
@@ -25,10 +26,11 @@ public class CatalogHolding {
 	
 	private Map<String,Map<String,String>> catalogItems = new HashMap<String,Map<String,String>>();
 	
-	public CatalogHolding(String marcRecordLeader,String mfhd, String isbn, String title, String author, String publisher, String place, String year, Map<String,Map<String,String>> catalogItems) {
+	public CatalogHolding(String marcRecordLeader,String mfhd, String issn, String isbn, String title, String author, String publisher, String place, String year, Map<String,Map<String,String>> catalogItems) {
 		this.setMarcRecordLeader(marcRecordLeader);
 		this.setMfhd(mfhd);
 		this.setCatalogItems(catalogItems);
+		this.setIssn(issn);
 		this.setIsbn(isbn);
 		this.setTitle(title);
 		this.setAuthor(author);
@@ -43,6 +45,14 @@ public class CatalogHolding {
 
 	public void setMarcRecordLeader(String marcRecordLeader) {
 		this.marcRecordLeader = marcRecordLeader;
+	}
+	
+	public String getIssn() {
+		return issn;
+	}
+
+	public void setIssn(String issn) {
+		this.issn = issn;
 	}
 	
 	public String getIsbn() {
