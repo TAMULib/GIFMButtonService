@@ -16,25 +16,29 @@ import org.apache.commons.lang3.StringUtils;
 public class CatalogHolding {
 	private String marcRecordLeader;
 	private String mfhd;
+	private String issn;
 	private String isbn;
 	private String title;
 	private String author;
 	private String publisher;
 	private String place;
 	private String year;
+	private String genre;
 	
 	private Map<String,Map<String,String>> catalogItems = new HashMap<String,Map<String,String>>();
 	
-	public CatalogHolding(String marcRecordLeader,String mfhd, String isbn, String title, String author, String publisher, String place, String year, Map<String,Map<String,String>> catalogItems) {
+	public CatalogHolding(String marcRecordLeader,String mfhd, String issn, String isbn, String title, String author, String publisher, String place, String year, String genre, Map<String,Map<String,String>> catalogItems) {
 		this.setMarcRecordLeader(marcRecordLeader);
 		this.setMfhd(mfhd);
 		this.setCatalogItems(catalogItems);
+		this.setIssn(issn);
 		this.setIsbn(isbn);
 		this.setTitle(title);
 		this.setAuthor(author);
 		this.setPublisher(publisher);
 		this.setPlace(place);
 		this.setYear(year);
+		this.setGenre(genre);
 	}
 	
 	public String getMarcRecordLeader() {
@@ -43,6 +47,14 @@ public class CatalogHolding {
 
 	public void setMarcRecordLeader(String marcRecordLeader) {
 		this.marcRecordLeader = marcRecordLeader;
+	}
+	
+	public String getIssn() {
+		return issn;
+	}
+
+	public void setIssn(String issn) {
+		this.issn = issn;
 	}
 	
 	public String getIsbn() {
@@ -100,6 +112,14 @@ public class CatalogHolding {
 
 	public void setYear(String year) {
 		this.year = year;
+	}
+	
+	public String getGenre() {
+		return genre;
+	}
+
+	public void setGenre(String genre) {
+		this.genre = genre;
 	}
 
 	public Map<String, Map<String, String>> getCatalogItems() {

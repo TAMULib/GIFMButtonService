@@ -163,7 +163,7 @@ public class GetItForMeService {
 								parameters.put(parameterKey,itemData.get(parameterKey));
 							}
 							//these template parameter keys are a special case, and come from the parent holding, rather than the item data itself
-							String[] getParameterFromHolding = {"isbn","title","author","publisher","place","year"};
+							String[] getParameterFromHolding = {"issn","isbn","title","author","publisher","genre","place","year"};
 							for (String parameterName:getParameterFromHolding) {
 								if (parameters.containsKey(parameterName)) {
 									try {
