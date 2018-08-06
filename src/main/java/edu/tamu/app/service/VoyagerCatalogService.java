@@ -1,7 +1,6 @@
 package edu.tamu.app.service;
 
 import java.io.IOException;
-
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,49 +13,44 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import edu.tamu.app.model.CatalogHolding;
+import edu.tamu.weaver.utility.HttpUtility;
 
 /**
- * A CatalogService implementation for interfacing with the Voyager REST VXWS api   
- * 
+ * A CatalogService implementation for interfacing with the Voyager REST VXWS api
+ *
  * @author Jason Savell <jsavell@library.tamu.edu>
  * @author James Creel <jcreel@library.tamu.edu>
  *
  */
 
 class VoyagerCatalogService extends AbstractCatalogService {
-	@Autowired
-	private ObjectMapper objectMapper;
-	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
+
 	/**
 	 * Fetches holdings from the Voyager API and translates them into catalogHoldings
-	 * 
+	 *
 	 * @param bibId
 	 * 				String
-	 * 
+	 *
 	 * @return List<CatalogHolding>
-	 * 
+	 *
 	 */
 	public List<CatalogHolding> getHoldingsByBibId(String bibId) {
 		try {
 			logger.debug("Asking for Record from: "+getAPIBase()+"record/"+bibId+"/?view=full");
-			String recordResult = this.getHttpUtility().makeHttpRequest(getAPIBase()+"record/"+bibId+"/?view=full","GET");
+            String recordResult = HttpUtility.makeHttpRequest(getAPIBase()+"record/"+bibId+"/?view=full","GET");
 	        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 	    	DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-	    	
+
 	    	Document doc = dBuilder.parse(new InputSource(new StringReader(recordResult)));
-	    	
+
 	    	doc.getDocumentElement().normalize();
 	    	NodeList dataFields = doc.getElementsByTagName("datafield");
 	    	int dataFieldCount = dataFields.getLength();
@@ -68,7 +62,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
 	    	String place = "";
 	    	String year = "";
 	    	String genre = "";
-	    	
+
 			String marcRecordLeader = doc.getElementsByTagName("leader").item(0).getTextContent();
 
 	    	for (int i=0;i<dataFieldCount;i++) {
@@ -101,17 +95,17 @@ class VoyagerCatalogService extends AbstractCatalogService {
 	    			break;
 	    		}
 	    	}
-	    	
+
 	    	logger.debug("Asking for holdings from: "+getAPIBase()+"record/"+bibId+"/holdings?view=items");
-			String result = this.getHttpUtility().makeHttpRequest(getAPIBase()+"record/"+bibId+"/holdings?view=items","GET");
+			String result = HttpUtility.makeHttpRequest(getAPIBase()+"record/"+bibId+"/holdings?view=items","GET");
 			logger.debug("Received holdings from: "+getAPIBase()+"record/"+bibId+"/holdings?view=items");
 
 	    	doc = dBuilder.parse(new InputSource(new StringReader(result)));
-	    	
+
 	    	doc.getDocumentElement().normalize();
 			NodeList holdings = doc.getElementsByTagName("holding");
 			int holdingCount = holdings.getLength();
-			
+
 			List<CatalogHolding> catalogHoldings = new ArrayList<CatalogHolding>();
 			logger.debug("\n\nThe Holding Count: "+holdingCount);
 
@@ -129,7 +123,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
 
 				for (int j=0;j<childCount;j++) {
 					if (childNodes.item(j).getNodeName() == "item") {
-						String itemResult = this.getHttpUtility().makeHttpRequest(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),"GET");
+						String itemResult = HttpUtility.makeHttpRequest(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),"GET");
 
 						logger.debug("Got Item details from: "+childNodes.item(j).getAttributes().getNamedItem("href").getTextContent());
 						doc = dBuilder.parse(new InputSource(new StringReader(itemResult)));

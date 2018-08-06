@@ -1,7 +1,7 @@
 package edu.tamu.app.controller;
 
-import static edu.tamu.framework.enums.ApiResponseType.ERROR;
-import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
+import static edu.tamu.weaver.response.ApiStatus.ERROR;
+import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,29 +11,24 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.tamu.app.service.GetItForMeService;
-import edu.tamu.framework.aspect.annotation.ApiMapping;
-import edu.tamu.framework.aspect.annotation.SkipAop;
-import edu.tamu.framework.model.ApiResponse;
+import edu.tamu.weaver.response.ApiResponse;
 
-@Controller
-@ApiMapping("/catalog-access")
+@RestController
+@RequestMapping("/catalog-access")
 public class CatalogAccessController {
     @Autowired
-    private ObjectMapper objectMapper;
-    
-    @Autowired
     GetItForMeService getItForMeService;
-    
+
     /**
      * Provides the raw CatalogHolding data
-     * 
+     *
      * @param catalogName
      * @param bibId
      * @return
@@ -41,8 +36,7 @@ public class CatalogAccessController {
      * @throws IOException
      */
 
-	@ApiMapping("/get-holdings")
-	@SkipAop
+	@RequestMapping("/get-holdings")
 	public ApiResponse getHoldings(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId) throws JsonProcessingException, IOException {
 		return new ApiResponse(SUCCESS,getItForMeService.getHoldingsByBibId(catalogName,bibId));
 	}
@@ -54,8 +48,7 @@ public class CatalogAccessController {
 	 * @param returnType
 	 * @return
 	 */
-	@ApiMapping("/get-html-buttons")
-	@SkipAop
+	@RequestMapping("/get-html-buttons")
 	public ApiResponse getHtmlButtonsByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId, @RequestParam(value="returnType",defaultValue="html") String returnType) {
 		Map<String,List<Map<String,String>>> buttonData = getItForMeService.getButtonsByBibId(catalogName, bibId);
 		if (buttonData != null) {
@@ -66,31 +59,30 @@ public class CatalogAccessController {
 			    while (buttonPropIterator.hasNext()) {
 				    String html = "<a target=\"_blank\" class=\"{cssClasses}\" href=\"http://{linkHref}\">{linkText}</a>";
 			    	Map<String,String> buttonProperties = (Map<String, String>) buttonPropIterator.next();
-			    	
+
 			    	Iterator<String> propKeysIterator = buttonProperties.keySet().iterator();
 			    	while (propKeysIterator.hasNext()) {
 			    		String propKey = (String) propKeysIterator.next();
 			    		html = html.replace("{"+propKey+"}",buttonProperties.get(propKey));
 			    	}
 			    	buttonContents.get(entry.getKey()).add(html);
-			    	
+
 			    }
 			}
 			return new ApiResponse(SUCCESS,buttonContents);
 		}
 		return new ApiResponse(ERROR,"Catalog or Holding not found");
 	}
-	
+
 	/**
-	 * Provides the raw button data in JSON format, keyed by MFHD.  
+	 * Provides the raw button data in JSON format, keyed by MFHD.
 	 * @param catalogName
 	 * @param bibId
 	 * @param returnType
 	 * @return
 	 */
 
-	@ApiMapping("/get-buttons")
-	@SkipAop
+	@RequestMapping("/get-buttons")
 	public ApiResponse getButtonsByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId, @RequestParam(value="returnType",defaultValue="html") String returnType) {
 		Map<String,List<Map<String,String>>> buttonData = getItForMeService.getButtonsByBibId(catalogName, bibId);
 		if (buttonData != null) {
