@@ -45,7 +45,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
 	public List<CatalogHolding> getHoldingsByBibId(String bibId) {
 		try {
 			logger.debug("Asking for Record from: "+getAPIBase()+"record/"+bibId+"/?view=full");
-            String recordResult = HttpUtility.makeHttpRequest(getAPIBase()+"record/"+bibId+"/?view=full","GET");
+			String recordResult = HttpUtility.makeHttpRequest(getAPIBase()+"record/"+bibId+"/?view=full","GET");
 	        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 	    	DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
@@ -97,7 +97,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
 	    	}
 
 	    	logger.debug("Asking for holdings from: "+getAPIBase()+"record/"+bibId+"/holdings?view=items");
-			String result = HttpUtility.makeHttpRequest(getAPIBase()+"record/"+bibId+"/holdings?view=items","GET");
+	        String result = HttpUtility.makeHttpRequest(getAPIBase()+"record/"+bibId+"/holdings?view=items","GET");
 			logger.debug("Received holdings from: "+getAPIBase()+"record/"+bibId+"/holdings?view=items");
 
 	    	doc = dBuilder.parse(new InputSource(new StringReader(result)));
