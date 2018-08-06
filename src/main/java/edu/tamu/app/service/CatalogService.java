@@ -3,7 +3,6 @@ package edu.tamu.app.service;
 import java.util.List;
 
 import edu.tamu.app.model.CatalogHolding;
-import edu.tamu.weaver.utility.HttpUtility;
 
 /**
  * An interface describing Catalog Service API connectors
@@ -39,9 +38,5 @@ public interface CatalogService {
 	String getProtocol();
 
 	void setProtocol(String protocol);
-
-	HttpUtility getHttpUtility();
-
-	void setHttpUtility(HttpUtility httpUtility);
 
 }

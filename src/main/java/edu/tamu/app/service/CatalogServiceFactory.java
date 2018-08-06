@@ -1,7 +1,6 @@
 package edu.tamu.app.service;
 
 import java.io.FileInputStream;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import edu.tamu.weaver.utility.HttpUtility;
 
 /**
  * Registers and manages the available CatalogServices and provides them as needed to the rest of the application
@@ -88,7 +85,6 @@ public class CatalogServiceFactory {
 						catalogService.setApp(app);
 						catalogService.setProtocol(protocol);
 						catalogService.setType("voyager");
-						catalogService.setHttpUtility(new HttpUtility());
 					break;
 				}
 			}
