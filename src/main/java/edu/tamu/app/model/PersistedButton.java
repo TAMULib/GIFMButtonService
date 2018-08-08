@@ -1,30 +1,50 @@
 package edu.tamu.app.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 /**
- * An abstract implementation of the GetItForMeButton with
- * sensible defaults.
- * 
- * It's a good idea to extend this when creating a new GetItForMeButton.
- * 
  * @author Jason Savell <jsavell@library.tamu.edu>
  * @author James Creel <jcreel@library.tamu.edu>
  */
 
-public abstract class AbstractGetItForMeButton implements GetItForMeButton {
+@Entity
+public class PersistedButton implements GetItForMeButton {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    Long id;
+
+    @ElementCollection
 	protected List<String> templateParameterKeys;
-	
-	protected String[] locationCodes;
-	protected String[] itemTypeCodes;
-	protected Integer[] itemStatusCodes;
-	
+
+	@ElementCollection
+	protected List<String> locationCodes = new ArrayList<String>();
+
+	@ElementCollection
+	protected List<String> itemTypeCodes = new ArrayList<String>();
+
+	@ElementCollection
+    protected List<Integer> itemStatusCodes = new ArrayList<Integer>();
+
+	@Column
 	private String linkText="Default Link Text";
+
+	@Column
 	private String SID="libcat:InProcess";
+
+	@Column
 	private String cssClasses = "button-gifm";
-	
+
 	@Override
 	public boolean fitsRecordType(String marcRecord) {
 		return true;
@@ -32,28 +52,32 @@ public abstract class AbstractGetItForMeButton implements GetItForMeButton {
 
 	@Override
 	public boolean fitsLocation(String locationCode) {
-		return (this.locationCodes != null) ? Arrays.asList(this.locationCodes).contains(locationCode):true;
+		return (locationCodes != null) ? locationCodes.contains(locationCode):true;
 	}
 
 	@Override
 	public boolean fitsItemType(String itemTypeCode) {
-		return (this.itemTypeCodes != null) ? Arrays.asList(this.itemTypeCodes).contains(itemTypeCode):true;
+		return (itemTypeCodes != null) ? itemTypeCodes.contains(itemTypeCode):true;
 	}
 
 	@Override
 	public boolean fitsItemStatus(int itemStatusCode) {
-		return (this.itemStatusCodes != null) ? Arrays.asList(this.itemStatusCodes).contains(itemStatusCode):true;
+		return (itemStatusCodes != null) ? itemStatusCodes.contains(itemStatusCode):true;
 	}
 
 	@Override
 	public String getLinkTemplate(Map<String,String> templateParameters) {
 		return "default template";
 	}
-	
+
 	@Override
 	public List<String> getTemplateParameterKeys() {
 		return this.templateParameterKeys;
 	}
+
+    public void setTemplateParameterKeys(String[] templateParameterKeys) {
+        this.templateParameterKeys = Arrays.asList(templateParameterKeys);
+    }
 
 	@Override
 	public String getLinkText() {
@@ -62,7 +86,7 @@ public abstract class AbstractGetItForMeButton implements GetItForMeButton {
 
 	@Override
 	public void setLinkText(String linkText) {
-		this.linkText = linkText;		
+		this.linkText = linkText;
 	}
 
 	@Override
@@ -84,16 +108,16 @@ public abstract class AbstractGetItForMeButton implements GetItForMeButton {
 	public void setCssClasses(String cssClasses) {
 		this.cssClasses = cssClasses;
 	}
-	
+
 	public void setLocationCodes(String[] locationCodes) {
-		this.locationCodes = locationCodes;
+		this.locationCodes = Arrays.asList(locationCodes);
 	}
-	
+
 	public void setItemTypeCodes(String[] itemTypeCodes) {
-		this.itemTypeCodes = itemTypeCodes;
+		this.itemTypeCodes = Arrays.asList(itemTypeCodes);
 	}
 
 	public void setItemStatusCodes(Integer[] itemStatusCodes) {
-		this.itemStatusCodes = itemStatusCodes;
+		this.itemStatusCodes = Arrays.asList(itemStatusCodes);
 	}
 }

@@ -17,18 +17,20 @@ import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.CatalogHolding;
 import edu.tamu.app.model.GetItForMeButton;
+import edu.tamu.app.model.PersistedButton;
+import edu.tamu.app.model.repo.PersistedButtonRepo;
 import edu.tamu.app.utilities.sort.VolumeComparator;
 
 
 /**
  * The GetItForMe engine.
- * 
+ *
  * Registers eligible buttons from a configuration file.
- * 
+ *
  * Tests holding items for button eligibility based on button configuration rules
- * 
+ *
  * Provides access to CatalogHoldings, JSON button data, and HTML buttons
- * 
+ *
  * @author Jason Savell <jsavell@library.tamu.edu>
  * @author James Creel <jcreel@library.tamu.edu>
  * @author Michael Nichols <mnichols@tamu.edu>
@@ -39,23 +41,24 @@ import edu.tamu.app.utilities.sort.VolumeComparator;
 public class GetItForMeService {
 	@Autowired
 	private CatalogServiceFactory catalogServiceFactory;
-	
+
 	@Value("${buttonsPackage}")
 	private String buttonsPackage;
-	
+
 	@Value("${activeButtons}")
 	private String[] activeButtons;
-	
+
 	@Autowired
 	Environment environment;
-	
-	private List<GetItForMeButton> registeredButtons = new ArrayList<GetItForMeButton>();
-	
+
+	@Autowired
+	PersistedButtonRepo persistedButtonRepo;
+
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	/**
 	 * Get a list of CatalogHolding as provided by the CatalogServiceFactory
-	 * 
+	 *
 	 * @param catalogName
 	 * @param bibId
 	 * @return List<CatalogHolding>
@@ -63,78 +66,73 @@ public class GetItForMeService {
 	public List<CatalogHolding> getHoldingsByBibId(String catalogName, String bibId) {
 		return catalogServiceFactory.getOrCreateCatalogService(catalogName).getHoldingsByBibId(bibId);
 	}
-	
+
 	/**
-	 * Registers and instantiates GetItForMe button implementations on app startup based on the button configuration file 
-	 * 
+	 * Registers and instantiates GetItForMe button implementations on app startup based on the button configuration file
+	 *
 	 */
 	@PostConstruct
 	private void registerButtons() {
-		for (String activeButton:activeButtons) {
-			try {
-				String rawLocationCodes = environment.getProperty(activeButton+".locationCodes");
-				String[] itemTypeCodes = environment.getProperty(activeButton+".itemTypeCodes",String[].class);
-				Integer[] itemStatusCodes = environment.getProperty(activeButton+".itemStatusCodes",Integer[].class);
-				String linkText = environment.getProperty(activeButton+".linkText");
-				String SID = environment.getProperty(activeButton+".SID");
-				
-				GetItForMeButton c = (GetItForMeButton) Class.forName(buttonsPackage+"."+activeButton).newInstance();
-				if (rawLocationCodes != null) {
-					c.setLocationCodes(rawLocationCodes.split(";"));
-				}
-				if (itemTypeCodes != null) {
-					c.setItemTypeCodes(itemTypeCodes);
-				}
-				if (itemStatusCodes != null) {
-					c.setItemStatusCodes(itemStatusCodes);
-				}
-				if (linkText != null) {
-					c.setLinkText(linkText);
-				}
-				if (SID != null) {
-					c.setSID(SID);
-				}
-				
-				this.registeredButtons.add(c);
-			} catch (InstantiationException e) {
-				logger.error("Tried to instantiate an instance of "+activeButton, e);
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				logger.error("Tried to access something on a "+activeButton, e);
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				logger.error("Tried to access something on a "+activeButton, e);
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				logger.error("Couldn't find class: "+activeButton, e);
-				e.printStackTrace();
-			}
-		}
+	    //only register the buttons from configuration if the repo is empty
+	    long buttonCount = persistedButtonRepo.count();
+	    if (buttonCount == 0) {
+    		for (String activeButton:activeButtons) {
+    			String rawLocationCodes = environment.getProperty(activeButton+".locationCodes");
+    			String[] itemTypeCodes = environment.getProperty(activeButton+".itemTypeCodes",String[].class);
+    			Integer[] itemStatusCodes = environment.getProperty(activeButton+".itemStatusCodes",Integer[].class);
+    			String linkText = environment.getProperty(activeButton+".linkText");
+    			String SID = environment.getProperty(activeButton+".SID");
+    			String[] templateParameterKeys = environment.getProperty(activeButton+".templateParameterKeys",String[].class);
+
+    			PersistedButton persistedButton = new PersistedButton();
+
+    			if (rawLocationCodes != null) {
+    				persistedButton.setLocationCodes(rawLocationCodes.split(";"));
+    			}
+    			if (itemTypeCodes != null) {
+                    persistedButton.setItemTypeCodes(itemTypeCodes);
+    			}
+    			if (itemStatusCodes != null) {
+                    persistedButton.setItemStatusCodes(itemStatusCodes);
+    			}
+    			if (linkText != null) {
+                    persistedButton.setLinkText(linkText);
+    			}
+    			if (SID != null) {
+                    persistedButton.setSID(SID);
+    			}
+
+    			if (templateParameterKeys != null) {
+    			    persistedButton.setTemplateParameterKeys(templateParameterKeys);
+    			}
+
+    			persistedButtonRepo.save(persistedButton);
+    		}
+	    }
 	}
-	
+
 	private List<GetItForMeButton> getRegisteredButtons() {
-		return this.registeredButtons;
+	    List<? extends GetItForMeButton> buttons = new ArrayList<PersistedButton>();
+	    buttons = (List<? extends GetItForMeButton>) persistedButtonRepo.findAll();
+	    return (List<GetItForMeButton>) buttons;
 	}
-	
+
 	/**
 	 * Gets a list of CatalogHolding by bibId, runs registered button test eligibility for all the items in that holding,
-	 * 	and builds and returns the resulting button data, keyed by the holding's MFHD. 
-	 * 
+	 * 	and builds and returns the resulting button data, keyed by the holding's MFHD.
+	 *
 	 * @param catalogName
 	 * @param bibId
 	 * @return Map<String,List<Map<String,String>>>
 	 */
-	
+
 	public Map<String,List<Map<String,String>>> getButtonsByBibId(String catalogName,String bibId) {
 		List<CatalogHolding> catalogHoldings = this.getHoldingsByBibId(catalogName,bibId);
 		if (catalogHoldings != null) {
 			logger.debug("\n\nCATALOG HOLDINGS FOR "+bibId);
-			
+
 			Map<String,List<Map<String,String>>> validButtons = new HashMap<String,List<Map<String,String>>>();
-			
+
 			//check each holding
 			catalogHoldings.forEach(holding -> {
 				logger.debug("MARC Record Leader: "+holding.getMarcRecordLeader());
@@ -148,17 +146,17 @@ public class GetItForMeService {
 					//check all registered button for each item
 					for (GetItForMeButton button:this.getRegisteredButtons()) {
 						logger.debug("Analyzing: "+button.toString());
-	
+
 						logger.debug("Location: "+itemData.get("permLocationCode")+": "+button.fitsLocation(itemData.get("permLocationCode")));
 						logger.debug("TypeDesc: "+itemData.get("typeDesc")+": "+button.fitsItemType(itemData.get("typeDesc")));
 						logger.debug("Status: "+itemData.get("itemStatusCode")+": "+button.fitsItemStatus(Integer.parseInt(itemData.get("itemStatusCode"))));
-						
+
 						//test the current item against the current GetItForMe button's requirements for eligibility
 						if (button.fitsRecordType(holding.getMarcRecordLeader()) && button.fitsLocation(itemData.get("permLocationCode")) && button.fitsItemType(itemData.get("typeDesc")) && button.fitsItemStatus(Integer.parseInt(itemData.get("itemStatusCode")))) {
 							//used to build the button's link from the template parameter keys it provides
 							List<String> parameterKeys = button.getTemplateParameterKeys();
 							Map<String,String> parameters = new HashMap<String,String>();
-							
+
 							for (String parameterKey:parameterKeys) {
 								parameters.put(parameterKey,itemData.get(parameterKey));
 							}
@@ -180,7 +178,7 @@ public class GetItForMeService {
 
 							//generate the button data
 							Map<String,String> buttonContent = new HashMap<String,String>();
-							//for multi-volume holdings, enrich the linkText to indicate which volume the button represents 
+							//for multi-volume holdings, enrich the linkText to indicate which volume the button represents
 							if (holding.isMultiVolume()) {
 								logger.debug("Generating a multi volume button");
 								buttonContent.put("linkText",itemData.get("enumeration")+" "+itemData.get("chron")+" | "+button.getLinkText());
