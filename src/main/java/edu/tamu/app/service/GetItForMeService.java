@@ -42,9 +42,6 @@ public class GetItForMeService {
 	@Autowired
 	private CatalogServiceFactory catalogServiceFactory;
 
-	@Value("${buttonsPackage}")
-	private String buttonsPackage;
-
 	@Value("${activeButtons}")
 	private String[] activeButtons;
 
@@ -84,6 +81,9 @@ public class GetItForMeService {
     			String SID = environment.getProperty(activeButton+".SID");
     			String[] templateParameterKeys = environment.getProperty(activeButton+".templateParameterKeys",String[].class);
 
+    			String recordTypeValue = environment.getProperty(activeButton+".recordType.value");
+    			Integer recordTypePosition = environment.getProperty(activeButton+".recordType.position",Integer.class);
+
     			PersistedButton persistedButton = new PersistedButton();
 
     			if (rawLocationCodes != null) {
@@ -104,6 +104,11 @@ public class GetItForMeService {
 
     			if (templateParameterKeys != null) {
     			    persistedButton.setTemplateParameterKeys(templateParameterKeys);
+    			}
+
+    			if (recordTypeValue != null && recordTypePosition != null) {
+    			    persistedButton.setRecordTypePosition(recordTypePosition);
+    			    persistedButton.setRecordTypeValue(recordTypeValue);
     			}
 
     			persistedButtonRepo.save(persistedButton);

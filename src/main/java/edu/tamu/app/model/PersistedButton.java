@@ -45,14 +45,31 @@ public class PersistedButton implements GetItForMeButton {
 	@Column
 	private String cssClasses = "button-gifm";
 
+	@Column
+	private String recordTypeValue;
+
+	@Column
+	private Integer recordTypePosition;
+
 	@Override
-	public boolean fitsRecordType(String marcRecord) {
+	public boolean fitsRecordType(String marcRecordLeader) {
+	    if (recordTypeValue != null && recordTypePosition != null) {
+	        if (!marcRecordLeader.substring(recordTypePosition).contentEquals(recordTypeValue)) {
+	            return false;
+	        }
+	    }
 		return true;
 	}
 
 	@Override
 	public boolean fitsLocation(String locationCode) {
-		return (locationCodes != null) ? locationCodes.contains(locationCode):true;
+	    if (locationCodes == null) {
+	        return true;
+	    }
+	    if (locationCodes.size() == 1) {
+	        return locationCode.contains(locationCodes.get(0));
+	    }
+		return locationCodes.contains(locationCode);
 	}
 
 	@Override
@@ -120,4 +137,21 @@ public class PersistedButton implements GetItForMeButton {
 	public void setItemStatusCodes(Integer[] itemStatusCodes) {
 		this.itemStatusCodes = Arrays.asList(itemStatusCodes);
 	}
+
+    public String getRecordTypeValue() {
+        return recordTypeValue;
+    }
+
+    public void setRecordTypeValue(String recordTypeValue) {
+        this.recordTypeValue = recordTypeValue;
+    }
+
+    public Integer getRecordTypePosition() {
+        return recordTypePosition;
+    }
+
+    public void setRecordTypePosition(Integer recordTypePosition) {
+        this.recordTypePosition = recordTypePosition;
+    }
+
 }
