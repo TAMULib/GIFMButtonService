@@ -85,6 +85,8 @@ public class GetItForMeService {
     			String recordTypeValue = environment.getProperty(activeButton+".recordType.value");
     			Integer recordTypePosition = environment.getProperty(activeButton+".recordType.position",Integer.class);
 
+    			String cssClasses = environment.getProperty(activeButton+".cssClasses");
+
     			PersistedButton persistedButton = new PersistedButton();
 
     			if (rawLocationCodes != null) {
@@ -114,6 +116,10 @@ public class GetItForMeService {
     			if (recordTypeValue != null && recordTypePosition != null) {
     			    persistedButton.setRecordTypePosition(recordTypePosition);
     			    persistedButton.setRecordTypeValue(recordTypeValue);
+    			}
+
+    			if (cssClasses != null) {
+    			    persistedButton.setCssClasses(cssClasses);
     			}
 
     			persistedButtonRepo.save(persistedButton);
@@ -207,7 +213,7 @@ public class GetItForMeService {
 								buttonContent.put("linkText",button.getLinkText());
 							}
 							buttonContent.put("linkHref",linkHref);
-							buttonContent.put("cssClasses", button.getCssClasses());
+							buttonContent.put("cssClasses", "button-gifm "+button.getCssClasses());
 							//add the button to the list for the holding's MFHD
 							validButtons.get(holding.getMfhd()).add(buttonContent);
 						} else {
