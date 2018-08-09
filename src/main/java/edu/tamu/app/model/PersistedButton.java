@@ -42,7 +42,7 @@ public class PersistedButton implements GetItForMeButton {
 	private String SID="libcat:InProcess";
 
 	@Column
-	private String cssClasses = "button-gifm";
+	private String cssClasses;
 
 	@Column
 	private String recordTypeValue;
@@ -76,12 +76,12 @@ public class PersistedButton implements GetItForMeButton {
 
 	@Override
 	public boolean fitsItemType(String itemTypeCode) {
-		return (itemTypeCodes != null) ? itemTypeCodes.contains(itemTypeCode):true;
+		return (itemTypeCodes.size() > 0) ? itemTypeCodes.contains(itemTypeCode):true;
 	}
 
 	@Override
 	public boolean fitsItemStatus(int itemStatusCode) {
-		return (itemStatusCodes != null) ? itemStatusCodes.contains(itemStatusCode):true;
+		return (itemStatusCodes.size() > 0) ? itemStatusCodes.contains(itemStatusCode):true;
 	}
 
 	@Override
