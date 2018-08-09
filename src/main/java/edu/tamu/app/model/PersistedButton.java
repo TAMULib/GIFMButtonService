@@ -11,13 +11,15 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import edu.tamu.weaver.validation.model.ValidatingBaseEntity;
+
 /**
  * @author Jason Savell <jsavell@library.tamu.edu>
  * @author James Creel <jcreel@library.tamu.edu>
  */
 
 @Entity
-public class PersistedButton implements GetItForMeButton {
+public class PersistedButton extends ValidatingBaseEntity implements GetItForMeButton {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -84,14 +86,22 @@ public class PersistedButton implements GetItForMeButton {
 		return (itemStatusCodes.size() > 0) ? itemStatusCodes.contains(itemStatusCode):true;
 	}
 
-	@Override
-	public String getLinkTemplate() {
-	    return linkTemplate;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setLinkTemplate(String linkTemplate) {
-	    this.linkTemplate = linkTemplate;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getLinkTemplate() {
+        return linkTemplate;
+    }
+
+    public void setLinkTemplate(String linkTemplate) {
+        this.linkTemplate = linkTemplate;
+    }
 
 	@Override
 	public List<String> getTemplateParameterKeys() {

@@ -9,16 +9,16 @@
  */
 package edu.tamu.app.model.repo;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import edu.tamu.app.model.PersistedButton;
+import edu.tamu.weaver.data.model.repo.WeaverRepo;
 
 /**
  * Repository for PersistedButton.
  *
  */
 @Repository
-public interface PersistedButtonRepo extends JpaRepository<PersistedButton, Long>, PersistedButtonRepoCustom {
+public interface PersistedButtonRepo extends WeaverRepo<PersistedButton> {
 
 }
