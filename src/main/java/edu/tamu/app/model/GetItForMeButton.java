@@ -1,7 +1,6 @@
 package edu.tamu.app.model;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * The essence of a GetItForMe Button
@@ -54,10 +53,10 @@ public interface GetItForMeButton {
 
 	/**
 	 * Get the button's LinkTemplate
-	 * A button's LinkTemplate is the HTML link that can be used in conjunction with the button's ParameterKeys to generate a unique button link for a given item
+	 * A button's LinkTemplate is the web link that can be used in conjunction with the button's ParameterKeys to generate a unique button link for a given item
 	 * @return String
 	 */
-	String getLinkTemplate(Map<String,String> templateParameters);
+	String getLinkTemplate();
 
 	/**
 	 * Get the button's TemplateParameterKeys

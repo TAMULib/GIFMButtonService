@@ -80,6 +80,7 @@ public class GetItForMeService {
     			String linkText = environment.getProperty(activeButton+".linkText");
     			String SID = environment.getProperty(activeButton+".SID");
     			String[] templateParameterKeys = environment.getProperty(activeButton+".templateParameterKeys",String[].class);
+    			String templateUrl = environment.getProperty(activeButton+".templateUrl");
 
     			String recordTypeValue = environment.getProperty(activeButton+".recordType.value");
     			Integer recordTypePosition = environment.getProperty(activeButton+".recordType.position",Integer.class);
@@ -104,6 +105,10 @@ public class GetItForMeService {
 
     			if (templateParameterKeys != null) {
     			    persistedButton.setTemplateParameterKeys(templateParameterKeys);
+    			}
+
+    			if (templateUrl != null) {
+    			    persistedButton.setLinkTemplate(templateUrl);
     			}
 
     			if (recordTypeValue != null && recordTypePosition != null) {
@@ -163,7 +168,11 @@ public class GetItForMeService {
 							Map<String,String> parameters = new HashMap<String,String>();
 
 							for (String parameterKey:parameterKeys) {
-								parameters.put(parameterKey,itemData.get(parameterKey));
+							    if (parameterKey.equals("sid")) {
+							        parameters.put(parameterKey,button.getSID());
+							    } else {
+							        parameters.put(parameterKey,itemData.get(parameterKey));
+							    }
 							}
 							//these template parameter keys are a special case, and come from the parent holding, rather than the item data itself
 							String[] getParameterFromHolding = {"issn","isbn","title","author","publisher","genre","place","year"};
@@ -177,9 +186,15 @@ public class GetItForMeService {
 								}
 							}
 
+							//generate unique link for the current button
+							String linkHref = button.getLinkTemplate();
+							for (Map.Entry<String,String> entry : parameters.entrySet()) {
+							    linkHref = linkHref.replace("{"+entry.getKey()+"}",entry.getValue());
+							}
+
 							logger.debug("We want the button with text: "+button.getLinkText());
 							logger.debug("It looks like: ");
-							logger.debug(button.getLinkTemplate(parameters));
+							logger.debug(linkHref);
 
 							//generate the button data
 							Map<String,String> buttonContent = new HashMap<String,String>();
@@ -191,7 +206,7 @@ public class GetItForMeService {
 								logger.debug("Generating a single item button");
 								buttonContent.put("linkText",button.getLinkText());
 							}
-							buttonContent.put("linkHref",button.getLinkTemplate(parameters));
+							buttonContent.put("linkHref",linkHref);
 							buttonContent.put("cssClasses", button.getCssClasses());
 							//add the button to the list for the holding's MFHD
 							validButtons.get(holding.getMfhd()).add(buttonContent);

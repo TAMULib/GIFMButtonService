@@ -3,7 +3,6 @@ package edu.tamu.app.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -51,6 +50,9 @@ public class PersistedButton implements GetItForMeButton {
 	@Column
 	private Integer recordTypePosition;
 
+	@Column
+	private String linkTemplate;
+
 	@Override
 	public boolean fitsRecordType(String marcRecordLeader) {
 	    if (recordTypeValue != null && recordTypePosition != null) {
@@ -83,8 +85,12 @@ public class PersistedButton implements GetItForMeButton {
 	}
 
 	@Override
-	public String getLinkTemplate(Map<String,String> templateParameters) {
-		return "default template";
+	public String getLinkTemplate() {
+	    return linkTemplate;
+	}
+
+	public void setLinkTemplate(String linkTemplate) {
+	    this.linkTemplate = linkTemplate;
 	}
 
 	@Override
