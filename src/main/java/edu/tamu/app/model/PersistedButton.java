@@ -142,13 +142,25 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
 		this.cssClasses = cssClasses;
 	}
 
+	public List<String> getLocationCodes() {
+	    return locationCodes;
+	}
+
 	public void setLocationCodes(String[] locationCodes) {
 		this.locationCodes = Arrays.asList(locationCodes);
 	}
 
+    public List<String> getItemTypeCodes() {
+        return itemTypeCodes;
+    }
+
 	public void setItemTypeCodes(String[] itemTypeCodes) {
 		this.itemTypeCodes = Arrays.asList(itemTypeCodes);
 	}
+
+    public List<Integer> getItemStatusCodes() {
+        return itemStatusCodes;
+    }
 
 	public void setItemStatusCodes(Integer[] itemStatusCodes) {
 		this.itemStatusCodes = Arrays.asList(itemStatusCodes);
