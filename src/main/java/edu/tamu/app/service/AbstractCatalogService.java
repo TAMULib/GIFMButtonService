@@ -1,31 +1,31 @@
 package edu.tamu.app.service;
 
-import edu.tamu.framework.util.HttpUtility;
+import edu.tamu.weaver.utility.HttpUtility;
 
 /**
- * A base implementation of the Catalog Service interface    
- * 
+ * A base implementation of the Catalog Service interface
+ *
  * @author Jason Savell <jsavell@library.tamu.edu>
  * @author James Creel <jcreel@library.tamu.edu>
  *
  */
 
 public abstract class AbstractCatalogService implements CatalogService {
-	
+
 	private String name;
-	
+
 	private String type;
-	
+
 	private String host;
-	
+
 	private String port;
-	
+
 	private String app;
-	
+
 	private String protocol;
-	
+
 	private HttpUtility httpUtility;
-	
+
 	public HttpUtility getHttpUtility() {
 		return httpUtility;
 	}
@@ -81,7 +81,7 @@ public abstract class AbstractCatalogService implements CatalogService {
 	public void setProtocol(String protocol) {
 		this.protocol = protocol;
 	}
-	
+
 	protected String getAPIBase() {
 		return getProtocol() +"://"+getHost()+":"+getPort()+"/"+getApp()+"/";
 	}

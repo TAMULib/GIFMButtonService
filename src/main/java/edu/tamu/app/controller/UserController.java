@@ -1,71 +1,98 @@
-/* 
- * UserController.java 
- * 
- * Version: 
- *     $Id$ 
- * 
- * Revisions: 
- *     $Log$ 
+/*
+ * UserController.java
+ *
+ * Version:
+ *     $Id$
+ *
+ * Revisions:
+ *     $Log$
  */
 package edu.tamu.app.controller;
 
-import static edu.tamu.framework.enums.ApiResponseType.SUCCESS;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import edu.tamu.app.model.AppUser;
-import edu.tamu.app.model.repo.AppUserRepo;
-import edu.tamu.framework.aspect.annotation.ApiMapping;
-import edu.tamu.framework.aspect.annotation.Auth;
-import edu.tamu.framework.aspect.annotation.Shib;
-import edu.tamu.framework.model.ApiResponse;
-import edu.tamu.framework.model.Credentials;
+import edu.tamu.app.model.User;
+import edu.tamu.app.model.repo.UserRepo;
+import edu.tamu.weaver.auth.annotation.WeaverCredentials;
+import edu.tamu.weaver.auth.model.Credentials;
+import edu.tamu.weaver.response.ApiResponse;
 
 /**
  * User Controller
- * 
+ *
  */
-@Controller
-@ApiMapping("/user")
+@RestController
+@RequestMapping("/user")
 public class UserController {
 
     @Autowired
-    private AppUserRepo userRepo;
+    private UserRepo userRepo;
 
     /**
      * Websocket endpoint to request credentials.
-     * 
-     * @param shibObj
-     *            Object
-     * 
+     *
+     * @param credentials
+     * @ApiCredentials Credentials
+     *
      * @return ApiResponse
-     * 
-     * @throws Exception
-     * 
+     *
      */
-    @ApiMapping("/credentials")
-    @Auth
-    public ApiResponse credentials(@Shib Object shibObj) throws Exception {
-        return new ApiResponse(SUCCESS, (Credentials) shibObj);
+    @RequestMapping("/credentials")
+    @PreAuthorize("hasRole('USER')")
+    public ApiResponse credentials(@WeaverCredentials Credentials credentials) {
+        return new ApiResponse(SUCCESS, credentials);
     }
 
     /**
      * Returns all users.
-     * 
+     *
+     * @param user
+     * @ApiModel AppUser
+     *
      * @return
-     * @throws Exception
      */
-    @ApiMapping("/all")
-    @Auth(role = "ROLE_MANAGER")
-    public ApiResponse allUsers() throws Exception {
-        Map<String, List<AppUser>> map = new HashMap<String, List<AppUser>>();
-        map.put("list", userRepo.findAll());
-        return new ApiResponse(SUCCESS, map);
+    @RequestMapping
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse allUsers() {
+        return new ApiResponse(SUCCESS, userRepo.findAll());
+    }
+
+    /**
+     * Returns users.
+     *
+     * @param user
+     * @ApiModel AppUser
+     *
+     * @return ApiResponse
+     *
+     */
+    @RequestMapping("/update")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse updateUser(@RequestBody User user) {
+        user = userRepo.update(user);
+        return new ApiResponse(SUCCESS, user);
+    }
+
+    /**
+     * Endpoint to delete user.
+     *
+     * @param user
+     * @ApiModel AppUser
+     *
+     * @return ApiResponse
+     *
+     */
+    @RequestMapping("/delete")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ApiResponse delete(@RequestBody User user) {
+        userRepo.delete(user);
+        return new ApiResponse(SUCCESS);
     }
 
 }

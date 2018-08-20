@@ -7,7 +7,7 @@
  * Revisions: 
  *     $Log$ 
  */
-package edu.tamu.app.mock;
+package edu.tamu.app.mock.controller;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
