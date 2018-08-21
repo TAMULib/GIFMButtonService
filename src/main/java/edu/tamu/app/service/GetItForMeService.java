@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import edu.tamu.app.model.CatalogHolding;
 import edu.tamu.app.model.GetItForMeButton;
+import edu.tamu.app.model.PersistedButton;
+import edu.tamu.app.model.repo.PersistedButtonRepo;
 import edu.tamu.app.utilities.sort.VolumeComparator;
 
 
@@ -40,16 +42,14 @@ public class GetItForMeService {
 	@Autowired
 	private CatalogServiceFactory catalogServiceFactory;
 
-	@Value("${buttonsPackage}")
-	private String buttonsPackage;
-
 	@Value("${activeButtons}")
 	private String[] activeButtons;
 
 	@Autowired
 	Environment environment;
 
-	private List<GetItForMeButton> registeredButtons = new ArrayList<GetItForMeButton>();
+	@Autowired
+	private PersistedButtonRepo persistedButtonRepo;
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -70,53 +70,67 @@ public class GetItForMeService {
 	 */
 	@PostConstruct
 	private void registerButtons() {
-		for (String activeButton:activeButtons) {
-			try {
-				String rawLocationCodes = environment.getProperty(activeButton+".locationCodes");
-				String[] itemTypeCodes = environment.getProperty(activeButton+".itemTypeCodes",String[].class);
-				Integer[] itemStatusCodes = environment.getProperty(activeButton+".itemStatusCodes",Integer[].class);
-				String linkText = environment.getProperty(activeButton+".linkText");
-				String SID = environment.getProperty(activeButton+".SID");
+	    //only register the buttons from configuration if the repo is empty
+	    long buttonCount = persistedButtonRepo.count();
+	    if (buttonCount == 0) {
+    		for (String activeButton:activeButtons) {
+    			String rawLocationCodes = environment.getProperty(activeButton+".locationCodes");
+    			String[] itemTypeCodes = environment.getProperty(activeButton+".itemTypeCodes",String[].class);
+    			Integer[] itemStatusCodes = environment.getProperty(activeButton+".itemStatusCodes",Integer[].class);
+    			String linkText = environment.getProperty(activeButton+".linkText");
+    			String SID = environment.getProperty(activeButton+".SID");
+    			String[] templateParameterKeys = environment.getProperty(activeButton+".templateParameterKeys",String[].class);
+    			String templateUrl = environment.getProperty(activeButton+".templateUrl");
 
-				GetItForMeButton c = (GetItForMeButton) Class.forName(buttonsPackage+"."+activeButton).newInstance();
-				if (rawLocationCodes != null) {
-					c.setLocationCodes(rawLocationCodes.split(";"));
-				}
-				if (itemTypeCodes != null) {
-					c.setItemTypeCodes(itemTypeCodes);
-				}
-				if (itemStatusCodes != null) {
-					c.setItemStatusCodes(itemStatusCodes);
-				}
-				if (linkText != null) {
-					c.setLinkText(linkText);
-				}
-				if (SID != null) {
-					c.setSID(SID);
-				}
+    			String recordTypeValue = environment.getProperty(activeButton+".recordType.value");
+    			Integer recordTypePosition = environment.getProperty(activeButton+".recordType.position",Integer.class);
 
-				this.registeredButtons.add(c);
-			} catch (InstantiationException e) {
-				logger.error("Tried to instantiate an instance of "+activeButton, e);
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				logger.error("Tried to access something on a "+activeButton, e);
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				logger.error("Tried to access something on a "+activeButton, e);
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				logger.error("Couldn't find class: "+activeButton, e);
-				e.printStackTrace();
-			}
-		}
+    			String cssClasses = environment.getProperty(activeButton+".cssClasses");
+
+    			PersistedButton persistedButton = new PersistedButton();
+
+    			if (rawLocationCodes != null) {
+    				persistedButton.setLocationCodes(rawLocationCodes.split(";"));
+    			}
+    			if (itemTypeCodes != null) {
+                    persistedButton.setItemTypeCodes(itemTypeCodes);
+    			}
+    			if (itemStatusCodes != null) {
+                    persistedButton.setItemStatusCodes(itemStatusCodes);
+    			}
+    			if (linkText != null) {
+                    persistedButton.setLinkText(linkText);
+    			}
+    			if (SID != null) {
+                    persistedButton.setSID(SID);
+    			}
+
+    			if (templateParameterKeys != null) {
+    			    persistedButton.setTemplateParameterKeys(templateParameterKeys);
+    			}
+
+    			if (templateUrl != null) {
+    			    persistedButton.setLinkTemplate(templateUrl);
+    			}
+
+    			if (recordTypeValue != null && recordTypePosition != null) {
+    			    persistedButton.setRecordTypePosition(recordTypePosition);
+    			    persistedButton.setRecordTypeValue(recordTypeValue);
+    			}
+
+    			if (cssClasses != null) {
+    			    persistedButton.setCssClasses(cssClasses);
+    			}
+
+    			persistedButtonRepo.save(persistedButton);
+    		}
+	    }
 	}
 
 	public List<GetItForMeButton> getRegisteredButtons() {
-		return this.registeredButtons;
+	    List<? extends GetItForMeButton> buttons = new ArrayList<PersistedButton>();
+	    buttons = (List<? extends GetItForMeButton>) persistedButtonRepo.findAll();
+	    return (List<GetItForMeButton>) buttons;
 	}
 
 	/**
@@ -160,7 +174,11 @@ public class GetItForMeService {
 							Map<String,String> parameters = new HashMap<String,String>();
 
 							for (String parameterKey:parameterKeys) {
-								parameters.put(parameterKey,itemData.get(parameterKey));
+							    if (parameterKey.equals("sid")) {
+							        parameters.put(parameterKey,button.getSID());
+							    } else {
+							        parameters.put(parameterKey,itemData.get(parameterKey));
+							    }
 							}
 							//these template parameter keys are a special case, and come from the parent holding, rather than the item data itself
 							String[] getParameterFromHolding = {"issn","isbn","title","author","publisher","genre","place","year"};
@@ -174,9 +192,15 @@ public class GetItForMeService {
 								}
 							}
 
+							//generate unique link for the current button
+							String linkHref = button.getLinkTemplate();
+							for (Map.Entry<String,String> entry : parameters.entrySet()) {
+							    linkHref = linkHref.replace("{"+entry.getKey()+"}",entry.getValue());
+							}
+
 							logger.debug("We want the button with text: "+button.getLinkText());
 							logger.debug("It looks like: ");
-							logger.debug(button.getLinkTemplate(parameters));
+							logger.debug(linkHref);
 
 							//generate the button data
 							Map<String,String> buttonContent = new HashMap<String,String>();
@@ -188,8 +212,8 @@ public class GetItForMeService {
 								logger.debug("Generating a single item button");
 								buttonContent.put("linkText",button.getLinkText());
 							}
-							buttonContent.put("linkHref",button.getLinkTemplate(parameters));
-							buttonContent.put("cssClasses", button.getCssClasses());
+							buttonContent.put("linkHref",linkHref);
+							buttonContent.put("cssClasses", "button-gifm "+button.getCssClasses());
 							//add the button to the list for the holding's MFHD
 							validButtons.get(holding.getMfhd()).add(buttonContent);
 						} else {
