@@ -3,7 +3,6 @@ package edu.tamu.app.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -12,13 +11,15 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import edu.tamu.weaver.validation.model.ValidatingBaseEntity;
+
 /**
  * @author Jason Savell <jsavell@library.tamu.edu>
  * @author James Creel <jcreel@library.tamu.edu>
  */
 
 @Entity
-public class PersistedGetItForMeButton implements GetItForMeButton {
+public class PersistedButton extends ValidatingBaseEntity implements GetItForMeButton {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -43,37 +44,73 @@ public class PersistedGetItForMeButton implements GetItForMeButton {
 	private String SID="libcat:InProcess";
 
 	@Column
-	private String cssClasses = "button-gifm";
+	private String cssClasses;
+
+	@Column
+	private String recordTypeValue;
+
+	@Column
+	private Integer recordTypePosition;
+
+	@Column
+	private String linkTemplate;
 
 	@Override
-	public boolean fitsRecordType(String marcRecord) {
+	public boolean fitsRecordType(String marcRecordLeader) {
+	    if (recordTypeValue != null && recordTypePosition != null) {
+	        if (!marcRecordLeader.substring(recordTypePosition).contentEquals(recordTypeValue)) {
+	            return false;
+	        }
+	    }
 		return true;
 	}
 
 	@Override
 	public boolean fitsLocation(String locationCode) {
-		return (locationCodes != null) ? locationCodes.contains(locationCode):true;
+	    if (locationCodes == null) {
+	        return true;
+	    }
+	    if (locationCodes.size() == 1) {
+	        return locationCode.contains(locationCodes.get(0));
+	    }
+		return locationCodes.contains(locationCode);
 	}
 
 	@Override
 	public boolean fitsItemType(String itemTypeCode) {
-		return (itemTypeCodes != null) ? itemTypeCodes.contains(itemTypeCode):true;
+		return (itemTypeCodes.size() > 0) ? itemTypeCodes.contains(itemTypeCode):true;
 	}
 
 	@Override
 	public boolean fitsItemStatus(int itemStatusCode) {
-		return (itemStatusCodes != null) ? itemStatusCodes.contains(itemStatusCode):true;
+		return (itemStatusCodes.size() > 0) ? itemStatusCodes.contains(itemStatusCode):true;
 	}
 
-	@Override
-	public String getLinkTemplate(Map<String,String> templateParameters) {
-		return "default template";
-	}
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getLinkTemplate() {
+        return linkTemplate;
+    }
+
+    public void setLinkTemplate(String linkTemplate) {
+        this.linkTemplate = linkTemplate;
+    }
 
 	@Override
 	public List<String> getTemplateParameterKeys() {
 		return this.templateParameterKeys;
 	}
+
+    public void setTemplateParameterKeys(String[] templateParameterKeys) {
+        this.templateParameterKeys = Arrays.asList(templateParameterKeys);
+    }
 
 	@Override
 	public String getLinkText() {
@@ -105,15 +142,44 @@ public class PersistedGetItForMeButton implements GetItForMeButton {
 		this.cssClasses = cssClasses;
 	}
 
+	public List<String> getLocationCodes() {
+	    return locationCodes;
+	}
+
 	public void setLocationCodes(String[] locationCodes) {
 		this.locationCodes = Arrays.asList(locationCodes);
 	}
+
+    public List<String> getItemTypeCodes() {
+        return itemTypeCodes;
+    }
 
 	public void setItemTypeCodes(String[] itemTypeCodes) {
 		this.itemTypeCodes = Arrays.asList(itemTypeCodes);
 	}
 
+    public List<Integer> getItemStatusCodes() {
+        return itemStatusCodes;
+    }
+
 	public void setItemStatusCodes(Integer[] itemStatusCodes) {
 		this.itemStatusCodes = Arrays.asList(itemStatusCodes);
 	}
+
+    public String getRecordTypeValue() {
+        return recordTypeValue;
+    }
+
+    public void setRecordTypeValue(String recordTypeValue) {
+        this.recordTypeValue = recordTypeValue;
+    }
+
+    public Integer getRecordTypePosition() {
+        return recordTypePosition;
+    }
+
+    public void setRecordTypePosition(Integer recordTypePosition) {
+        this.recordTypePosition = recordTypePosition;
+    }
+
 }
