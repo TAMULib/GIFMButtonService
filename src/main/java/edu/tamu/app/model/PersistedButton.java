@@ -47,20 +47,15 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
 	private String cssClasses;
 
 	@Column
-	private String recordTypeValue;
-
-	@Column
-	private Integer recordTypePosition;
+	private String recordType;
 
 	@Column
 	private String linkTemplate;
 
 	@Override
 	public boolean fitsRecordType(String marcRecordLeader) {
-	    if (recordTypeValue != null && recordTypePosition != null) {
-	        if (!marcRecordLeader.substring(recordTypePosition).contentEquals(recordTypeValue)) {
-	            return false;
-	        }
+	    if (recordType != null && !marcRecordLeader.substring(6,6+recordType.length()).contentEquals(recordType)) {
+	        return false;
 	    }
 		return true;
 	}
@@ -166,20 +161,12 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
 		this.itemStatusCodes = Arrays.asList(itemStatusCodes);
 	}
 
-    public String getRecordTypeValue() {
-        return recordTypeValue;
+    public String getRecordType() {
+        return recordType;
     }
 
-    public void setRecordTypeValue(String recordTypeValue) {
-        this.recordTypeValue = recordTypeValue;
-    }
-
-    public Integer getRecordTypePosition() {
-        return recordTypePosition;
-    }
-
-    public void setRecordTypePosition(Integer recordTypePosition) {
-        this.recordTypePosition = recordTypePosition;
+    public void setRecordType(String recordType) {
+        this.recordType = recordType;
     }
 
 }

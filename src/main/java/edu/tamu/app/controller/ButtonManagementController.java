@@ -16,7 +16,7 @@ import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
 
 @RestController
 @RequestMapping("/button-management")
-public class ButtonManagement {
+public class ButtonManagementController {
 
     @Autowired
     PersistedButtonRepo persistedButtonRepo;
