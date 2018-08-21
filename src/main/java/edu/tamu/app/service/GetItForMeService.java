@@ -49,7 +49,7 @@ public class GetItForMeService {
 	Environment environment;
 
 	@Autowired
-	PersistedButtonRepo persistedButtonRepo;
+	private PersistedButtonRepo persistedButtonRepo;
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -127,7 +127,7 @@ public class GetItForMeService {
 	    }
 	}
 
-	private List<GetItForMeButton> getRegisteredButtons() {
+	public List<GetItForMeButton> getRegisteredButtons() {
 	    List<? extends GetItForMeButton> buttons = new ArrayList<PersistedButton>();
 	    buttons = (List<? extends GetItForMeButton>) persistedButtonRepo.findAll();
 	    return (List<GetItForMeButton>) buttons;
