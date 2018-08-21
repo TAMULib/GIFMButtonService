@@ -82,8 +82,7 @@ public class GetItForMeService {
     			String[] templateParameterKeys = environment.getProperty(activeButton+".templateParameterKeys",String[].class);
     			String templateUrl = environment.getProperty(activeButton+".templateUrl");
 
-    			String recordTypeValue = environment.getProperty(activeButton+".recordType.value");
-    			Integer recordTypePosition = environment.getProperty(activeButton+".recordType.position",Integer.class);
+    			String recordType = environment.getProperty(activeButton+".recordType");
 
     			String cssClasses = environment.getProperty(activeButton+".cssClasses");
 
@@ -113,15 +112,13 @@ public class GetItForMeService {
     			    persistedButton.setLinkTemplate(templateUrl);
     			}
 
-    			if (recordTypeValue != null && recordTypePosition != null) {
-    			    persistedButton.setRecordTypePosition(recordTypePosition);
-    			    persistedButton.setRecordTypeValue(recordTypeValue);
+    			if (recordType != null) {
+    			    persistedButton.setRecordType(recordType);
     			}
 
     			if (cssClasses != null) {
     			    persistedButton.setCssClasses(cssClasses);
     			}
-
     			persistedButtonRepo.save(persistedButton);
     		}
 	    }
