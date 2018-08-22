@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import edu.tamu.app.model.validation.PersistedButtonValidator;
 import edu.tamu.weaver.validation.model.ValidatingBaseEntity;
 
 /**
@@ -37,8 +38,8 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
 	@ElementCollection
     protected List<Integer> itemStatusCodes = new ArrayList<Integer>();
 
-	@Column
-	private String linkText="Default Link Text";
+	@Column(nullable = false)
+	private String linkText;
 
 	@Column
 	private String SID="libcat:InProcess";
@@ -51,6 +52,10 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
 
 	@Column
 	private String linkTemplate;
+
+	public PersistedButton() {
+	    this.modelValidator = new PersistedButtonValidator();
+	}
 
 	@Override
 	public boolean fitsRecordType(String marcRecordLeader) {

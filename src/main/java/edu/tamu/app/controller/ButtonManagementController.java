@@ -1,6 +1,9 @@
 package edu.tamu.app.controller;
 
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
+import static edu.tamu.weaver.validation.model.BusinessValidationType.CREATE;
+import static edu.tamu.weaver.validation.model.BusinessValidationType.DELETE;
+import static edu.tamu.weaver.validation.model.BusinessValidationType.UPDATE;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,6 +16,7 @@ import edu.tamu.app.model.PersistedButton;
 import edu.tamu.app.model.repo.PersistedButtonRepo;
 import edu.tamu.weaver.response.ApiResponse;
 import edu.tamu.weaver.validation.aspect.annotation.WeaverValidatedModel;
+import edu.tamu.weaver.validation.aspect.annotation.WeaverValidation;
 
 @RestController
 @RequestMapping("/button-management")
@@ -41,6 +45,7 @@ public class ButtonManagementController {
 
     @RequestMapping("/update")
     @PreAuthorize("hasRole('ADMIN')")
+    @WeaverValidation(business = { @WeaverValidation.Business(value = UPDATE) })
     public ApiResponse update(@WeaverValidatedModel PersistedButton button) {
         return new ApiResponse(SUCCESS, persistedButtonRepo.update(button));
     }
