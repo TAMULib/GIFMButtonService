@@ -1,0 +1,17 @@
+{"catalogs":{
+	"evans":
+		{"type":"voyager",
+		 "host":"surprise.tamu.edu",
+		 "port":7014,
+		 "app":"vxws",
+		 "protocol":"http"
+		 },
+	"msl":
+		{"type":"voyager",
+		 "host":"surprise.tamu.edu",
+		 "port":7414,
+		 "app":"vxws",
+		 "protocol":"http"
+		 }
+	}
+}
