@@ -163,8 +163,16 @@ public class GetItForMeService {
                     // check all registered button for each item
                     for (GetItForMeButton button : this.getRegisteredButtons()) {
                         logger.debug("Analyzing: " + button.toString());
+                        String currentLocation = null;
+                        if (itemData.containsKey("tempLocationCode")) {
+                            currentLocation = itemData.get("tempLocationCode");
+                        } else if (itemData.containsKey("permLocationCode")) {
+                            currentLocation = itemData.get("permLocationCode");
+                        } else {
+                            currentLocation = holding.getFallbackLocationCode();
+                        }
 
-                        logger.debug("Location: " + itemData.get("permLocationCode") + ": "
+                        logger.debug("Location: " + currentLocation + ": "
                                 + button.fitsLocation(itemData.get("permLocationCode")));
                         logger.debug("TypeDesc: " + itemData.get("typeDesc") + ": "
                                 + button.fitsItemType(itemData.get("typeDesc")));
@@ -174,7 +182,7 @@ public class GetItForMeService {
                         // test the current item against the current GetItForMe button's requirements
                         // for eligibility
                         if (button.fitsRecordType(holding.getMarcRecordLeader())
-                                && button.fitsLocation(itemData.get("permLocationCode"))
+                                && button.fitsLocation(currentLocation)
                                 && button.fitsItemType(itemData.get("typeDesc"))
                                 && button.fitsItemStatus(Integer.parseInt(itemData.get("itemStatusCode")))) {
                             // used to build the button's link from the template parameter keys it provides
