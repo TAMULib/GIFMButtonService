@@ -124,10 +124,12 @@ class VoyagerCatalogService extends AbstractCatalogService {
                 logger.debug("The Count of Children: " + childCount);
                 Map<String, Map<String, String>> catalogItems = new HashMap<String, Map<String, String>>();
                 String mfhd = childNodes.item(0).getChildNodes().item(1).getTextContent();
+                String fallBackLocationCode = childNodes.item(1).getChildNodes().item(0).getTextContent();
                 logger.debug("MarcRecordLeader: " + marcRecordLeader);
                 logger.debug("MFHD: " + mfhd);
                 logger.debug("ISBN: " + isbn);
                 logger.debug("Item URL: " + childNodes.item(1).getAttributes().getNamedItem("href").getTextContent());
+                logger.debug("Fallback Location: " + fallBackLocationCode);
 
                 for (int j = 0; j < childCount; j++) {
                     if (childNodes.item(j).getNodeName() == "item") {
@@ -157,7 +159,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
                     }
                 }
                 catalogHoldings.add(new CatalogHolding(marcRecordLeader, mfhd, issn, isbn, title, author, publisher,
-                        place, year, genre, new HashMap<String, Map<String, String>>(catalogItems)));
+                        place, year, genre, fallBackLocationCode, new HashMap<String, Map<String, String>>(catalogItems)));
                 catalogItems.clear();
             }
             return catalogHoldings;
