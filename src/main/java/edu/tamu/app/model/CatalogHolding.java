@@ -25,11 +25,12 @@ public class CatalogHolding {
     private String year;
     private String genre;
     private String fallbackLocationCode;
+    private String edition;
 
     private Map<String, Map<String, String>> catalogItems = new HashMap<String, Map<String, String>>();
 
     public CatalogHolding(String marcRecordLeader, String mfhd, String issn, String isbn, String title, String author,
-            String publisher, String place, String year, String genre, String fallBackLocationCode,
+            String publisher, String place, String year, String genre, String edition, String fallBackLocationCode,
             Map<String, Map<String, String>> catalogItems) {
         this.setMarcRecordLeader(marcRecordLeader);
         this.setMfhd(mfhd);
@@ -42,6 +43,7 @@ public class CatalogHolding {
         this.setPlace(place);
         this.setYear(year);
         this.setGenre(genre);
+        this.setEdition(edition);
         this.setFallbackLocationCode(fallBackLocationCode);
     }
 
@@ -123,6 +125,14 @@ public class CatalogHolding {
 
     public void setGenre(String genre) {
         this.genre = genre;
+    }
+
+    public String getEdition() {
+        return edition;
+    }
+
+    public void setEdition(String edition) {
+        this.edition = edition;
     }
 
     public String getFallbackLocationCode() {

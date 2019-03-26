@@ -204,7 +204,8 @@ public class GetItForMeService {
                             // these template parameter keys are a special case, and come from the parent
                             // holding, rather than the item data itself
                             String[] getParameterFromHolding = { "issn", "isbn", "title", "author", "publisher",
-                                    "genre", "place", "year" };
+                                    "genre", "place", "year", "edition" };
+
                             for (String parameterName : getParameterFromHolding) {
                                 if (parameters.containsKey(parameterName)) {
                                     try {
@@ -213,6 +214,20 @@ public class GetItForMeService {
                                         e.printStackTrace();
                                     }
                                 }
+                            }
+
+                            // generate the button data
+                            Map<String, String> buttonContent = new HashMap<String, String>();
+                            // for multi-volume holdings, enrich the linkText to indicate which volume the
+                            // button represents
+                            if (holding.isMultiVolume()) {
+                                logger.debug("Generating a multi volume button");
+                                parameters.put("edition", itemData.get("enumeration") + " " + itemData.get("chron"));
+                                buttonContent.put("linkText", itemData.get("enumeration") + " " + itemData.get("chron")
+                                        + " | " + button.getLinkText());
+                            } else {
+                                logger.debug("Generating a single item button");
+                                buttonContent.put("linkText", button.getLinkText());
                             }
 
                             // generate unique link for the current button
@@ -225,18 +240,7 @@ public class GetItForMeService {
                             logger.debug("It looks like: ");
                             logger.debug(linkHref);
 
-                            // generate the button data
-                            Map<String, String> buttonContent = new HashMap<String, String>();
-                            // for multi-volume holdings, enrich the linkText to indicate which volume the
-                            // button represents
-                            if (holding.isMultiVolume()) {
-                                logger.debug("Generating a multi volume button");
-                                buttonContent.put("linkText", itemData.get("enumeration") + " " + itemData.get("chron")
-                                        + " | " + button.getLinkText());
-                            } else {
-                                logger.debug("Generating a single item button");
-                                buttonContent.put("linkText", button.getLinkText());
-                            }
+
                             buttonContent.put("linkHref", linkHref);
                             buttonContent.put("cssClasses", "button-gifm " + button.getCssClasses());
                             // add the button to the list for the holding's MFHD
