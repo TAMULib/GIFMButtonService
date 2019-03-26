@@ -49,7 +49,7 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
     @Column
     private String recordType;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String linkTemplate;
 
     @Override

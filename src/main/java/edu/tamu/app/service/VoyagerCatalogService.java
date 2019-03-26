@@ -63,43 +63,55 @@ class VoyagerCatalogService extends AbstractCatalogService {
             String publisher = "";
             String place = "";
             String year = "";
+            String backupYear = "";
             String genre = "";
+            String edition = "";
 
             String marcRecordLeader = doc.getElementsByTagName("leader").item(0).getTextContent();
 
             for (int i = 0; i < dataFieldCount; i++) {
                 Node currentNode = dataFields.item(i);
                 switch (currentNode.getAttributes().getNamedItem("tag").getTextContent()) {
-                case "022":
-                    issn = currentNode.getChildNodes().item(0).getTextContent();
-                    genre = "journal";
+                    case "022":
+                        issn = currentNode.getChildNodes().item(0).getTextContent();
+                        genre = "journal";
                     break;
-                case "020":
-                    isbn = currentNode.getChildNodes().item(0).getTextContent().split(" ")[0];
-                    genre = "book";
+                    case "020":
+                        isbn = currentNode.getChildNodes().item(0).getTextContent().split(" ")[0];
+                        genre = "book";
                     break;
-                case "245":
-                    if (currentNode.getChildNodes().item(1) != null) {
-                        title = currentNode.getChildNodes().item(0).getTextContent()+currentNode.getChildNodes().item(1).getTextContent();
-                    } else {
-                        title = currentNode.getChildNodes().item(0).getTextContent();
-                    }
+                    case "245":
+                        if (currentNode.getChildNodes().item(1) != null) {
+                            title = currentNode.getChildNodes().item(0).getTextContent()+currentNode.getChildNodes().item(1).getTextContent();
+                        } else {
+                            title = currentNode.getChildNodes().item(0).getTextContent();
+                        }
                     break;
-                case "100":
-                    author = currentNode.getChildNodes().item(0).getTextContent();
+                    case "100":
+                        author = currentNode.getChildNodes().item(0).getTextContent();
                     break;
-                case "264":
-                    NodeList publisherDataNodes = currentNode.getChildNodes();
-                    int childCount = publisherDataNodes.getLength();
-                    place = publisherDataNodes.item(0).getTextContent();
-                    if (childCount > 1) {
-                        publisher = publisherDataNodes.item(1).getTextContent();
-                    }
-                    if (childCount > 2) {
-                        year = publisherDataNodes.item(2).getTextContent();
-                    }
+                    case "264":
+                        NodeList publisherDataNodes = currentNode.getChildNodes();
+                        int childCount = publisherDataNodes.getLength();
+                        place = publisherDataNodes.item(0).getTextContent();
+                        if (childCount > 1) {
+                            publisher = publisherDataNodes.item(1).getTextContent();
+                        }
+                        if (childCount > 2) {
+                            year = publisherDataNodes.item(2).getTextContent();
+                        }
+                    break;
+                    case "260":
+                        backupYear = currentNode.getChildNodes().item(2).getTextContent();
+                    break;
+                    case "250":
+                        edition = currentNode.getChildNodes().item(0).getTextContent();
                     break;
                 }
+            }
+
+            if (year == null) {
+                year = backupYear;
             }
 
             logger.debug("Asking for holdings from: " + getAPIBase() + "record/" + bibId + "/holdings?view=items");
@@ -159,7 +171,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
                     }
                 }
                 catalogHoldings.add(new CatalogHolding(marcRecordLeader, mfhd, issn, isbn, title, author, publisher,
-                        place, year, genre, fallBackLocationCode, new HashMap<String, Map<String, String>>(catalogItems)));
+                        place, year, genre, edition, fallBackLocationCode, new HashMap<String, Map<String, String>>(catalogItems)));
                 catalogItems.clear();
             }
             return catalogHoldings;
