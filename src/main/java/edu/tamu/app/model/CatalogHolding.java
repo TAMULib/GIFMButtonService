@@ -24,11 +24,12 @@ public class CatalogHolding {
     private String place;
     private String year;
     private String genre;
+    private String edition;
 
     private Map<String, Map<String, String>> catalogItems = new HashMap<String, Map<String, String>>();
 
     public CatalogHolding(String marcRecordLeader, String mfhd, String issn, String isbn, String title, String author,
-            String publisher, String place, String year, String genre, Map<String, Map<String, String>> catalogItems) {
+            String publisher, String place, String year, String genre, String edition, Map<String, Map<String, String>> catalogItems) {
         this.setMarcRecordLeader(marcRecordLeader);
         this.setMfhd(mfhd);
         this.setCatalogItems(catalogItems);
@@ -40,6 +41,7 @@ public class CatalogHolding {
         this.setPlace(place);
         this.setYear(year);
         this.setGenre(genre);
+        this.setEdition(edition);
     }
 
     public String getMarcRecordLeader() {
@@ -120,6 +122,14 @@ public class CatalogHolding {
 
     public void setGenre(String genre) {
         this.genre = genre;
+    }
+
+    public String getEdition() {
+        return edition;
+    }
+
+    public void setEdition(String edition) {
+        this.edition = edition;
     }
 
     public Map<String, Map<String, String>> getCatalogItems() {
