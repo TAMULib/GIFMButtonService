@@ -237,7 +237,7 @@ public class GetItForMeService {
                             String linkHref = button.getLinkTemplate();
                             for (Map.Entry<String, String> entry : parameters.entrySet()) {
                                 try {
-                                    linkHref = linkHref.replace("{" + entry.getKey() + "}", URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.toString()));
+                                    linkHref = linkHref.replace("{" + entry.getKey() + "}", URLEncoder.encode((entry.getValue() != null) ? entry.getValue():"", StandardCharsets.UTF_8.toString()));
                                 } catch (UnsupportedEncodingException e) {
                                     e.printStackTrace();
                                 }
