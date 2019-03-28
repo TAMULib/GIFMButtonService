@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -201,11 +202,18 @@ class VoyagerCatalogService extends AbstractCatalogService {
                         }
                         catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),
                                 itemData);
+                        //sleep for a moment between item requests to avoid triggering a 429 from the Voyager API
+                        try {
+                            TimeUnit.MICROSECONDS.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
                 catalogHoldings.add(new CatalogHolding(marcRecordLeader, mfhd, recordValues.get("issn"), recordValues.get("isbn"), recordValues.get("title"), recordValues.get("author"), recordValues.get("publisher"),
                         recordValues.get("place"), recordValues.get("year"), recordValues.get("genre"), recordValues.get("edition"), fallBackLocationCode, new HashMap<String, Map<String, String>>(catalogItems)));
                 catalogItems.clear();
+
             }
             return catalogHoldings;
         } catch (IOException e) {
