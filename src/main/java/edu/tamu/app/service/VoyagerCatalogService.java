@@ -204,7 +204,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
                                 itemData);
                         //sleep for a moment between item requests to avoid triggering a 429 from the Voyager API
                         try {
-                            TimeUnit.MICROSECONDS.sleep(100);
+                            TimeUnit.MILLISECONDS.sleep(50);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
