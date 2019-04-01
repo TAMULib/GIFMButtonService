@@ -103,4 +103,6 @@ public interface GetItForMeButton {
 	 * Sets the valid item status codes for a button to be used in the fitsItemStatus() test
 	 */
 	void setItemStatusCodes(Integer[] itemStatusCodes);
+
+	boolean isActive();
 }
