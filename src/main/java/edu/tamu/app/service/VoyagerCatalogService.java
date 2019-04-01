@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -34,6 +36,18 @@ import edu.tamu.weaver.utility.HttpUtility;
 class VoyagerCatalogService extends AbstractCatalogService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private void appendMapValue(Map<String,String> map, String key, String newValue) {
+        if (map.containsKey(key) && map.get(key) != null && !map.get(key).isEmpty()) {
+            addMapValue(map, key, map.get(key) + newValue);
+        } else {
+            addMapValue(map, key, newValue);
+        }
+    }
+
+    private void addMapValue(Map<String,String> map, String key, String newValue) {
+        map.put(key, (newValue != null ? newValue:""));
+    }
+
     /**
      * Fetches holdings from the Voyager API and translates them into
      * catalogHoldings
@@ -56,16 +70,9 @@ class VoyagerCatalogService extends AbstractCatalogService {
             doc.getDocumentElement().normalize();
             NodeList dataFields = doc.getElementsByTagName("datafield");
             int dataFieldCount = dataFields.getLength();
-            String issn = "";
-            String isbn = "";
-            String title = "";
-            String author = "";
-            String publisher = "";
-            String place = "";
-            String year = "";
-            String backupYear = "";
-            String genre = "";
-            String edition = "";
+
+            Map<String,String> recordValues = new HashMap<String,String>();
+            Map<String,String> recordBackupValues = new HashMap<String,String>();
 
             String marcRecordLeader = doc.getElementsByTagName("leader").item(0).getTextContent();
 
@@ -73,45 +80,72 @@ class VoyagerCatalogService extends AbstractCatalogService {
                 Node currentNode = dataFields.item(i);
                 switch (currentNode.getAttributes().getNamedItem("tag").getTextContent()) {
                     case "022":
-                        issn = currentNode.getChildNodes().item(0).getTextContent();
-                        genre = "journal";
+                        addMapValue(recordValues,"issn",currentNode.getChildNodes().item(0).getTextContent());
+                        addMapValue(recordValues,"genre","journal");
                     break;
                     case "020":
-                        isbn = currentNode.getChildNodes().item(0).getTextContent().split(" ")[0];
-                        genre = "book";
+                        addMapValue(recordValues,"isbn",currentNode.getChildNodes().item(0).getTextContent().split(" ")[0]);
+                        addMapValue(recordValues,"genre","book");
                     break;
                     case "245":
                         if (currentNode.getChildNodes().item(1) != null) {
-                            title = currentNode.getChildNodes().item(0).getTextContent()+currentNode.getChildNodes().item(1).getTextContent();
+                            addMapValue(recordValues,"title", currentNode.getChildNodes().item(0).getTextContent()+currentNode.getChildNodes().item(1).getTextContent());
                         } else {
-                            title = currentNode.getChildNodes().item(0).getTextContent();
+                            addMapValue(recordValues,"title", currentNode.getChildNodes().item(0).getTextContent());
                         }
                     break;
                     case "100":
-                        author = currentNode.getChildNodes().item(0).getTextContent();
+                        addMapValue(recordValues,"author", currentNode.getChildNodes().item(0).getTextContent());
                     break;
                     case "264":
                         NodeList publisherDataNodes = currentNode.getChildNodes();
                         int childCount = publisherDataNodes.getLength();
-                        place = publisherDataNodes.item(0).getTextContent();
-                        if (childCount > 1) {
-                            publisher = publisherDataNodes.item(1).getTextContent();
-                        }
-                        if (childCount > 2) {
-                            year = publisherDataNodes.item(2).getTextContent();
+                        for (int x=0;x<childCount;x++) {
+                            switch (publisherDataNodes.item(x).getAttributes().getNamedItem("code").getTextContent()) {
+                                case "a":
+                                    appendMapValue(recordValues, "place",publisherDataNodes.item(x).getTextContent());
+                                break;
+                                case "b":
+                                    appendMapValue(recordValues, "publisher",publisherDataNodes.item(x).getTextContent());
+                                break;
+                                case "c":
+                                    if (!recordValues.containsKey("year") || (recordValues.get("year") == null || recordValues.get("year").length() == 0)) {
+                                        addMapValue(recordValues,"year", publisherDataNodes.item(x).getTextContent());
+                                    }
+                                break;
+                            }
                         }
                     break;
                     case "260":
-                        backupYear = currentNode.getChildNodes().item(2).getTextContent();
+                        NodeList dataNodes = currentNode.getChildNodes();
+                        childCount = dataNodes.getLength();
+                        for (int x=0;x<childCount;x++) {
+                            switch (dataNodes.item(x).getAttributes().getNamedItem("code").getTextContent()) {
+                                case "a":
+                                    appendMapValue(recordBackupValues, "place",dataNodes.item(x).getTextContent());
+                                break;
+                                case "b":
+                                    appendMapValue(recordBackupValues, "publisher", dataNodes.item(x).getTextContent());
+                                break;
+                                case "c":
+                                    addMapValue(recordBackupValues,"year", recordBackupValues.get("year") + dataNodes.item(x).getTextContent());
+                                break;
+                            }
+                        }
                     break;
                     case "250":
-                        edition = currentNode.getChildNodes().item(0).getTextContent();
+                        addMapValue(recordValues,"edition", currentNode.getChildNodes().item(0).getTextContent());
                     break;
                 }
             }
 
-            if (year == null) {
-                year = backupYear;
+            //apply backup values if needed and available
+            Iterator<String> bpIterator = recordBackupValues.keySet().iterator();
+            while (bpIterator.hasNext()) {
+                String key = bpIterator.next();
+                if (!recordValues.containsKey(key) || (recordValues.get(key) == null || recordValues.get(key).length() == 0)) {
+                    addMapValue(recordValues,key,recordBackupValues.get(key));
+                }
             }
 
             logger.debug("Asking for holdings from: " + getAPIBase() + "record/" + bibId + "/holdings?view=items");
@@ -139,7 +173,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
                 String fallBackLocationCode = childNodes.item(1).getChildNodes().item(0).getTextContent();
                 logger.debug("MarcRecordLeader: " + marcRecordLeader);
                 logger.debug("MFHD: " + mfhd);
-                logger.debug("ISBN: " + isbn);
+                logger.debug("ISBN: " + recordValues.get("isbn"));
                 logger.debug("Item URL: " + childNodes.item(1).getAttributes().getNamedItem("href").getTextContent());
                 logger.debug("Fallback Location: " + fallBackLocationCode);
 
@@ -168,11 +202,18 @@ class VoyagerCatalogService extends AbstractCatalogService {
                         }
                         catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),
                                 itemData);
+                        //sleep for a moment between item requests to avoid triggering a 429 from the Voyager API
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(50);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
-                catalogHoldings.add(new CatalogHolding(marcRecordLeader, mfhd, issn, isbn, title, author, publisher,
-                        place, year, genre, edition, fallBackLocationCode, new HashMap<String, Map<String, String>>(catalogItems)));
+                catalogHoldings.add(new CatalogHolding(marcRecordLeader, mfhd, recordValues.get("issn"), recordValues.get("isbn"), recordValues.get("title"), recordValues.get("author"), recordValues.get("publisher"),
+                        recordValues.get("place"), recordValues.get("year"), recordValues.get("genre"), recordValues.get("edition"), fallBackLocationCode, new HashMap<String, Map<String, String>>(catalogItems)));
                 catalogItems.clear();
+
             }
             return catalogHoldings;
         } catch (IOException e) {

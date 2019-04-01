@@ -1,5 +1,8 @@
 package edu.tamu.app.service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -233,7 +236,11 @@ public class GetItForMeService {
                             // generate unique link for the current button
                             String linkHref = button.getLinkTemplate();
                             for (Map.Entry<String, String> entry : parameters.entrySet()) {
-                                linkHref = linkHref.replace("{" + entry.getKey() + "}", entry.getValue());
+                                try {
+                                    linkHref = linkHref.replace("{" + entry.getKey() + "}", URLEncoder.encode((entry.getValue() != null) ? entry.getValue():"", StandardCharsets.UTF_8.toString()));
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
                             }
 
                             logger.debug("We want the button with text: " + button.getLinkText());
