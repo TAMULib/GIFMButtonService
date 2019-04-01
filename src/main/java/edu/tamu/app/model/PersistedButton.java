@@ -52,6 +52,9 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
     @Column(columnDefinition = "TEXT")
     private String linkTemplate;
 
+    @Column
+    private boolean isActive;
+
     @Override
     public boolean fitsRecordType(String marcRecordLeader) {
         if (recordType != null && !marcRecordLeader.substring(6, 6 + recordType.length()).contentEquals(recordType)) {
@@ -172,6 +175,14 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
 
     public void setRecordType(String recordType) {
         this.recordType = recordType;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
     }
 
 }
