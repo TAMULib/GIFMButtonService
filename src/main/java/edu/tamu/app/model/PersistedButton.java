@@ -66,7 +66,7 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
             return true;
         }
         if (locationCodes.size() == 1) {
-            return locationCode.contains(locationCodes.get(0));
+            return locationCode.startsWith(locationCodes.get(0));
         }
         return locationCodes.contains(locationCode);
     }
