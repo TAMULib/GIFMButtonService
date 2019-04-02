@@ -121,6 +121,8 @@ public class GetItForMeService {
                 if (cssClasses != null) {
                     persistedButton.setCssClasses(cssClasses);
                 }
+
+                persistedButton.setName(activeButton);
                 persistedButtonRepo.save(persistedButton);
             }
         }

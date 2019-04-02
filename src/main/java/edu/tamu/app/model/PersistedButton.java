@@ -25,6 +25,9 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
+    @Column
+    String name;
+
     @ElementCollection
     protected List<String> templateParameterKeys;
 
@@ -89,6 +92,14 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
     @Override
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
