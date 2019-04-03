@@ -177,11 +177,12 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
         this.recordType = recordType;
     }
 
+    @Override
     public boolean isActive() {
         return isActive;
     }
 
-    public void setActive(boolean isActive) {
+    public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
 
