@@ -53,7 +53,7 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
     private String linkTemplate;
 
     @Column
-    private boolean isActive;
+    private boolean active;
 
     @Override
     public boolean fitsRecordType(String marcRecordLeader) {
@@ -178,12 +178,12 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
     }
 
     @Override
-    public boolean isActive() {
-        return isActive;
+    public boolean getActive() {
+        return active;
     }
 
-    public void setIsActive(boolean isActive) {
-        this.isActive = isActive;
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
 }

@@ -104,5 +104,5 @@ public interface GetItForMeButton {
 	 */
 	void setItemStatusCodes(Integer[] itemStatusCodes);
 
-	boolean isActive();
+	boolean getActive();
 }

@@ -129,7 +129,7 @@ public class GetItForMeService {
                     persistedButton.setCssClasses(cssClasses);
                 }
 
-                persistedButton.setIsActive(true);
+                persistedButton.setActive(true);
                 persistedButtonRepo.save(persistedButton);
             }
         }
@@ -190,7 +190,7 @@ public class GetItForMeService {
 
                         // test the current item against the current GetItForMe button's requirements
                         // for eligibility
-                        if (button.isActive()
+                        if (button.getActive()
                                 && button.fitsRecordType(holding.getMarcRecordLeader())
                                 && button.fitsLocation(currentLocation)
                                 && button.fitsItemType(itemData.get("typeDesc"))
