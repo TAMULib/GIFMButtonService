@@ -129,7 +129,7 @@ public class GetItForMeService {
                     persistedButton.setCssClasses(cssClasses);
                 }
 
-                persistedButton.setActive(true);
+                persistedButton.setIsActive(true);
                 persistedButtonRepo.save(persistedButton);
             }
         }
