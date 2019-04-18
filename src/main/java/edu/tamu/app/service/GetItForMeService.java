@@ -211,7 +211,7 @@ public class GetItForMeService {
                             }
                             // these template parameter keys are a special case, and come from the parent
                             // holding, rather than the item data itself
-                            String[] getParameterFromHolding = { "issn", "isbn", "title", "author", "publisher",
+                            String[] getParameterFromHolding = { "title", "author", "publisher",
                                     "genre", "place", "year", "edition" };
 
                             for (String parameterName : getParameterFromHolding) {
@@ -222,6 +222,13 @@ public class GetItForMeService {
                                         e.printStackTrace();
                                     }
                                 }
+                            }
+
+                            //another special case: populate isxn with isbn data, fall back to issn if available
+                            if (holding.getIsbn() != null) {
+                                parameters.put("isxn", holding.getIsbn());
+                            } else if (holding.getIssn() != null) {
+                                parameters.put("isxn", holding.getIssn());
                             }
 
                             // generate the button data
