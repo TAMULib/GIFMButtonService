@@ -12,77 +12,100 @@ import edu.tamu.weaver.utility.HttpUtility;
 
 public abstract class AbstractCatalogService implements CatalogService {
 
-	private String name;
+    private String name;
 
-	private String type;
+    private String type;
 
-	private String host;
+    private String host;
 
-	private String port;
+    private String port;
 
-	private String app;
+    private String app;
 
-	private String protocol;
+    private String protocol;
 
-	private HttpUtility httpUtility;
+    private String sidPrefix;
 
-	public HttpUtility getHttpUtility() {
-		return httpUtility;
-	}
+    private HttpUtility httpUtility;
 
-	public void setHttpUtility(HttpUtility httpUtility) {
-		this.httpUtility = httpUtility;
-	}
+    public HttpUtility getHttpUtility() {
+        return httpUtility;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setHttpUtility(HttpUtility httpUtility) {
+        this.httpUtility = httpUtility;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	public String getType() {
-		return type;
-	}
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    @Override
+    public String getType() {
+        return type;
+    }
 
-	public String getHost() {
-		return host;
-	}
+    @Override
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	public void setHost(String host) {
-		this.host = host;
-	}
+    @Override
+    public String getHost() {
+        return host;
+    }
 
-	public String getPort() {
-		return port;
-	}
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
 
-	public void setPort(String port) {
-		this.port = port;
-	}
+    @Override
+    public String getPort() {
+        return port;
+    }
 
-	public String getApp() {
-		return app;
-	}
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
 
-	public void setApp(String app) {
-		this.app = app;
-	}
+    @Override
+    public String getApp() {
+        return app;
+    }
 
-	public String getProtocol() {
-		return protocol;
-	}
+    @Override
+    public void setApp(String app) {
+        this.app = app;
+    }
 
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
-	}
+    @Override
+    public String getProtocol() {
+        return protocol;
+    }
 
-	protected String getAPIBase() {
-		return getProtocol() +"://"+getHost()+":"+getPort()+"/"+getApp()+"/";
-	}
+    @Override
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    protected String getAPIBase() {
+        return getProtocol() + "://" + getHost() + ":" + getPort() + "/" + getApp() + "/";
+    }
+
+    public String getSidPrefix() {
+        return sidPrefix;
+    }
+
+    public void setSidPrefix(String sidPrefix) {
+        this.sidPrefix = sidPrefix;
+    }
+
 }
