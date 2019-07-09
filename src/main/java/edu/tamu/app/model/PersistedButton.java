@@ -58,6 +58,9 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
     @Column
     private boolean active;
 
+    @Column
+    private String catalogName;
+
     @Override
     public boolean fitsRecordType(String marcRecordLeader) {
         if (recordType != null && !marcRecordLeader.substring(6, 6 + recordType.length()).contentEquals(recordType)) {
@@ -195,6 +198,14 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public String getCatalogName() {
+        return catalogName;
+    }
+
+    public void setCatalogName(String catalogName) {
+        this.catalogName = catalogName;
     }
 
 }
