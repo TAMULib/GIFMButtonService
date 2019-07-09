@@ -95,6 +95,12 @@ public class GetItForMeService {
 
                 String cssClasses = environment.getProperty(activeButton + ".cssClasses");
 
+                String buttonName = environment.getProperty(activeButton + ".name");
+
+                if (buttonName == null) {
+                    buttonName = activeButton;
+                }
+
                 PersistedButton persistedButton = new PersistedButton();
 
                 if (rawLocationCodes != null) {
@@ -129,7 +135,7 @@ public class GetItForMeService {
                     persistedButton.setCssClasses(cssClasses);
                 }
 
-                persistedButton.setName(activeButton);
+                persistedButton.setName(buttonName);
                 persistedButton.setActive(true);
 
                 persistedButtonRepo.save(persistedButton);
