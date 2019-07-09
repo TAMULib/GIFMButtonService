@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -34,6 +35,9 @@ import edu.tamu.weaver.utility.HttpUtility;
  */
 
 class VoyagerCatalogService extends AbstractCatalogService {
+    private static final int MAX_ITEMS = 50;
+    private static final int REQUEST_TIMEOUT = 120000;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private void appendMapValue(Map<String,String> map, String key, String newValue) {
@@ -61,7 +65,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
     public List<CatalogHolding> getHoldingsByBibId(String bibId) {
         try {
             logger.debug("Asking for Record from: " + getAPIBase() + "record/" + bibId + "/?view=full");
-            String recordResult = HttpUtility.makeHttpRequest(getAPIBase() + "record/" + bibId + "/?view=full", "GET");
+            String recordResult = HttpUtility.makeHttpRequest(getAPIBase() + "record/" + bibId + "/?view=full", "GET", Optional.empty(), Optional.empty(), REQUEST_TIMEOUT);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
@@ -150,7 +154,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
 
             logger.debug("Asking for holdings from: " + getAPIBase() + "record/" + bibId + "/holdings?view=items");
             String result = HttpUtility.makeHttpRequest(getAPIBase() + "record/" + bibId + "/holdings?view=items",
-                    "GET");
+                    "GET", Optional.empty(), Optional.empty(), REQUEST_TIMEOUT);
             logger.debug("Received holdings from: " + getAPIBase() + "record/" + bibId + "/holdings?view=items");
 
             doc = dBuilder.parse(new InputSource(new StringReader(result)));
@@ -180,11 +184,11 @@ class VoyagerCatalogService extends AbstractCatalogService {
                     logger.debug("ISBN: " + recordValues.get("isbn"));
                     logger.debug("Item URL: " + childNodes.item(1).getAttributes().getNamedItem("href").getTextContent());
                     logger.debug("Fallback Location: " + fallBackLocationCode);
-
-                    for (int j = 0; j < childCount; j++) {
+                    int itemCount = childCount <= 50 ? childCount:MAX_ITEMS;
+                    for (int j = 0; j < itemCount; j++) {
                         if (childNodes.item(j).getNodeName() == "item") {
                             String itemResult = HttpUtility.makeHttpRequest(
-                                    childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(), "GET");
+                                    childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(), "GET", Optional.empty(), Optional.empty(), REQUEST_TIMEOUT);
 
                             logger.debug("Got Item details from: "
                                     + childNodes.item(j).getAttributes().getNamedItem("href").getTextContent());
