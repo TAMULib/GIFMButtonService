@@ -184,7 +184,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
                     logger.debug("ISBN: " + recordValues.get("isbn"));
                     logger.debug("Item URL: " + childNodes.item(1).getAttributes().getNamedItem("href").getTextContent());
                     logger.debug("Fallback Location: " + fallBackLocationCode);
-                    int itemCount = childCount <= 50 ? childCount:MAX_ITEMS;
+                    int itemCount = childCount <= MAX_ITEMS ? childCount:MAX_ITEMS+1;
                     for (int j = 0; j < itemCount; j++) {
                         if (childNodes.item(j).getNodeName() == "item") {
                             String itemResult = HttpUtility.makeHttpRequest(
