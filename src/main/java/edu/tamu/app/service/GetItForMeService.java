@@ -50,6 +50,12 @@ public class GetItForMeService {
     @Value("${activeButtons}")
     private String[] activeButtons;
 
+    @Value("${app.defaultButton.templateParameterKeys}")
+    private String[] defaultTemplateParameterKeys;
+
+    @Value("${app.defaultButton.templateUrl}")
+    private String defaultTemplateUrl;
+
     @Autowired
     Environment environment;
 
@@ -180,13 +186,14 @@ public class GetItForMeService {
                 if (holding.getCatalogItems().size() >= 0) {
                     Map<String, String> parameters = new HashMap<String,String>();
                     Map<String, String> defaultButtonContent = new HashMap<String, String>();
-                    List<String> parameterKeys = Arrays.asList("title", "author", "publisher", "genre", "place", "year", "edition", "isxn");
+                    List<String> parameterKeys = Arrays.asList(defaultTemplateParameterKeys);
                     for (String parameterKey : parameterKeys) {
                         parameters.put(parameterKey, null);
                     }
+                    parameters.put("sid", getCatalogServiceByName(catalogName).getSidPrefix());
                     parameters = buildHoldingParameters(parameters, holding);
                     defaultButtonContent.put("linkText", "Get It For Me");
-                    defaultButtonContent.put("linkHref",generateLinkHref(parameters, "getitforme.library.tamu.edu/illiad/EvansLocal/openurl.asp?Action=10&Form=30&LoanAuthor={author}&LoanPublisher={publisher}&sid="+getCatalogServiceByName(catalogName).getSidPrefix()+"&LoanTitle={title}&isxn={isxn}&genre={genre}&LoanDate={year}&LoanEdition={edition}&LoanPlace={place}"));
+                    defaultButtonContent.put("linkHref",generateLinkHref(parameters, defaultTemplateUrl));
                     defaultButtonContent.put("cssClasses", "button-gifm");
                     validButtons.get(holding.getMfhd()).add(defaultButtonContent);
                 } else {
