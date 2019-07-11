@@ -184,37 +184,38 @@ class VoyagerCatalogService extends AbstractCatalogService {
                     logger.debug("ISBN: " + recordValues.get("isbn"));
                     logger.debug("Item URL: " + childNodes.item(1).getAttributes().getNamedItem("href").getTextContent());
                     logger.debug("Fallback Location: " + fallBackLocationCode);
-                    int itemCount = childCount <= MAX_ITEMS ? childCount:MAX_ITEMS+1;
-                    for (int j = 0; j < itemCount; j++) {
-                        if (childNodes.item(j).getNodeName() == "item") {
-                            String itemResult = HttpUtility.makeHttpRequest(
-                                    childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(), "GET", Optional.empty(), Optional.empty(), REQUEST_TIMEOUT);
+                    if (childCount <= MAX_ITEMS) {
+                        for (int j = 0; j < childCount; j++) {
+                            if (childNodes.item(j).getNodeName() == "item") {
+                                String itemResult = HttpUtility.makeHttpRequest(
+                                        childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(), "GET", Optional.empty(), Optional.empty(), REQUEST_TIMEOUT);
 
-                            logger.debug("Got Item details from: "
-                                    + childNodes.item(j).getAttributes().getNamedItem("href").getTextContent());
-                            doc = dBuilder.parse(new InputSource(new StringReader(itemResult)));
-                            doc.getDocumentElement().normalize();
-                            NodeList itemDataNode = doc.getElementsByTagName("itemData");
+                                logger.debug("Got Item details from: "
+                                        + childNodes.item(j).getAttributes().getNamedItem("href").getTextContent());
+                                doc = dBuilder.parse(new InputSource(new StringReader(itemResult)));
+                                doc.getDocumentElement().normalize();
+                                NodeList itemDataNode = doc.getElementsByTagName("itemData");
 
-                            int itemDataCount = itemDataNode.getLength();
-                            Map<String, String> itemData = new HashMap<String, String>();
-                            for (int l = 0; l < itemDataCount; l++) {
-                                if (itemDataNode.item(l).getAttributes().getNamedItem("code") != null) {
-                                    itemData.put(
-                                            itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent()
-                                                    + "Code",
-                                            itemDataNode.item(l).getAttributes().getNamedItem("code").getTextContent());
+                                int itemDataCount = itemDataNode.getLength();
+                                Map<String, String> itemData = new HashMap<String, String>();
+                                for (int l = 0; l < itemDataCount; l++) {
+                                    if (itemDataNode.item(l).getAttributes().getNamedItem("code") != null) {
+                                        itemData.put(
+                                                itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent()
+                                                        + "Code",
+                                                itemDataNode.item(l).getAttributes().getNamedItem("code").getTextContent());
+                                    }
+                                    itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent(),
+                                            itemDataNode.item(l).getTextContent());
                                 }
-                                itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent(),
-                                        itemDataNode.item(l).getTextContent());
-                            }
-                            catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),
-                                    itemData);
-                            //sleep for a moment between item requests to avoid triggering a 429 from the Voyager API
-                            try {
-                                TimeUnit.MILLISECONDS.sleep(50);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
+                                catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),
+                                        itemData);
+                                //sleep for a moment between item requests to avoid triggering a 429 from the Voyager API
+                                try {
+                                    TimeUnit.MILLISECONDS.sleep(50);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
                     }
