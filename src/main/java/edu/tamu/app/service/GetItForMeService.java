@@ -183,7 +183,7 @@ public class GetItForMeService {
                 validButtons.put(holding.getMfhd(), new ArrayList<Map<String, String>>());
 
                 //if the holding has no items, fallback to a generic button
-                if (holding.getCatalogItems().size() >= 0) {
+                if (holding.getCatalogItems().size() == 0) {
                     Map<String, String> parameters = new HashMap<String,String>();
                     Map<String, String> defaultButtonContent = new HashMap<String, String>();
                     List<String> parameterKeys = Arrays.asList(defaultTemplateParameterKeys);
