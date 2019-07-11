@@ -140,6 +140,9 @@ class VoyagerCatalogService extends AbstractCatalogService {
                     case "250":
                         addMapValue(recordValues,"edition", currentNode.getChildNodes().item(0).getTextContent());
                     break;
+                    case "035":
+                        addMapValue(recordValues,"oclc",currentNode.getChildNodes().item(0).getTextContent());
+                    break;
                 }
             }
 
@@ -220,7 +223,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
                         }
                     }
                     catalogHoldings.add(new CatalogHolding(marcRecordLeader, mfhd, recordValues.get("issn"), recordValues.get("isbn"), recordValues.get("title"), recordValues.get("author"), recordValues.get("publisher"),
-                            recordValues.get("place"), recordValues.get("year"), recordValues.get("genre"), recordValues.get("edition"), fallBackLocationCode, new HashMap<String, Map<String, String>>(catalogItems)));
+                            recordValues.get("place"), recordValues.get("year"), recordValues.get("genre"), recordValues.get("edition"), fallBackLocationCode, recordValues.get("oclc"), new HashMap<String, Map<String, String>>(catalogItems)));
                     catalogItems.clear();
                 }
             }

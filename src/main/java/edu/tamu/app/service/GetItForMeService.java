@@ -103,6 +103,8 @@ public class GetItForMeService {
 
                 String cssClasses = environment.getProperty(activeButton + ".cssClasses");
 
+                String catalogName = environment.getProperty(activeButton + ".catalog");
+
                 String buttonName = environment.getProperty(activeButton + ".name");
 
                 if (buttonName == null) {
@@ -143,6 +145,10 @@ public class GetItForMeService {
                     persistedButton.setCssClasses(cssClasses);
                 }
 
+                if (catalogName != null) {
+                    persistedButton.setCatalogName(catalogName);
+                }
+
                 persistedButton.setName(buttonName);
                 persistedButton.setActive(true);
 
@@ -154,6 +160,12 @@ public class GetItForMeService {
     public List<GetItForMeButton> getRegisteredButtons() {
         List<? extends GetItForMeButton> buttons = new ArrayList<PersistedButton>();
         buttons = persistedButtonRepo.findAll();
+        return (List<GetItForMeButton>) buttons;
+    }
+
+    public List<GetItForMeButton> getRegisteredButtons(String catalogName) {
+        List<? extends GetItForMeButton> buttons = new ArrayList<PersistedButton>();
+        buttons = persistedButtonRepo.findByCatalogName(catalogName);
         return (List<GetItForMeButton>) buttons;
     }
 
@@ -201,7 +213,7 @@ public class GetItForMeService {
                     holding.getCatalogItems().forEach((uri, itemData) -> {
                         logger.debug("Checking holding URI: " + uri);
                         // check all registered button for each item
-                        for (GetItForMeButton button : this.getRegisteredButtons()) {
+                        for (GetItForMeButton button : this.getRegisteredButtons(catalogName)) {
                             logger.debug("Analyzing: " + button.toString());
                             String currentLocation = null;
                             if (itemData.containsKey("tempLocationCode")) {
@@ -296,7 +308,7 @@ public class GetItForMeService {
         // these template parameter keys are a special case, and come from the parent
         // holding, rather than the item data itself
         String[] getParameterFromHolding = { "title", "author", "publisher",
-                "genre", "place", "year", "edition" };
+                "genre", "place", "year", "edition", "oclc" };
 
         for (String parameterName : getParameterFromHolding) {
             if (parameters.containsKey(parameterName)) {
