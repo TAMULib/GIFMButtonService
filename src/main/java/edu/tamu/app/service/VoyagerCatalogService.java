@@ -177,55 +177,55 @@ class VoyagerCatalogService extends AbstractCatalogService {
                 logger.debug("The Count of Children: " + childCount);
                 Map<String, Map<String, String>> catalogItems = new HashMap<String, Map<String, String>>();
 
-                if (childNodes.item(1) == null) {
-                    logger.debug("Skipping holding with no items");
-                } else {
-                    String mfhd = childNodes.item(0).getChildNodes().item(1).getTextContent();
-                    String fallBackLocationCode = childNodes.item(1).getChildNodes().item(0).getTextContent();
-                    logger.debug("MarcRecordLeader: " + marcRecordLeader);
-                    logger.debug("MFHD: " + mfhd);
-                    logger.debug("ISBN: " + recordValues.get("isbn"));
+                String mfhd = childNodes.item(0).getChildNodes().item(1).getTextContent();
+                String fallBackLocationCode = childNodes.item(0).getChildNodes().item(5).getChildNodes().item(0).getTextContent();
+                logger.debug("MarcRecordLeader: " + marcRecordLeader);
+                logger.debug("MFHD: " + mfhd);
+                logger.debug("ISBN: " + recordValues.get("isbn"));
+                logger.debug("Fallback Location: " + fallBackLocationCode);
+
+                if (childNodes.item(1) != null) {
                     logger.debug("Item URL: " + childNodes.item(1).getAttributes().getNamedItem("href").getTextContent());
-                    logger.debug("Fallback Location: " + fallBackLocationCode);
-                    if (childCount <= MAX_ITEMS) {
-                        for (int j = 0; j < childCount; j++) {
-                            if (childNodes.item(j).getNodeName() == "item") {
-                                String itemResult = HttpUtility.makeHttpRequest(
-                                        childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(), "GET", Optional.empty(), Optional.empty(), REQUEST_TIMEOUT);
+                }
 
-                                logger.debug("Got Item details from: "
-                                        + childNodes.item(j).getAttributes().getNamedItem("href").getTextContent());
-                                doc = dBuilder.parse(new InputSource(new StringReader(itemResult)));
-                                doc.getDocumentElement().normalize();
-                                NodeList itemDataNode = doc.getElementsByTagName("itemData");
+                if (childCount-1 <= MAX_ITEMS) {
+                    for (int j = 0; j < childCount; j++) {
+                        if (childNodes.item(j) != null && childNodes.item(j).getNodeName() == "item") {
+                            String itemResult = HttpUtility.makeHttpRequest(
+                                    childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(), "GET", Optional.empty(), Optional.empty(), REQUEST_TIMEOUT);
 
-                                int itemDataCount = itemDataNode.getLength();
-                                Map<String, String> itemData = new HashMap<String, String>();
-                                for (int l = 0; l < itemDataCount; l++) {
-                                    if (itemDataNode.item(l).getAttributes().getNamedItem("code") != null) {
-                                        itemData.put(
-                                                itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent()
-                                                        + "Code",
-                                                itemDataNode.item(l).getAttributes().getNamedItem("code").getTextContent());
-                                    }
-                                    itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent(),
-                                            itemDataNode.item(l).getTextContent());
+                            logger.debug("Got Item details from: "
+                                    + childNodes.item(j).getAttributes().getNamedItem("href").getTextContent());
+                            doc = dBuilder.parse(new InputSource(new StringReader(itemResult)));
+                            doc.getDocumentElement().normalize();
+                            NodeList itemDataNode = doc.getElementsByTagName("itemData");
+
+                            int itemDataCount = itemDataNode.getLength();
+                            Map<String, String> itemData = new HashMap<String, String>();
+                            for (int l = 0; l < itemDataCount; l++) {
+                                if (itemDataNode.item(l).getAttributes().getNamedItem("code") != null) {
+                                    itemData.put(
+                                            itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent()
+                                                    + "Code",
+                                            itemDataNode.item(l).getAttributes().getNamedItem("code").getTextContent());
                                 }
-                                catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),
-                                        itemData);
-                                //sleep for a moment between item requests to avoid triggering a 429 from the Voyager API
-                                try {
-                                    TimeUnit.MILLISECONDS.sleep(50);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
+                                itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent(),
+                                        itemDataNode.item(l).getTextContent());
+                            }
+                            catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),
+                                    itemData);
+                            //sleep for a moment between item requests to avoid triggering a 429 from the Voyager API
+                            try {
+                                TimeUnit.MILLISECONDS.sleep(50);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
                             }
                         }
                     }
-                    catalogHoldings.add(new CatalogHolding(marcRecordLeader, mfhd, recordValues.get("issn"), recordValues.get("isbn"), recordValues.get("title"), recordValues.get("author"), recordValues.get("publisher"),
-                            recordValues.get("place"), recordValues.get("year"), recordValues.get("genre"), recordValues.get("edition"), fallBackLocationCode, recordValues.get("oclc"), new HashMap<String, Map<String, String>>(catalogItems)));
-                    catalogItems.clear();
                 }
+                catalogHoldings.add(new CatalogHolding(marcRecordLeader, mfhd, recordValues.get("issn"), recordValues.get("isbn"), recordValues.get("title"), recordValues.get("author"), recordValues.get("publisher"),
+                        recordValues.get("place"), recordValues.get("year"), recordValues.get("genre"), recordValues.get("edition"), fallBackLocationCode, recordValues.get("oclc"), new HashMap<String, Map<String, String>>(catalogItems)));
+                catalogItems.clear();
             }
             return catalogHoldings;
         } catch (IOException e) {
