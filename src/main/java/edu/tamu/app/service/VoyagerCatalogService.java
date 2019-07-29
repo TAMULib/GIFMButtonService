@@ -35,7 +35,7 @@ import edu.tamu.weaver.utility.HttpUtility;
  */
 
 class VoyagerCatalogService extends AbstractCatalogService {
-    private static final int MAX_ITEMS = 50;
+    private static final int MAX_ITEMS = 100;
     private static final int REQUEST_TIMEOUT = 120000;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -184,11 +184,33 @@ class VoyagerCatalogService extends AbstractCatalogService {
                 logger.debug("ISBN: " + recordValues.get("isbn"));
                 logger.debug("Fallback Location: " + fallBackLocationCode);
 
-                if (childNodes.item(1) != null) {
-                    logger.debug("Item URL: " + childNodes.item(1).getAttributes().getNamedItem("href").getTextContent());
-                }
+                if (childCount-1 > MAX_ITEMS) {
+                    //when we have a lot of items, just use the item data that came with the holding response, even though it's incomplete data
+                    for (int j = 0; j < childCount; j++) {
+                        if (childNodes.item(j) != null && childNodes.item(j).getNodeName() == "item") {
+                            NodeList itemDataNode = childNodes.item(j).getChildNodes();
 
-                if (childCount-1 <= MAX_ITEMS) {
+                            int itemDataCount = itemDataNode.getLength();
+                            Map<String, String> itemData = new HashMap<String, String>();
+                            for (int l = 0; l < itemDataCount; l++) {
+                                if (itemDataNode.item(l).getAttributes().getNamedItem("code") != null) {
+                                    itemData.put(
+                                            itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent()
+                                                    + "Code",
+                                            itemDataNode.item(l).getAttributes().getNamedItem("code").getTextContent());
+                                }
+                                itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent(),
+                                        itemDataNode.item(l).getTextContent());
+                            }
+                            catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),
+                                    itemData);
+                        }
+                    }
+                } else {
+                    if (childNodes.item(1) != null) {
+                        logger.debug("Item URL: " + childNodes.item(1).getAttributes().getNamedItem("href").getTextContent());
+                    }
+
                     for (int j = 0; j < childCount; j++) {
                         if (childNodes.item(j) != null && childNodes.item(j).getNodeName() == "item") {
                             String itemResult = HttpUtility.makeHttpRequest(
