@@ -141,7 +141,10 @@ class VoyagerCatalogService extends AbstractCatalogService {
                         addMapValue(recordValues,"edition", currentNode.getChildNodes().item(0).getTextContent());
                     break;
                     case "035":
-                        addMapValue(recordValues,"oclc",currentNode.getChildNodes().item(0).getTextContent());
+                        dataNodes = currentNode.getChildNodes();
+                        if (dataNodes.item(0).getAttributes().getNamedItem("code").getTextContent().equals("a")) {
+                            addMapValue(recordValues,"oclc",currentNode.getChildNodes().item(0).getTextContent());
+                        }
                     break;
                 }
             }
