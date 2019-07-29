@@ -44,6 +44,8 @@ import edu.tamu.app.utilities.sort.VolumeComparator;
 @Service
 public class GetItForMeService {
 
+    private static final int DEFAULT_THRESHOLD = 100;
+
     @Autowired
     private CatalogServiceFactory catalogServiceFactory;
 
@@ -238,7 +240,7 @@ public class GetItForMeService {
                         }
                     }
                 } else {
-                    if (holding.getCatalogItems().size() > 100) {
+                    if (holding.getCatalogItems().size() > DEFAULT_THRESHOLD) {
                         holding.getCatalogItems().forEach((uri, itemData) -> {
                             Map<String, String> parameters = new HashMap<String,String>();
                             Map<String, String> defaultButtonContent = new HashMap<String, String>();
@@ -392,4 +394,5 @@ public class GetItForMeService {
 
         return parameters;
     }
+
 }
