@@ -42,7 +42,7 @@ public class ButtonLinkPresentation extends AbstractButtonPresentation {
     public static Map<String,String> buildButtonProperties(Map<String,String> parameters, GetItForMeButton button) {
         Map<String,String> buttonContent = new HashMap<String,String>();
         buttonContent.put("linkText", button.getLinkText());
-        String linkHref = ButtonLinkPresentation.generateLinkHref(parameters, button.getLinkTemplate());
+        String linkHref = ButtonLinkPresentation.renderTemplate(parameters, button.getLinkTemplate());
 
         buttonContent.put("linkHref", linkHref);
         buttonContent.put("cssClasses", "button-gifm" + ((button.getCssClasses() != null) ? " "+button.getCssClasses():""));

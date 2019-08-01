@@ -1,13 +1,9 @@
 package edu.tamu.app.service;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,11 +16,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import edu.tamu.app.model.CatalogHolding;
-import edu.tamu.app.model.GetItForMeButton;
 import edu.tamu.app.model.ButtonFormPresentation;
 import edu.tamu.app.model.ButtonLinkPresentation;
 import edu.tamu.app.model.ButtonPresentation;
+import edu.tamu.app.model.CatalogHolding;
+import edu.tamu.app.model.GetItForMeButton;
 import edu.tamu.app.model.PersistedButton;
 import edu.tamu.app.model.repo.PersistedButtonRepo;
 import edu.tamu.app.utilities.sort.VolumeComparator;
@@ -67,6 +63,9 @@ public class GetItForMeService {
 
     @Value("${app.defaultButton.action}")
     private String defaultAction;
+
+    @Value("${app.defaultButton.volumeField}")
+    private String defaultVolumeField;
 
     @Autowired
     Environment environment;
@@ -206,7 +205,7 @@ public class GetItForMeService {
                 // users can see that the MFHD was tested
                 presentableHoldings.put(holding.getMfhd(), null);
                 List<Map<String,String>> holdingButtons = new ArrayList<Map<String, String>>();
-                //if the holding has no items, check for an itemless button
+                //Path 1: if the holding has no items, check for an itemless button
                 if (holding.getCatalogItems().size() == 0) {
                     for (GetItForMeButton button : this.getRegisteredButtons(catalogName)) {
                         //the 'purchase' button is the only one that can show up for holdings with no items
@@ -245,6 +244,7 @@ public class GetItForMeService {
                         }
                     }
                 } else {
+                    //Path 2: For holdings with lots of items, we generate a single form based button, with selectable items
                     if (holding.getCatalogItems().size() > DEFAULT_THRESHOLD) {
                         logger.debug("Generating the large volume button");
                         Map<String, String> defaultButtonContent = new HashMap<String, String>();
@@ -260,13 +260,12 @@ public class GetItForMeService {
 
                         parameters.put("sid",getCatalogServiceByName(catalogName).getSidPrefix()
                                 + ":" + defaultSID);
-
-                        defaultButtonContent.put("form",ButtonFormPresentation.buildForm(holding.getCatalogItems(), defaultAction, defaultFieldMap, parameters));
+                        defaultButtonContent.put("form",ButtonFormPresentation.buildForm(holding.getCatalogItems(), defaultAction, defaultFieldMap, defaultVolumeField, parameters));
                         holdingButtons.add(defaultButtonContent);
 
                         presentableHoldings.put(holding.getMfhd(), new ButtonFormPresentation(holdingButtons));
                     } else {
-                        // check all the items for each holding
+                        // Path 3: The 'normal' approach: Check all the items for each holding and create a button if a given item passes the tests
                         holding.getCatalogItems().forEach((uri, itemData) -> {
                             logger.debug("Checking holding URI: " + uri);
                             // check all registered button for each item
@@ -323,7 +322,7 @@ public class GetItForMeService {
                                     }
 
                                     // generate unique link for the current button
-                                    String linkHref = ButtonLinkPresentation.generateLinkHref(parameters, button.getLinkTemplate());
+                                    String linkHref = ButtonLinkPresentation.renderTemplate(parameters, button.getLinkTemplate());
                                     logger.debug("We want the button with text: " + button.getLinkText());
                                     logger.debug("It looks like: ");
                                     logger.debug(linkHref);

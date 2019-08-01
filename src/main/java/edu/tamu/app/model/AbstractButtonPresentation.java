@@ -19,14 +19,14 @@ public abstract class AbstractButtonPresentation implements ButtonPresentation {
         this.buttons = buttons;
     }
 
-    public static String generateLinkHref(Map<String,String> parameters, String linkHref) {
+    public static String renderTemplate(Map<String,String> parameters, String template) {
         for (Map.Entry<String, String> entry : parameters.entrySet()) {
             try {
-                linkHref = linkHref.replace("{" + entry.getKey() + "}", URLEncoder.encode((entry.getValue() != null) ? entry.getValue():"", StandardCharsets.UTF_8.toString()));
+                template = template.replace("{" + entry.getKey() + "}", URLEncoder.encode((entry.getValue() != null) ? entry.getValue():"", StandardCharsets.UTF_8.toString()));
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
-        return linkHref;
+        return template;
     }
 }

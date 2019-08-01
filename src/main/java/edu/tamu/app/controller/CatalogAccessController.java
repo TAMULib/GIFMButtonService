@@ -56,16 +56,8 @@ public class CatalogAccessController {
             Map<String,List<String>> buttonContents = new HashMap<String,List<String>>();
             for (Map.Entry<String, ButtonPresentation> entry : presentableHoldings.entrySet()) {
                 buttonContents.put(entry.getKey(),new ArrayList<String>());
-                Iterator<Map<String,String>> buttonPropIterator = entry.getValue().getButtons().iterator();
-                if (entry.getValue().getPresentationType().equals("form")) {
-                    while (buttonPropIterator.hasNext()) {
-                        Map<String,String> buttonProperties = buttonPropIterator.next();
-                        buttonContents.get(entry.getKey()).add(buttonProperties.get("form"));
-                    }
+                buttonContents.get(entry.getKey()).addAll(entry.getValue().buildPresentation());
 
-                } else {
-                    buttonContents.get(entry.getKey()).addAll(entry.getValue().buildPresentation());
-                }
             }
 			return new ApiResponse(SUCCESS,buttonContents);
 		}
