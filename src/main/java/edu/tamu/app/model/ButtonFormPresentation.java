@@ -32,7 +32,7 @@ public class ButtonFormPresentation extends AbstractButtonPresentation {
         return renderedButtons;
     }
 
-    public static String buildForm(Map<String,Map<String,String>> items, String action, Map<String,String> fieldMap, String volumeField, Map<String,String> parameters ) {
+    public static String buildForm(Map<String,Map<String,String>> items, String action, Map<String,String> fieldMap, String volumeField, String buttonText, Map<String,String> parameters ) {
         List<String> volumesText = new ArrayList<String>();
         items.forEach((uri, itemData) -> {
             volumesText.add(itemData.get("enumeration")+((itemData.containsKey("chron") && !itemData.get("chron").isEmpty()) ? " "+itemData.get("chron"):""));
@@ -52,7 +52,7 @@ public class ButtonFormPresentation extends AbstractButtonPresentation {
             formFields.append("<input type=\"hidden\" name=\""+k+"\" value=\""+v+"\" />");
         });
 
-        String formTemplate = renderTemplate(parameters, formFields.toString()) + volumeOptions.toString() + "<input class=\"button-gifm\" type=\"submit\" value=\"Get It For Me\" />";
+        String formTemplate = renderTemplate(parameters, formFields.toString()) + volumeOptions.toString() + "<input class=\"button-gifm\" type=\"submit\" value=\""+buttonText+"\" />";
 
         return "<form target=\"_blank\" action=\""+action+"\" method=\"GET\">"+formTemplate+"</form>";
     }

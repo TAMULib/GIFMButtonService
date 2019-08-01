@@ -4,9 +4,7 @@ import static edu.tamu.weaver.response.ApiStatus.ERROR;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import edu.tamu.app.model.ButtonLinkPresentation;
 import edu.tamu.app.model.ButtonPresentation;
 import edu.tamu.app.service.GetItForMeService;
 import edu.tamu.weaver.response.ApiResponse;
@@ -55,9 +52,7 @@ public class CatalogAccessController {
 		if (presentableHoldings != null) {
             Map<String,List<String>> buttonContents = new HashMap<String,List<String>>();
             for (Map.Entry<String, ButtonPresentation> entry : presentableHoldings.entrySet()) {
-                buttonContents.put(entry.getKey(),new ArrayList<String>());
-                buttonContents.get(entry.getKey()).addAll(entry.getValue().buildPresentation());
-
+                buttonContents.put(entry.getKey(), entry.getValue().buildPresentation());
             }
 			return new ApiResponse(SUCCESS,buttonContents);
 		}

@@ -67,6 +67,9 @@ public class GetItForMeService {
     @Value("${app.defaultButton.volumeField}")
     private String defaultVolumeField;
 
+    @Value("${app.defaultButton.text}")
+    private String defaultText;
+
     @Autowired
     Environment environment;
 
@@ -260,7 +263,7 @@ public class GetItForMeService {
 
                         parameters.put("sid",getCatalogServiceByName(catalogName).getSidPrefix()
                                 + ":" + defaultSID);
-                        defaultButtonContent.put("form",ButtonFormPresentation.buildForm(holding.getCatalogItems(), defaultAction, defaultFieldMap, defaultVolumeField, parameters));
+                        defaultButtonContent.put("form",ButtonFormPresentation.buildForm(holding.getCatalogItems(), defaultAction, defaultFieldMap, defaultVolumeField, defaultText, parameters));
                         holdingButtons.add(defaultButtonContent);
 
                         presentableHoldings.put(holding.getMfhd(), new ButtonFormPresentation(holdingButtons));
