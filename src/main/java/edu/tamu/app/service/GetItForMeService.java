@@ -1,8 +1,5 @@
 package edu.tamu.app.service;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,6 +16,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import edu.tamu.app.model.ButtonFormPresentation;
+import edu.tamu.app.model.ButtonLinkPresentation;
+import edu.tamu.app.model.ButtonPresentation;
 import edu.tamu.app.model.CatalogHolding;
 import edu.tamu.app.model.GetItForMeButton;
 import edu.tamu.app.model.PersistedButton;
@@ -55,11 +55,20 @@ public class GetItForMeService {
     @Value("${app.defaultButton.templateParameterKeys}")
     private String[] defaultTemplateParameterKeys;
 
-    @Value("${app.defaultButton.templateUrl}")
-    private String defaultTemplateUrl;
+    @Value("#{${app.defaultButton.fieldMap}}")
+    private Map<String, String> defaultFieldMap;
 
     @Value("${app.defaultButton.SID}")
     private String defaultSID;
+
+    @Value("${app.defaultButton.action}")
+    private String defaultAction;
+
+    @Value("${app.defaultButton.volumeField}")
+    private String defaultVolumeField;
+
+    @Value("${app.defaultButton.text}")
+    private String defaultText;
 
     @Autowired
     Environment environment;
@@ -184,12 +193,12 @@ public class GetItForMeService {
      * @return Map<String,List<Map<String,String>>>
      */
 
-    public Map<String, List<Map<String, String>>> getButtonsByBibId(String catalogName, String bibId) {
+    public Map<String,ButtonPresentation> getButtonDataByBibId(String catalogName, String bibId) {
         List<CatalogHolding> catalogHoldings = this.getHoldingsByBibId(catalogName, bibId);
         if (catalogHoldings != null) {
             logger.debug("\n\nCATALOG HOLDINGS FOR " + bibId);
 
-            Map<String, List<Map<String, String>>> validButtons = new HashMap<String, List<Map<String, String>>>();
+            Map<String, ButtonPresentation> presentableHoldings = new HashMap<String, ButtonPresentation>();
 
             // check each holding
             catalogHoldings.forEach(holding -> {
@@ -197,9 +206,9 @@ public class GetItForMeService {
                 // we'll put the valid buttons here, keyed by their parent holding's MFHD
                 // we want the MFHD key, even if we don't have any valid buttons for it, so
                 // users can see that the MFHD was tested
-                validButtons.put(holding.getMfhd(), new ArrayList<Map<String, String>>());
-
-                //if the holding has no items, check for an itemless button
+                presentableHoldings.put(holding.getMfhd(), null);
+                List<Map<String,String>> holdingButtons = new ArrayList<Map<String, String>>();
+                //Path 1: if the holding has no items, check for an itemless button
                 if (holding.getCatalogItems().size() == 0) {
                     for (GetItForMeButton button : this.getRegisteredButtons(catalogName)) {
                         //the 'purchase' button is the only one that can show up for holdings with no items
@@ -223,57 +232,43 @@ public class GetItForMeService {
                             parameters = buildHoldingParameters(parameters, holding);
 
                             // generate the button data
-                            Map<String, String> buttonContent = new HashMap<String, String>();
+                            Map<String, String> buttonContent = ButtonLinkPresentation.buildButtonProperties(parameters, button);
 
-                            buttonContent.put("linkText", button.getLinkText());
-
-                            // generate unique link for the current button
-                            String linkHref = generateLinkHref(parameters, button.getLinkTemplate());
                             logger.debug("We want the itemless button with text: " + button.getLinkText());
                             logger.debug("It looks like: ");
-                            logger.debug(linkHref);
+                            logger.debug(buttonContent.get("linkHref"));
 
-                            buttonContent.put("linkHref", linkHref);
-                            buttonContent.put("cssClasses", "button-gifm " + button.getCssClasses());
                             // add the button to the list for the holding's MFHD
-                            validButtons.get(holding.getMfhd()).add(buttonContent);
+                            holdingButtons.add(buttonContent);
+
+                        }
+                        if (holdingButtons.size() > 0) {
+                            presentableHoldings.put(holding.getMfhd(), new ButtonLinkPresentation(holdingButtons));
                         }
                     }
                 } else {
+                    //Path 2: For holdings with lots of items, we generate a single form based button, with selectable items
                     if (holding.getCatalogItems().size() > DEFAULT_THRESHOLD) {
-                        holding.getCatalogItems().forEach((uri, itemData) -> {
-                            Map<String, String> parameters = new HashMap<String,String>();
-                            Map<String, String> defaultButtonContent = new HashMap<String, String>();
-                            List<String> parameterKeys = Arrays.asList(defaultTemplateParameterKeys);
-                            for (String parameterKey : parameterKeys) {
-                                parameters.put(parameterKey, null);
-                            }
+                        logger.debug("Generating the large volume button");
+                        Map<String, String> defaultButtonContent = new HashMap<String, String>();
 
-                            logger.debug("Generating the default button");
-                            for (String parameterKey : parameterKeys) {
-                                if (parameterKey.equals("sid")) {
-                                    parameters.put(parameterKey, getCatalogServiceByName(catalogName).getSidPrefix()
-                                            + ":" + defaultSID);
-                                } else {
-                                    parameters.put(parameterKey, itemData.get(parameterKey));
-                                }
-                            }
+                        Map<String, String> parameters = new HashMap<String,String>();
+                        List<String> parameterKeys = Arrays.asList(defaultTemplateParameterKeys);
 
-                            parameters = buildHoldingParameters(parameters, holding);
+                        for (String parameterKey : parameterKeys) {
+                            parameters.put(parameterKey, null);
+                        }
 
-                            parameters.put("edition", itemData.get("enumeration") + " " + itemData.get("chron"));
-                            defaultButtonContent.put("linkText", itemData.get("enumeration") + " " + itemData.get("chron") + " | " +"Get It For Me");
-                            defaultButtonContent.put("linkHref",generateLinkHref(parameters, defaultTemplateUrl));
-                            defaultButtonContent.put("cssClasses", "button-gifm");
-                            validButtons.get(holding.getMfhd()).add(defaultButtonContent);
-                            // for multi-volumes, get the items somewhat ordered by volume (there's no real
-                            // definition of the order to work from)
-                            if (holding.isMultiVolume()) {
-                                Collections.sort(validButtons.get(holding.getMfhd()), new VolumeComparator());
-                            }
-                        });
+                        parameters = buildHoldingParameters(parameters, holding);
+
+                        parameters.put("sid",getCatalogServiceByName(catalogName).getSidPrefix()
+                                + ":" + defaultSID);
+                        defaultButtonContent.put("form",ButtonFormPresentation.buildForm(holding.getCatalogItems(), defaultAction, defaultFieldMap, defaultVolumeField, defaultText, parameters));
+                        holdingButtons.add(defaultButtonContent);
+
+                        presentableHoldings.put(holding.getMfhd(), new ButtonFormPresentation(holdingButtons));
                     } else {
-                        // check all the items for each holding
+                        // Path 3: The 'normal' approach: Check all the items for each holding and create a button if a given item passes the tests
                         holding.getCatalogItems().forEach((uri, itemData) -> {
                             logger.debug("Checking holding URI: " + uri);
                             // check all registered button for each item
@@ -317,56 +312,51 @@ public class GetItForMeService {
                                     parameters = buildHoldingParameters(parameters, holding);
 
                                     // generate the button data
-                                    Map<String, String> buttonContent = new HashMap<String, String>();
                                     // for multi-volume holdings, enrich the linkText to indicate which volume the
                                     // button represents
+                                    Map<String, String> buttonContent = new HashMap<String,String>();
                                     if (holding.isMultiVolume()) {
                                         logger.debug("Generating a multi volume button");
                                         parameters.put("edition", itemData.get("enumeration") + " " + itemData.get("chron"));
-                                        buttonContent.put("linkText", itemData.get("enumeration") + " " + itemData.get("chron")
-                                                + " | " + button.getLinkText());
+                                        buttonContent = ButtonLinkPresentation.buildMultiVolumeButtonProperties(parameters, button);
                                     } else {
                                         logger.debug("Generating a single item button");
-                                        buttonContent.put("linkText", button.getLinkText());
+                                        buttonContent = ButtonLinkPresentation.buildButtonProperties(parameters, button);
                                     }
 
                                     // generate unique link for the current button
-                                    String linkHref = generateLinkHref(parameters, button.getLinkTemplate());
+                                    String linkHref = ButtonLinkPresentation.renderTemplate(parameters, button.getLinkTemplate());
                                     logger.debug("We want the button with text: " + button.getLinkText());
                                     logger.debug("It looks like: ");
                                     logger.debug(linkHref);
 
                                     buttonContent.put("linkHref", linkHref);
-                                    buttonContent.put("cssClasses", "button-gifm " + button.getCssClasses());
+                                    buttonContent.put("cssClasses", "button-gifm" + ((button.getCssClasses() != null) ? " "+button.getCssClasses():""));
+
+
                                     // add the button to the list for the holding's MFHD
-                                    validButtons.get(holding.getMfhd()).add(buttonContent);
+                                    //presentableHoldings.get(holding.getMfhd()).add(buttonContent);
+                                    holdingButtons.add(buttonContent);
                                 } else {
                                     logger.debug("We should skip the button with text: " + button.getLinkText());
                                 }
                             }
+                        });
+
+                        if (holdingButtons.size() > 0) {
                             // for multi-volumes, get the items somewhat ordered by volume (there's no real
                             // definition of the order to work from)
                             if (holding.isMultiVolume()) {
-                                Collections.sort(validButtons.get(holding.getMfhd()), new VolumeComparator());
+                                Collections.sort(holdingButtons, new VolumeComparator());
                             }
-                        });
+                            presentableHoldings.put(holding.getMfhd(), new ButtonLinkPresentation(holdingButtons));
+                        }
                     }
                 }
             });
-            return validButtons;
+            return presentableHoldings;
         }
         return null;
-    }
-
-    private String generateLinkHref(Map<String,String> parameters, String linkHref) {
-        for (Map.Entry<String, String> entry : parameters.entrySet()) {
-            try {
-                linkHref = linkHref.replace("{" + entry.getKey() + "}", URLEncoder.encode((entry.getValue() != null) ? entry.getValue():"", StandardCharsets.UTF_8.toString()));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        }
-        return linkHref;
     }
 
     private Map<String,String> buildHoldingParameters(Map<String,String> parameters, CatalogHolding holding) {
