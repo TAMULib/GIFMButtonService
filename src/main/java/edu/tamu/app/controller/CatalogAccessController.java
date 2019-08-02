@@ -4,6 +4,7 @@ import static edu.tamu.weaver.response.ApiStatus.ERROR;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,11 @@ public class CatalogAccessController {
 		if (presentableHoldings != null) {
             Map<String,List<String>> buttonContents = new HashMap<String,List<String>>();
             for (Map.Entry<String, ButtonPresentation> entry : presentableHoldings.entrySet()) {
-                buttonContents.put(entry.getKey(), entry.getValue().buildPresentation());
+                if (entry.getValue() != null) {
+                    buttonContents.put(entry.getKey(), entry.getValue().buildPresentation());
+                } else {
+                    buttonContents.put(entry.getKey(), new ArrayList<String>());
+                }
             }
 			return new ApiResponse(SUCCESS,buttonContents);
 		}
