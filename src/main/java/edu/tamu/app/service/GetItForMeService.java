@@ -44,8 +44,6 @@ import edu.tamu.app.utilities.sort.VolumeComparator;
 @Service
 public class GetItForMeService {
 
-    private static final int DEFAULT_THRESHOLD = 100;
-
     @Autowired
     private CatalogServiceFactory catalogServiceFactory;
 
@@ -69,6 +67,9 @@ public class GetItForMeService {
 
     @Value("${app.defaultButton.text}")
     private String defaultText;
+
+    @Value("${app.defaultButton.threshold:100}")
+    private int defaultThreshold;
 
     @Autowired
     Environment environment;
@@ -248,7 +249,7 @@ public class GetItForMeService {
                     }
                 } else {
                     //Path 2: For holdings with lots of items, we generate a single form based button, with selectable items
-                    if (holding.getCatalogItems().size() > DEFAULT_THRESHOLD) {
+                    if (holding.getCatalogItems().size() > defaultThreshold) {
                         logger.debug("Generating the large volume button");
                         Map<String, String> defaultButtonContent = new HashMap<String, String>();
 
