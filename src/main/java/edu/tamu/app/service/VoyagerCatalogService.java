@@ -82,13 +82,18 @@ class VoyagerCatalogService extends AbstractCatalogService {
 
             for (int i = 0; i < dataFieldCount; i++) {
                 Node currentNode = dataFields.item(i);
+                NodeList dataNodes = currentNode.getChildNodes();
                 switch (currentNode.getAttributes().getNamedItem("tag").getTextContent()) {
                     case "022":
-                        addMapValue(recordValues,"issn",currentNode.getChildNodes().item(0).getTextContent());
+                        if (dataNodes.item(0).getAttributes().getNamedItem("code").getTextContent().equals("a")) {
+                            addMapValue(recordValues,"issn",dataNodes.item(0).getTextContent());
+                        }
                         addMapValue(recordValues,"genre","journal");
                     break;
                     case "020":
-                        addMapValue(recordValues,"isbn",currentNode.getChildNodes().item(0).getTextContent().split(" ")[0]);
+                        if (dataNodes.item(0).getAttributes().getNamedItem("code").getTextContent().equals("a")) {
+                            addMapValue(recordValues,"isbn",dataNodes.item(0).getTextContent().split(" ")[0]);
+                        }
                         addMapValue(recordValues,"genre","book");
                     break;
                     case "245":
@@ -102,26 +107,24 @@ class VoyagerCatalogService extends AbstractCatalogService {
                         addMapValue(recordValues,"author", currentNode.getChildNodes().item(0).getTextContent());
                     break;
                     case "264":
-                        NodeList publisherDataNodes = currentNode.getChildNodes();
-                        int childCount = publisherDataNodes.getLength();
+                        int childCount = dataNodes.getLength();
                         for (int x=0;x<childCount;x++) {
-                            switch (publisherDataNodes.item(x).getAttributes().getNamedItem("code").getTextContent()) {
+                            switch (dataNodes.item(x).getAttributes().getNamedItem("code").getTextContent()) {
                                 case "a":
-                                    appendMapValue(recordValues, "place",publisherDataNodes.item(x).getTextContent());
+                                    appendMapValue(recordValues, "place",dataNodes.item(x).getTextContent());
                                 break;
                                 case "b":
-                                    appendMapValue(recordValues, "publisher",publisherDataNodes.item(x).getTextContent());
+                                    appendMapValue(recordValues, "publisher",dataNodes.item(x).getTextContent());
                                 break;
                                 case "c":
                                     if (!recordValues.containsKey("year") || (recordValues.get("year") == null || recordValues.get("year").length() == 0)) {
-                                        addMapValue(recordValues,"year", publisherDataNodes.item(x).getTextContent());
+                                        addMapValue(recordValues,"year", dataNodes.item(x).getTextContent());
                                     }
                                 break;
                             }
                         }
                     break;
                     case "260":
-                        NodeList dataNodes = currentNode.getChildNodes();
                         childCount = dataNodes.getLength();
                         for (int x=0;x<childCount;x++) {
                             switch (dataNodes.item(x).getAttributes().getNamedItem("code").getTextContent()) {
@@ -141,7 +144,6 @@ class VoyagerCatalogService extends AbstractCatalogService {
                         addMapValue(recordValues,"edition", currentNode.getChildNodes().item(0).getTextContent());
                     break;
                     case "035":
-                        dataNodes = currentNode.getChildNodes();
                         if (dataNodes.item(0).getAttributes().getNamedItem("code").getTextContent().equals("a")) {
                             addMapValue(recordValues,"oclc",currentNode.getChildNodes().item(0).getTextContent());
                         }
