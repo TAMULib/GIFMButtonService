@@ -3,6 +3,7 @@ package edu.tamu.app.service;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -35,7 +36,8 @@ import edu.tamu.weaver.utility.HttpUtility;
  */
 
 class VoyagerCatalogService extends AbstractCatalogService {
-    private static final int MAX_ITEMS = 100;
+    private static final List<String> LARGE_VOLUME_LOCATIONS = Arrays.asList("rs,hdr","rs,jlf");
+    private static final int LARGE_VOLUME_ITEM_LIMIT = 10;
     private static final int REQUEST_TIMEOUT = 120000;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -183,14 +185,45 @@ class VoyagerCatalogService extends AbstractCatalogService {
                 Map<String, Map<String, String>> catalogItems = new HashMap<String, Map<String, String>>();
 
                 String mfhd = childNodes.item(0).getChildNodes().item(1).getTextContent();
-                String fallBackLocationCode = childNodes.item(0).getChildNodes().item(5).getChildNodes().item(0).getTextContent();
+                String fallbackLocationCode = "";
+
+                NodeList marcRecordNodes = childNodes.item(0).getChildNodes();
+                int marcRecordCount = marcRecordNodes.getLength();
+
+                for (int j = 0; j < marcRecordCount; j++) {
+                    Node marcRecordNode = marcRecordNodes.item(j);
+                    NodeList subfieldNodes = marcRecordNode.getChildNodes();
+                    int subfieldCount = subfieldNodes.getLength();
+                    if (marcRecordNode.getNodeName().contentEquals("datafield") && marcRecordNode.getAttributes().getNamedItem("tag") != null && marcRecordNode.getAttributes().getNamedItem("tag").getTextContent().equals("852")) {
+                        for (int k = 0; k < subfieldCount; k++) {
+                            Node subfieldNode = subfieldNodes.item(k);
+                            if (subfieldNode.getAttributes().getNamedItem("code") != null && subfieldNode.getAttributes().getNamedItem("code").getTextContent().equals("b")) {
+                                fallbackLocationCode = subfieldNode.getTextContent();
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                boolean validLargeVolume = false;
+                if (childCount-1 > LARGE_VOLUME_ITEM_LIMIT) {
+                    for (String location : LARGE_VOLUME_LOCATIONS) {
+                        if (fallbackLocationCode.equals(location)) {
+                            validLargeVolume = true;
+                            break;
+                        }
+                    }
+                }
+
                 logger.debug("MarcRecordLeader: " + marcRecordLeader);
                 logger.debug("MFHD: " + mfhd);
                 logger.debug("ISBN: " + recordValues.get("isbn"));
-                logger.debug("Fallback Location: " + fallBackLocationCode);
+                logger.debug("Fallback Location: " + fallbackLocationCode);
+                logger.debug("Valid Large Volume: "+ validLargeVolume);
 
-                if (childCount-1 > MAX_ITEMS) {
-                    //when we have a lot of items, just use the item data that came with the holding response, even though it's incomplete data
+
+                if (validLargeVolume) {
+                    //when we have a lot of items and it's a large volume candidate, just use the item data that came with the holding response, even though it's incomplete data
                     for (int j = 0; j < childCount; j++) {
                         if (childNodes.item(j) != null && childNodes.item(j).getNodeName() == "item") {
                             NodeList itemDataNode = childNodes.item(j).getChildNodes();
@@ -251,7 +284,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
                     }
                 }
                 catalogHoldings.add(new CatalogHolding(marcRecordLeader, mfhd, recordValues.get("issn"), recordValues.get("isbn"), recordValues.get("title"), recordValues.get("author"), recordValues.get("publisher"),
-                        recordValues.get("place"), recordValues.get("year"), recordValues.get("genre"), recordValues.get("edition"), fallBackLocationCode, recordValues.get("oclc"), new HashMap<String, Map<String, String>>(catalogItems)));
+                        recordValues.get("place"), recordValues.get("year"), recordValues.get("genre"), recordValues.get("edition"), fallbackLocationCode, recordValues.get("oclc"), validLargeVolume, new HashMap<String, Map<String, String>>(catalogItems)));
                 catalogItems.clear();
             }
             return catalogHoldings;

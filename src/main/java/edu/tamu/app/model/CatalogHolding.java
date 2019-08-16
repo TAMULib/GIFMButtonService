@@ -27,6 +27,7 @@ public class CatalogHolding {
     private String fallbackLocationCode;
     private String edition;
     private String oclc;
+    private boolean largeVolume = false;
 
     private Map<String, Map<String, String>> catalogItems = new HashMap<String, Map<String, String>>();
 
@@ -47,6 +48,13 @@ public class CatalogHolding {
         this.setEdition(edition);
         this.setFallbackLocationCode(fallBackLocationCode);
         this.setOclc(oclc);
+    }
+
+    public CatalogHolding(String marcRecordLeader, String mfhd, String issn, String isbn, String title, String author,
+            String publisher, String place, String year, String genre, String edition, String fallBackLocationCode, String oclc,
+            boolean largeVolume, Map<String, Map<String, String>> catalogItems) {
+        this(marcRecordLeader, mfhd, issn, isbn, title, author, publisher, place, year, genre, edition, fallBackLocationCode, oclc, catalogItems);
+        this.setLargeVolume(largeVolume);
     }
 
     public String getMarcRecordLeader() {
@@ -163,6 +171,14 @@ public class CatalogHolding {
 
     public boolean isMultiVolume() {
         return (this.getCatalogItems().size() > 1);
+    }
+
+    public boolean isLargeVolume() {
+        return largeVolume;
+    }
+
+    public void setLargeVolume(boolean largeVolume) {
+        this.largeVolume = largeVolume;
     }
 
     /**

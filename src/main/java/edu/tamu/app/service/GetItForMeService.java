@@ -43,7 +43,6 @@ import edu.tamu.app.utilities.sort.VolumeComparator;
 
 @Service
 public class GetItForMeService {
-
     @Autowired
     private CatalogServiceFactory catalogServiceFactory;
 
@@ -249,7 +248,7 @@ public class GetItForMeService {
                     }
                 } else {
                     //Path 2: For holdings with lots of items, we generate a single form based button, with selectable items
-                    if (holding.getCatalogItems().size() > defaultThreshold) {
+                    if (holding.isLargeVolume() && holding.getCatalogItems().size() > defaultThreshold ) {
                         logger.debug("Generating the large volume button");
                         Map<String, String> defaultButtonContent = new HashMap<String, String>();
 
