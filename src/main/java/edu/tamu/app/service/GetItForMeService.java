@@ -55,8 +55,8 @@ public class GetItForMeService {
     @Value("#{${app.defaultButton.fieldMap}}")
     private Map<String, String> defaultFieldMap;
 
-    @Value("${app.defaultButton.SID}")
-    private String defaultSID;
+    @Value("#{${app.defaultButton.SID}}")
+    private Map<String,String> defaultSIDMap;
 
     @Value("${app.defaultButton.action}")
     private String defaultAction;
@@ -261,8 +261,7 @@ public class GetItForMeService {
 
                         parameters = buildHoldingParameters(parameters, holding);
 
-                        parameters.put("sid",getCatalogServiceByName(catalogName).getSidPrefix()
-                                + ":" + defaultSID);
+                        parameters.put("sid",getCatalogServiceByName(catalogName).getSidPrefix() + ": ("+defaultSIDMap.get(holding.getFallbackLocationCode())+")");
                         defaultButtonContent.put("form",ButtonFormPresentation.buildForm(holding.getCatalogItems(), defaultAction, defaultFieldMap, defaultVolumeField, defaultText, parameters));
                         holdingButtons.add(defaultButtonContent);
 
