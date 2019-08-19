@@ -261,7 +261,7 @@ public class GetItForMeService {
 
                         parameters = buildHoldingParameters(parameters, holding);
 
-                        parameters.put("sid",getCatalogServiceByName(catalogName).getSidPrefix() + ": ("+defaultSIDMap.get(holding.getFallbackLocationCode())+")");
+                        parameters.put("sid",getCatalogServiceByName(catalogName).getSidPrefix() + ": "+defaultSIDMap.get(holding.getFallbackLocationCode()));
                         defaultButtonContent.put("form",ButtonFormPresentation.buildForm(holding.getCatalogItems(), defaultAction, defaultFieldMap, defaultVolumeField, defaultText, parameters));
                         holdingButtons.add(defaultButtonContent);
 
