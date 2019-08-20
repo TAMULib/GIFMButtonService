@@ -35,7 +35,7 @@ public class ButtonFormPresentation extends AbstractButtonPresentation {
     public static String buildForm(Map<String,Map<String,String>> items, String action, Map<String,String> fieldMap, String volumeField, String buttonText, Map<String,String> parameters ) {
         List<String> volumesText = new ArrayList<String>();
         items.forEach((uri, itemData) -> {
-            volumesText.add(itemData.get("enumeration")+((itemData.containsKey("chron") && !itemData.get("chron").isEmpty()) ? " "+itemData.get("chron"):""));
+            volumesText.add("Vol: "+itemData.get("enumeration")+((itemData.containsKey("chron") && !itemData.get("chron").isEmpty()) ? " "+itemData.get("chron"):"")+" Barcode: "+itemData.get("itemBarcode")+" Call Number: "+itemData.get("callNumber"));
         });
         Collections.sort(volumesText, new AlphanumComparator());
         StringBuilder volumeOptions = new StringBuilder();
