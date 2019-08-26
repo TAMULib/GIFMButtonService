@@ -282,12 +282,16 @@ public class GetItForMeService {
                                     currentLocation = holding.getFallbackLocationCode();
                                 }
 
-                                logger.debug("Location: " + currentLocation + ": "
-                                        + button.fitsLocation(itemData.get("permLocationCode")));
-                                logger.debug("TypeDesc: " + itemData.get("typeDesc") + ": "
-                                        + button.fitsItemType(itemData.get("typeDesc")));
-                                logger.debug("Status: " + itemData.get("itemStatusCode") + ": "
-                                        + button.fitsItemStatus(Integer.parseInt(itemData.get("itemStatusCode"))));
+                                int itemStatusCode = itemData.containsKey("itemStatusCode") ? Integer.parseInt(itemData.get("itemStatusCode")):0;
+
+                                if (logger.isDebugEnabled()) {
+                                    logger.debug("Location: " + currentLocation + ": "
+                                            + button.fitsLocation(itemData.get("permLocationCode")));
+                                    logger.debug("TypeDesc: " + itemData.get("typeDesc") + ": "
+                                            + button.fitsItemType(itemData.get("typeDesc")));
+                                    logger.debug("Status: " + itemData.get("itemStatusCode") + ": "
+                                            + button.fitsItemStatus(itemStatusCode));
+                                }
 
                                 // test the current item against the current GetItForMe button's requirements
                                 // for eligibility
@@ -295,7 +299,7 @@ public class GetItForMeService {
                                         && button.fitsRecordType(holding.getMarcRecordLeader())
                                         && button.fitsLocation(currentLocation)
                                         && button.fitsItemType(itemData.get("typeDesc"))
-                                        && button.fitsItemStatus(Integer.parseInt(itemData.get("itemStatusCode")))) {
+                                        && button.fitsItemStatus(itemStatusCode)) {
                                     // used to build the button's link from the template parameter keys it provides
                                     List<String> parameterKeys = button.getTemplateParameterKeys();
                                     Map<String, String> parameters = new HashMap<String, String>();
