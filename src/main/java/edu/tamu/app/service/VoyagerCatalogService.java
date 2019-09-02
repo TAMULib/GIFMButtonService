@@ -3,10 +3,12 @@ package edu.tamu.app.service;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -34,6 +36,10 @@ import edu.tamu.weaver.utility.HttpUtility;
  */
 
 class VoyagerCatalogService extends AbstractCatalogService {
+    private static final List<String> LARGE_VOLUME_LOCATIONS = Arrays.asList("rs,hdr","rs,jlf");
+    private static final int LARGE_VOLUME_ITEM_LIMIT = 10;
+    private static final int REQUEST_TIMEOUT = 120000;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private void appendMapValue(Map<String,String> map, String key, String newValue) {
@@ -61,7 +67,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
     public List<CatalogHolding> getHoldingsByBibId(String bibId) {
         try {
             logger.debug("Asking for Record from: " + getAPIBase() + "record/" + bibId + "/?view=full");
-            String recordResult = HttpUtility.makeHttpRequest(getAPIBase() + "record/" + bibId + "/?view=full", "GET");
+            String recordResult = HttpUtility.makeHttpRequest(getAPIBase() + "record/" + bibId + "/?view=full", "GET", Optional.empty(), Optional.empty(), REQUEST_TIMEOUT);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
@@ -78,13 +84,18 @@ class VoyagerCatalogService extends AbstractCatalogService {
 
             for (int i = 0; i < dataFieldCount; i++) {
                 Node currentNode = dataFields.item(i);
+                NodeList dataNodes = currentNode.getChildNodes();
                 switch (currentNode.getAttributes().getNamedItem("tag").getTextContent()) {
                     case "022":
-                        addMapValue(recordValues,"issn",currentNode.getChildNodes().item(0).getTextContent());
+                        if (dataNodes.item(0).getAttributes().getNamedItem("code").getTextContent().equals("a")) {
+                            addMapValue(recordValues,"issn",dataNodes.item(0).getTextContent());
+                        }
                         addMapValue(recordValues,"genre","journal");
                     break;
                     case "020":
-                        addMapValue(recordValues,"isbn",currentNode.getChildNodes().item(0).getTextContent().split(" ")[0]);
+                        if (dataNodes.item(0).getAttributes().getNamedItem("code").getTextContent().equals("a")) {
+                            addMapValue(recordValues,"isbn",dataNodes.item(0).getTextContent().split(" ")[0]);
+                        }
                         addMapValue(recordValues,"genre","book");
                     break;
                     case "245":
@@ -98,26 +109,24 @@ class VoyagerCatalogService extends AbstractCatalogService {
                         addMapValue(recordValues,"author", currentNode.getChildNodes().item(0).getTextContent());
                     break;
                     case "264":
-                        NodeList publisherDataNodes = currentNode.getChildNodes();
-                        int childCount = publisherDataNodes.getLength();
+                        int childCount = dataNodes.getLength();
                         for (int x=0;x<childCount;x++) {
-                            switch (publisherDataNodes.item(x).getAttributes().getNamedItem("code").getTextContent()) {
+                            switch (dataNodes.item(x).getAttributes().getNamedItem("code").getTextContent()) {
                                 case "a":
-                                    appendMapValue(recordValues, "place",publisherDataNodes.item(x).getTextContent());
+                                    appendMapValue(recordValues, "place",dataNodes.item(x).getTextContent());
                                 break;
                                 case "b":
-                                    appendMapValue(recordValues, "publisher",publisherDataNodes.item(x).getTextContent());
+                                    appendMapValue(recordValues, "publisher",dataNodes.item(x).getTextContent());
                                 break;
                                 case "c":
                                     if (!recordValues.containsKey("year") || (recordValues.get("year") == null || recordValues.get("year").length() == 0)) {
-                                        addMapValue(recordValues,"year", publisherDataNodes.item(x).getTextContent());
+                                        addMapValue(recordValues,"year", dataNodes.item(x).getTextContent());
                                     }
                                 break;
                             }
                         }
                     break;
                     case "260":
-                        NodeList dataNodes = currentNode.getChildNodes();
                         childCount = dataNodes.getLength();
                         for (int x=0;x<childCount;x++) {
                             switch (dataNodes.item(x).getAttributes().getNamedItem("code").getTextContent()) {
@@ -136,6 +145,11 @@ class VoyagerCatalogService extends AbstractCatalogService {
                     case "250":
                         addMapValue(recordValues,"edition", currentNode.getChildNodes().item(0).getTextContent());
                     break;
+                    case "035":
+                        if (dataNodes.item(0).getAttributes().getNamedItem("code").getTextContent().equals("a")) {
+                            addMapValue(recordValues,"oclc",currentNode.getChildNodes().item(0).getTextContent());
+                        }
+                    break;
                 }
             }
 
@@ -150,7 +164,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
 
             logger.debug("Asking for holdings from: " + getAPIBase() + "record/" + bibId + "/holdings?view=items");
             String result = HttpUtility.makeHttpRequest(getAPIBase() + "record/" + bibId + "/holdings?view=items",
-                    "GET");
+                    "GET", Optional.empty(), Optional.empty(), REQUEST_TIMEOUT);
             logger.debug("Received holdings from: " + getAPIBase() + "record/" + bibId + "/holdings?view=items");
 
             doc = dBuilder.parse(new InputSource(new StringReader(result)));
@@ -169,51 +183,109 @@ class VoyagerCatalogService extends AbstractCatalogService {
                 int childCount = childNodes.getLength();
                 logger.debug("The Count of Children: " + childCount);
                 Map<String, Map<String, String>> catalogItems = new HashMap<String, Map<String, String>>();
+
                 String mfhd = childNodes.item(0).getChildNodes().item(1).getTextContent();
-                String fallBackLocationCode = childNodes.item(1).getChildNodes().item(0).getTextContent();
+                String fallbackLocationCode = "";
+
+                NodeList marcRecordNodes = childNodes.item(0).getChildNodes();
+                int marcRecordCount = marcRecordNodes.getLength();
+
+                for (int j = 0; j < marcRecordCount; j++) {
+                    Node marcRecordNode = marcRecordNodes.item(j);
+                    NodeList subfieldNodes = marcRecordNode.getChildNodes();
+                    int subfieldCount = subfieldNodes.getLength();
+                    if (marcRecordNode.getNodeName().contentEquals("datafield") && marcRecordNode.getAttributes().getNamedItem("tag") != null && marcRecordNode.getAttributes().getNamedItem("tag").getTextContent().equals("852")) {
+                        for (int k = 0; k < subfieldCount; k++) {
+                            Node subfieldNode = subfieldNodes.item(k);
+                            if (subfieldNode.getAttributes().getNamedItem("code") != null && subfieldNode.getAttributes().getNamedItem("code").getTextContent().equals("b")) {
+                                fallbackLocationCode = subfieldNode.getTextContent();
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                boolean validLargeVolume = false;
+                if (childCount-1 > LARGE_VOLUME_ITEM_LIMIT) {
+                    for (String location : LARGE_VOLUME_LOCATIONS) {
+                        if (fallbackLocationCode.equals(location)) {
+                            validLargeVolume = true;
+                            break;
+                        }
+                    }
+                }
+
                 logger.debug("MarcRecordLeader: " + marcRecordLeader);
                 logger.debug("MFHD: " + mfhd);
                 logger.debug("ISBN: " + recordValues.get("isbn"));
-                logger.debug("Item URL: " + childNodes.item(1).getAttributes().getNamedItem("href").getTextContent());
-                logger.debug("Fallback Location: " + fallBackLocationCode);
+                logger.debug("Fallback Location: " + fallbackLocationCode);
+                logger.debug("Valid Large Volume: "+ validLargeVolume);
 
-                for (int j = 0; j < childCount; j++) {
-                    if (childNodes.item(j).getNodeName() == "item") {
-                        String itemResult = HttpUtility.makeHttpRequest(
-                                childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(), "GET");
 
-                        logger.debug("Got Item details from: "
-                                + childNodes.item(j).getAttributes().getNamedItem("href").getTextContent());
-                        doc = dBuilder.parse(new InputSource(new StringReader(itemResult)));
-                        doc.getDocumentElement().normalize();
-                        NodeList itemDataNode = doc.getElementsByTagName("itemData");
+                if (validLargeVolume) {
+                    //when we have a lot of items and it's a large volume candidate, just use the item data that came with the holding response, even though it's incomplete data
+                    for (int j = 0; j < childCount; j++) {
+                        if (childNodes.item(j) != null && childNodes.item(j).getNodeName() == "item") {
+                            NodeList itemDataNode = childNodes.item(j).getChildNodes();
 
-                        int itemDataCount = itemDataNode.getLength();
-                        Map<String, String> itemData = new HashMap<String, String>();
-                        for (int l = 0; l < itemDataCount; l++) {
-                            if (itemDataNode.item(l).getAttributes().getNamedItem("code") != null) {
-                                itemData.put(
-                                        itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent()
-                                                + "Code",
-                                        itemDataNode.item(l).getAttributes().getNamedItem("code").getTextContent());
+                            int itemDataCount = itemDataNode.getLength();
+                            Map<String, String> itemData = new HashMap<String, String>();
+                            for (int l = 0; l < itemDataCount; l++) {
+                                if (itemDataNode.item(l).getAttributes().getNamedItem("code") != null) {
+                                    itemData.put(
+                                            itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent()
+                                                    + "Code",
+                                            itemDataNode.item(l).getAttributes().getNamedItem("code").getTextContent());
+                                }
+                                itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent(),
+                                        itemDataNode.item(l).getTextContent());
                             }
-                            itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent(),
-                                    itemDataNode.item(l).getTextContent());
+                            catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),
+                                    itemData);
                         }
-                        catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),
-                                itemData);
-                        //sleep for a moment between item requests to avoid triggering a 429 from the Voyager API
-                        try {
-                            TimeUnit.MILLISECONDS.sleep(50);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                    }
+                } else {
+                    if (childNodes.item(1) != null) {
+                        logger.debug("Item URL: " + childNodes.item(1).getAttributes().getNamedItem("href").getTextContent());
+                    }
+
+                    for (int j = 0; j < childCount; j++) {
+                        if (childNodes.item(j) != null && childNodes.item(j).getNodeName() == "item") {
+                            String itemResult = HttpUtility.makeHttpRequest(
+                                    childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(), "GET", Optional.empty(), Optional.empty(), REQUEST_TIMEOUT);
+
+                            logger.debug("Got Item details from: "
+                                    + childNodes.item(j).getAttributes().getNamedItem("href").getTextContent());
+                            doc = dBuilder.parse(new InputSource(new StringReader(itemResult)));
+                            doc.getDocumentElement().normalize();
+                            NodeList itemDataNode = doc.getElementsByTagName("itemData");
+
+                            int itemDataCount = itemDataNode.getLength();
+                            Map<String, String> itemData = new HashMap<String, String>();
+                            for (int l = 0; l < itemDataCount; l++) {
+                                if (itemDataNode.item(l).getAttributes().getNamedItem("code") != null) {
+                                    itemData.put(
+                                            itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent()
+                                                    + "Code",
+                                            itemDataNode.item(l).getAttributes().getNamedItem("code").getTextContent());
+                                }
+                                itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent(),
+                                        itemDataNode.item(l).getTextContent());
+                            }
+                            catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),
+                                    itemData);
+                            //sleep for a moment between item requests to avoid triggering a 429 from the Voyager API
+                            try {
+                                TimeUnit.MILLISECONDS.sleep(50);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
                 catalogHoldings.add(new CatalogHolding(marcRecordLeader, mfhd, recordValues.get("issn"), recordValues.get("isbn"), recordValues.get("title"), recordValues.get("author"), recordValues.get("publisher"),
-                        recordValues.get("place"), recordValues.get("year"), recordValues.get("genre"), recordValues.get("edition"), fallBackLocationCode, new HashMap<String, Map<String, String>>(catalogItems)));
+                        recordValues.get("place"), recordValues.get("year"), recordValues.get("genre"), recordValues.get("edition"), fallbackLocationCode, recordValues.get("oclc"), validLargeVolume, new HashMap<String, Map<String, String>>(catalogItems)));
                 catalogItems.clear();
-
             }
             return catalogHoldings;
         } catch (IOException e) {
