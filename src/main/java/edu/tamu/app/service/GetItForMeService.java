@@ -193,7 +193,7 @@ public class GetItForMeService {
      * @return Map<String,List<Map<String,String>>>
      */
 
-    public Map<String,ButtonPresentation> getButtonDataByBibId(String catalogName, String bibId) {
+    public Map<String,ButtonPresentation> getButtonDataByBibId(String catalogName, String bibId, String itemKey) {
         List<CatalogHolding> catalogHoldings = this.getHoldingsByBibId(catalogName, bibId);
         if (catalogHoldings != null) {
             logger.debug("\n\nCATALOG HOLDINGS FOR " + bibId);
@@ -336,6 +336,9 @@ public class GetItForMeService {
                                     buttonContent.put("linkHref", linkHref);
                                     buttonContent.put("cssClasses", "button-gifm" + ((button.getCssClasses() != null) ? " "+button.getCssClasses():""));
 
+                                    if (itemKey != null && itemData.containsKey(itemKey)) {
+                                        buttonContent.put("itemKey", itemData.get(itemKey));
+                                    }
 
                                     // add the button to the list for the holding's MFHD
                                     //presentableHoldings.get(holding.getMfhd()).add(buttonContent);
@@ -353,6 +356,8 @@ public class GetItForMeService {
                                 Collections.sort(holdingButtons, new VolumeComparator());
                             }
                             presentableHoldings.put(holding.getMfhd(), new ButtonLinkPresentation(holdingButtons));
+                        } else {
+                            presentableHoldings.put(holding.getMfhd(), null);
                         }
                     }
                 }

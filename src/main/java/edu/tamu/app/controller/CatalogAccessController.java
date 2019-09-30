@@ -49,7 +49,7 @@ public class CatalogAccessController {
 	 */
 	@RequestMapping("/get-html-buttons")
 	public ApiResponse getHtmlButtonsByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId) {
-		Map<String, ButtonPresentation> presentableHoldings = getItForMeService.getButtonDataByBibId(catalogName, bibId);
+		Map<String, ButtonPresentation> presentableHoldings = getItForMeService.getButtonDataByBibId(catalogName, bibId, null);
 		if (presentableHoldings != null) {
             Map<String,List<String>> buttonContents = new HashMap<String,List<String>>();
             for (Map.Entry<String, ButtonPresentation> entry : presentableHoldings.entrySet()) {
@@ -72,8 +72,8 @@ public class CatalogAccessController {
 	 */
 
 	@RequestMapping("/get-buttons")
-	public ApiResponse getButtonsByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId) {
-		Map<String,ButtonPresentation> buttonData = getItForMeService.getButtonDataByBibId(catalogName, bibId);
+	public ApiResponse getButtonsByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId, @RequestParam(value="itemKey",required=false) String itemKey) {
+		Map<String,ButtonPresentation> buttonData = getItForMeService.getButtonDataByBibId(catalogName, bibId, itemKey);
 		if (buttonData != null) {
 			return new ApiResponse(SUCCESS,buttonData);
 		}
