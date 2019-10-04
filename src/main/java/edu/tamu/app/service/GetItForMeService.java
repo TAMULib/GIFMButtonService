@@ -193,7 +193,7 @@ public class GetItForMeService {
      * @return Map<String,List<Map<String,String>>>
      */
 
-    public Map<String,ButtonPresentation> getButtonDataByBibId(String catalogName, String bibId, String itemKey) {
+    public Map<String,ButtonPresentation> getButtonDataByBibId(String catalogName, String bibId) {
         List<CatalogHolding> catalogHoldings = this.getHoldingsByBibId(catalogName, bibId);
         if (catalogHoldings != null) {
             logger.debug("\n\nCATALOG HOLDINGS FOR " + bibId);
@@ -268,8 +268,8 @@ public class GetItForMeService {
                         presentableHoldings.put(holding.getMfhd(), new ButtonFormPresentation(holdingButtons));
                     } else {
                         // Path 3: The 'normal' approach: Check all the items for each holding and create a button if a given item passes the tests
-                        holding.getCatalogItems().forEach((uri, itemData) -> {
-                            logger.debug("Checking holding URI: " + uri);
+                        holding.getCatalogItems().forEach((itemIdentifier, itemData) -> {
+                            logger.debug("Checking holding URI: " + itemIdentifier);
                             // check all registered button for each item
                             for (GetItForMeButton button : this.getRegisteredButtons(catalogName)) {
                                 logger.debug("Analyzing: " + button.toString());
@@ -335,10 +335,8 @@ public class GetItForMeService {
 
                                     buttonContent.put("linkHref", linkHref);
                                     buttonContent.put("cssClasses", "button-gifm" + ((button.getCssClasses() != null) ? " "+button.getCssClasses():""));
-
-                                    if (itemKey != null && itemData.containsKey(itemKey)) {
-                                        buttonContent.put("itemKey", itemData.get(itemKey));
-                                    }
+                                    //add the item's unique identifier to the corresponding button
+                                    buttonContent.put("itemKey", itemIdentifier);
 
                                     // add the button to the list for the holding's MFHD
                                     //presentableHoldings.get(holding.getMfhd()).add(buttonContent);
