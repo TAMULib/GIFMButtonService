@@ -268,8 +268,8 @@ public class GetItForMeService {
                         presentableHoldings.put(holding.getMfhd(), new ButtonFormPresentation(holdingButtons));
                     } else {
                         // Path 3: The 'normal' approach: Check all the items for each holding and create a button if a given item passes the tests
-                        holding.getCatalogItems().forEach((uri, itemData) -> {
-                            logger.debug("Checking holding URI: " + uri);
+                        holding.getCatalogItems().forEach((itemIdentifier, itemData) -> {
+                            logger.debug("Checking holding URI: " + itemIdentifier);
                             // check all registered button for each item
                             for (GetItForMeButton button : this.getRegisteredButtons(catalogName)) {
                                 logger.debug("Analyzing: " + button.toString());
@@ -335,7 +335,8 @@ public class GetItForMeService {
 
                                     buttonContent.put("linkHref", linkHref);
                                     buttonContent.put("cssClasses", "button-gifm" + ((button.getCssClasses() != null) ? " "+button.getCssClasses():""));
-
+                                    //add the item's unique identifier to the corresponding button
+                                    buttonContent.put("itemKey", itemIdentifier);
 
                                     // add the button to the list for the holding's MFHD
                                     //presentableHoldings.get(holding.getMfhd()).add(buttonContent);
@@ -353,6 +354,8 @@ public class GetItForMeService {
                                 Collections.sort(holdingButtons, new VolumeComparator());
                             }
                             presentableHoldings.put(holding.getMfhd(), new ButtonLinkPresentation(holdingButtons));
+                        } else {
+                            presentableHoldings.put(holding.getMfhd(), null);
                         }
                     }
                 }
@@ -366,7 +369,7 @@ public class GetItForMeService {
         // these template parameter keys are a special case, and come from the parent
         // holding, rather than the item data itself
         String[] getParameterFromHolding = { "title", "author", "publisher",
-                "genre", "place", "year", "edition", "oclc", "mfhd" };
+                "genre", "place", "year", "edition", "oclc", "mfhd", "recordId" };
 
         for (String parameterName : getParameterFromHolding) {
             if (parameters.containsKey(parameterName)) {

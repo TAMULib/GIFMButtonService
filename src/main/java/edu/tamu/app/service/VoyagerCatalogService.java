@@ -81,6 +81,15 @@ class VoyagerCatalogService extends AbstractCatalogService {
             Map<String,String> recordBackupValues = new HashMap<String,String>();
 
             String marcRecordLeader = doc.getElementsByTagName("leader").item(0).getTextContent();
+            NodeList controlFields = doc.getElementsByTagName("controlfield");
+            int controlFieldsCount = controlFields.getLength();
+
+            for (int i = 0; i < controlFieldsCount; i++) {
+                Node currentControlNode = controlFields.item(i);
+                if (currentControlNode.getAttributes().getNamedItem("tag") != null && currentControlNode.getAttributes().getNamedItem("tag").getTextContent().contentEquals("001")) {
+                    addMapValue(recordValues,"recordId",currentControlNode.getChildNodes().item(0).getTextContent());
+                }
+            }
 
             for (int i = 0; i < dataFieldCount; i++) {
                 Node currentNode = dataFields.item(i);
@@ -283,8 +292,9 @@ class VoyagerCatalogService extends AbstractCatalogService {
                         }
                     }
                 }
+                logger.info("holdingtime: "+recordValues.get("recordId"));
                 catalogHoldings.add(new CatalogHolding(marcRecordLeader, mfhd, recordValues.get("issn"), recordValues.get("isbn"), recordValues.get("title"), recordValues.get("author"), recordValues.get("publisher"),
-                        recordValues.get("place"), recordValues.get("year"), recordValues.get("genre"), recordValues.get("edition"), fallbackLocationCode, recordValues.get("oclc"), validLargeVolume, new HashMap<String, Map<String, String>>(catalogItems)));
+                        recordValues.get("place"), recordValues.get("year"), recordValues.get("genre"), recordValues.get("edition"), fallbackLocationCode, recordValues.get("oclc"), recordValues.get("recordId"), validLargeVolume, new HashMap<String, Map<String, String>>(catalogItems)));
                 catalogItems.clear();
             }
             return catalogHoldings;
