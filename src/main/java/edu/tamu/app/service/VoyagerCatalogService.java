@@ -91,6 +91,9 @@ class VoyagerCatalogService extends AbstractCatalogService {
                 }
             }
 
+            int childCount = 0;
+            List<String> nodeCodes = null;
+
             for (int i = 0; i < dataFieldCount; i++) {
                 Node currentNode = dataFields.item(i);
                 NodeList dataNodes = currentNode.getChildNodes();
@@ -115,10 +118,55 @@ class VoyagerCatalogService extends AbstractCatalogService {
                         }
                     break;
                     case "100":
-                        addMapValue(recordValues,"author", currentNode.getChildNodes().item(0).getTextContent());
+                        childCount = dataNodes.getLength();
+                        nodeCodes = Arrays.asList("a","b","c","d","e");
+
+                        for (int x=0;x<childCount;x++) {
+                            final String currentCode = dataNodes.item(x).getAttributes().getNamedItem("code").getTextContent();
+                            if (nodeCodes.stream().anyMatch(c->c.equals(currentCode))) {
+                                appendMapValue(recordValues, "author",dataNodes.item(x).getTextContent());
+                            }
+                        }
+                    break;
+                    case "110":
+                        childCount = dataNodes.getLength();
+                        nodeCodes = Arrays.asList("a","b","c","d","e");
+
+                        for (int x=0;x<childCount;x++) {
+                            final String currentCode = dataNodes.item(x).getAttributes().getNamedItem("code").getTextContent();
+                            if (nodeCodes.stream().anyMatch(c->c.equals(currentCode))) {
+                                appendMapValue(recordBackupValues, "author",dataNodes.item(x).getTextContent());
+                            }
+                        }
+                    break;
+                    case "111":
+                        if (!recordBackupValues.containsKey("author")) {
+                            childCount = dataNodes.getLength();
+                            nodeCodes = Arrays.asList("a","c","d","e");
+
+                            for (int x=0;x<childCount;x++) {
+                                final String currentCode = dataNodes.item(x).getAttributes().getNamedItem("code").getTextContent();
+                                if (nodeCodes.stream().anyMatch(c->c.equals(currentCode))) {
+                                    appendMapValue(recordBackupValues, "author",dataNodes.item(x).getTextContent());
+                                }
+                            }
+                        }
+                    break;
+                    case "130":
+                        if (!recordBackupValues.containsKey("author")) {
+                            childCount = dataNodes.getLength();
+                            nodeCodes = Arrays.asList("a","d","f");
+
+                            for (int x=0;x<childCount;x++) {
+                                final String currentCode = dataNodes.item(x).getAttributes().getNamedItem("code").getTextContent();
+                                if (nodeCodes.stream().anyMatch(c->c.equals(currentCode))) {
+                                    appendMapValue(recordBackupValues, "author",dataNodes.item(x).getTextContent());
+                                }
+                            }
+                        }
                     break;
                     case "264":
-                        int childCount = dataNodes.getLength();
+                        childCount = dataNodes.getLength();
                         for (int x=0;x<childCount;x++) {
                             switch (dataNodes.item(x).getAttributes().getNamedItem("code").getTextContent()) {
                                 case "a":
@@ -189,7 +237,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
                 logger.debug(
                         "Current Holding: " + holdings.item(i).getAttributes().getNamedItem("href").getTextContent());
                 NodeList childNodes = holdings.item(i).getChildNodes();
-                int childCount = childNodes.getLength();
+                childCount = childNodes.getLength();
                 logger.debug("The Count of Children: " + childCount);
                 Map<String, Map<String, String>> catalogItems = new HashMap<String, Map<String, String>>();
 
@@ -292,7 +340,6 @@ class VoyagerCatalogService extends AbstractCatalogService {
                         }
                     }
                 }
-                logger.info("holdingtime: "+recordValues.get("recordId"));
                 catalogHoldings.add(new CatalogHolding(marcRecordLeader, mfhd, recordValues.get("issn"), recordValues.get("isbn"), recordValues.get("title"), recordValues.get("author"), recordValues.get("publisher"),
                         recordValues.get("place"), recordValues.get("year"), recordValues.get("genre"), recordValues.get("edition"), fallbackLocationCode, recordValues.get("oclc"), recordValues.get("recordId"), validLargeVolume, new HashMap<String, Map<String, String>>(catalogItems)));
                 catalogItems.clear();
