@@ -106,7 +106,7 @@ public class GetItForMeService {
             for (String activeButton : activeButtons) {
                 String rawLocationCodes = environment.getProperty(activeButton + ".locationCodes");
                 String[] itemTypeCodes = environment.getProperty(activeButton + ".itemTypeCodes", String[].class);
-                Integer[] itemStatusCodes = environment.getProperty(activeButton + ".itemStatusCodes", Integer[].class);
+                String[] itemStatusCodes = environment.getProperty(activeButton + ".itemStatusCodes", String[].class);
                 String linkText = environment.getProperty(activeButton + ".linkText");
                 String SID = environment.getProperty(activeButton + ".SID");
                 String[] templateParameterKeys = environment.getProperty(activeButton + ".templateParameterKeys",
@@ -282,7 +282,7 @@ public class GetItForMeService {
                                     currentLocation = holding.getFallbackLocationCode();
                                 }
 
-                                int itemStatusCode = itemData.containsKey("itemStatusCode") ? Integer.parseInt(itemData.get("itemStatusCode")):0;
+                                String itemStatusCode = itemData.containsKey("itemStatusCode") ? itemData.get("itemStatusCode"):null;
 
                                 if (logger.isDebugEnabled()) {
                                     logger.debug("Location: " + currentLocation + ": "

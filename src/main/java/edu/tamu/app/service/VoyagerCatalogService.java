@@ -292,7 +292,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
                         }
                     }
                 }
-                logger.info("holdingtime: "+recordValues.get("recordId"));
+
                 catalogHoldings.add(new CatalogHolding(marcRecordLeader, mfhd, recordValues.get("issn"), recordValues.get("isbn"), recordValues.get("title"), recordValues.get("author"), recordValues.get("publisher"),
                         recordValues.get("place"), recordValues.get("year"), recordValues.get("genre"), recordValues.get("edition"), fallbackLocationCode, recordValues.get("oclc"), recordValues.get("recordId"), validLargeVolume, new HashMap<String, Map<String, String>>(catalogItems)));
                 catalogItems.clear();
