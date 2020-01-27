@@ -28,12 +28,13 @@ public class CatalogHolding {
     private String edition;
     private String oclc;
     private String recordId;
+    private String callNumber;
     private boolean largeVolume = false;
 
     private Map<String, Map<String, String>> catalogItems = new HashMap<String, Map<String, String>>();
 
     public CatalogHolding(String marcRecordLeader, String mfhd, String issn, String isbn, String title, String author,
-            String publisher, String place, String year, String genre, String edition, String fallBackLocationCode, String oclc, String recordId,
+            String publisher, String place, String year, String genre, String edition, String fallBackLocationCode, String oclc, String recordId, String callNumber,
             Map<String, Map<String, String>> catalogItems) {
         this.setMarcRecordLeader(marcRecordLeader);
         this.setMfhd(mfhd);
@@ -50,12 +51,13 @@ public class CatalogHolding {
         this.setFallbackLocationCode(fallBackLocationCode);
         this.setOclc(oclc);
         this.setRecordId(recordId);
+        this.setCallNumber(callNumber);
     }
 
     public CatalogHolding(String marcRecordLeader, String mfhd, String issn, String isbn, String title, String author,
-            String publisher, String place, String year, String genre, String edition, String fallBackLocationCode, String oclc, String recordId,
+            String publisher, String place, String year, String genre, String edition, String fallBackLocationCode, String oclc, String recordId, String callNumber,
             boolean largeVolume, Map<String, Map<String, String>> catalogItems) {
-        this(marcRecordLeader, mfhd, issn, isbn, title, author, publisher, place, year, genre, edition, fallBackLocationCode, oclc, recordId, catalogItems);
+        this(marcRecordLeader, mfhd, issn, isbn, title, author, publisher, place, year, genre, edition, fallBackLocationCode, oclc, recordId, callNumber, catalogItems);
         this.setLargeVolume(largeVolume);
     }
 
@@ -169,6 +171,14 @@ public class CatalogHolding {
 
     public void setRecordId(String recordId) {
         this.recordId = recordId;
+    }
+
+    public String getCallNumber() {
+        return callNumber;
+    }
+
+    public void setCallNumber(String callNumber) {
+        this.callNumber = callNumber;
     }
 
     public Map<String, Map<String, String>> getCatalogItems() {

@@ -84,4 +84,9 @@ public class CatalogAccessController {
 	public ApiResponse getButtonConfiguration() {
 	    return new ApiResponse(SUCCESS,"Current Button Configuration",getItForMeService.getRegisteredButtons());
 	}
+
+    @RequestMapping("/text-call-number")
+    public ApiResponse textCall(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId, @RequestParam("holdingId") String holdingId) {
+        return new ApiResponse(SUCCESS, getItForMeService.getTextCallNumberButton(catalogName, bibId, holdingId));
+    }
 }

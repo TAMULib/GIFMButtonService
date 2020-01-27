@@ -15,6 +15,8 @@ public interface CatalogService {
 
     List<CatalogHolding> getHoldingsByBibId(String bibId);
 
+    CatalogHolding getHolding(String bibId, String holdingId);
+
     String getName();
 
     void setName(String name);
@@ -42,5 +44,4 @@ public interface CatalogService {
     String getSidPrefix();
 
     void setSidPrefix(String sidPrefix);
-
 }

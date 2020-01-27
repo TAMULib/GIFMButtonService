@@ -18,6 +18,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -54,19 +55,9 @@ class VoyagerCatalogService extends AbstractCatalogService {
         map.put(key, (newValue != null ? newValue:""));
     }
 
-    /**
-     * Fetches holdings from the Voyager API and translates them into
-     * catalogHoldings
-     *
-     * @param bibId String
-     *
-     * @return List<CatalogHolding>
-     *
-     */
-    @Override
-    public List<CatalogHolding> getHoldingsByBibId(String bibId) {
+    protected Map<String,String> buildCoreRecord(String bibId) {
+        logger.debug("Asking for Record from: " + getAPIBase() + "record/" + bibId + "/?view=full");
         try {
-            logger.debug("Asking for Record from: " + getAPIBase() + "record/" + bibId + "/?view=full");
             String recordResult = HttpUtility.makeHttpRequest(getAPIBase() + "record/" + bibId + "/?view=full", "GET", Optional.empty(), Optional.empty(), REQUEST_TIMEOUT);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -74,13 +65,14 @@ class VoyagerCatalogService extends AbstractCatalogService {
             Document doc = dBuilder.parse(new InputSource(new StringReader(recordResult)));
 
             doc.getDocumentElement().normalize();
+
             NodeList dataFields = doc.getElementsByTagName("datafield");
             int dataFieldCount = dataFields.getLength();
 
             Map<String,String> recordValues = new HashMap<String,String>();
             Map<String,String> recordBackupValues = new HashMap<String,String>();
 
-            String marcRecordLeader = doc.getElementsByTagName("leader").item(0).getTextContent();
+            addMapValue(recordValues, "marcRecordLeader", doc.getElementsByTagName("leader").item(0).getTextContent());
             NodeList controlFields = doc.getElementsByTagName("controlfield");
             int controlFieldsCount = controlFields.getLength();
 
@@ -218,13 +210,111 @@ class VoyagerCatalogService extends AbstractCatalogService {
                     addMapValue(recordValues,key,recordBackupValues.get(key));
                 }
             }
+            return recordValues;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    Map<String,String> buildCoreHolding(Node holdingNode) {
+        Map<String,String> holdingValues = new HashMap<String,String>();
+
+        NodeList childNodes = holdingNode.getChildNodes();
+        addMapValue(holdingValues, "mfhd", childNodes.item(0).getChildNodes().item(1).getTextContent());
+        String fallbackLocationCode = "";
+        String callNumber = "";
+
+
+        NodeList marcRecordNodes = childNodes.item(0).getChildNodes();
+        int marcRecordCount = marcRecordNodes.getLength();
+
+        for (int j = 0; j < marcRecordCount; j++) {
+            Node marcRecordNode = marcRecordNodes.item(j);
+            NodeList subfieldNodes = marcRecordNode.getChildNodes();
+            int subfieldCount = subfieldNodes.getLength();
+            if (marcRecordNode.getNodeName().contentEquals("datafield") && marcRecordNode.getAttributes().getNamedItem("tag") != null && marcRecordNode.getAttributes().getNamedItem("tag").getTextContent().equals("852")) {
+                for (int k = 0; k < subfieldCount; k++) {
+                    Node subfieldNode = subfieldNodes.item(k);
+                    if (subfieldNode.getAttributes().getNamedItem("code") != null) {
+                        if (subfieldNode.getAttributes().getNamedItem("code").getTextContent().equals("b")) {
+                            fallbackLocationCode = subfieldNode.getTextContent();
+                        } else if (subfieldNode.getAttributes().getNamedItem("code").getTextContent().equals("h") || subfieldNode.getAttributes().getNamedItem("code").getTextContent().equals("i") ) {
+                            callNumber += subfieldNode.getTextContent();
+                        }
+                    }
+                }
+            }
+        }
+
+        int childCount = childNodes.getLength();
+        logger.debug("The Count of Children: " + childCount);
+
+        Boolean validLargeVolume = false;
+        if (childCount-1 > LARGE_VOLUME_ITEM_LIMIT) {
+            for (String location : LARGE_VOLUME_LOCATIONS) {
+                if (holdingValues.get("fallbackLocationCode").equals(location)) {
+                    validLargeVolume = true;
+                    break;
+                }
+            }
+        }
+        addMapValue(holdingValues,"fallbackLocationCode", fallbackLocationCode);
+        addMapValue(holdingValues,"callNumber", callNumber);
+        addMapValue(holdingValues,"validLargeVolume",validLargeVolume.toString());
+        return holdingValues;
+    }
+
+    protected Map<String,String> buildCoreItem(Node itemNode) {
+        NodeList itemDataNode = itemNode.getChildNodes();
+
+        int itemDataCount = itemDataNode.getLength();
+        Map<String, String> itemData = new HashMap<String, String>();
+        for (int l = 0; l < itemDataCount; l++) {
+            if (itemDataNode.item(l).getAttributes().getNamedItem("code") != null) {
+                itemData.put(
+                        itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent()
+                                + "Code",
+                        itemDataNode.item(l).getAttributes().getNamedItem("code").getTextContent());
+                logger.debug(itemDataNode.item(l).getAttributes().getNamedItem("code").getTextContent()+"Code",itemDataNode.item(l).getAttributes().getNamedItem("code").getTextContent());
+            }
+            itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent(),
+                    itemDataNode.item(l).getTextContent());
+            logger.debug(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent(),itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent());
+        }
+        return itemData;
+    }
+
+    /**
+     * Fetches holdings from the Voyager API and translates them into
+     * catalogHoldings
+     *
+     * @param bibId String
+     *
+     * @return List<CatalogHolding>
+     *
+     */
+    @Override
+    public List<CatalogHolding> getHoldingsByBibId(String bibId) {
+        try {
+            Map<String,String> recordValues = buildCoreRecord(bibId);
 
             logger.debug("Asking for holdings from: " + getAPIBase() + "record/" + bibId + "/holdings?view=items");
             String result = HttpUtility.makeHttpRequest(getAPIBase() + "record/" + bibId + "/holdings?view=items",
                     "GET", Optional.empty(), Optional.empty(), REQUEST_TIMEOUT);
             logger.debug("Received holdings from: " + getAPIBase() + "record/" + bibId + "/holdings?view=items");
 
-            doc = dBuilder.parse(new InputSource(new StringReader(result)));
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+
+            Document doc = dBuilder.parse(new InputSource(new StringReader(result)));
 
             doc.getDocumentElement().normalize();
             NodeList holdings = doc.getElementsByTagName("holding");
@@ -234,71 +324,29 @@ class VoyagerCatalogService extends AbstractCatalogService {
             logger.debug("\n\nThe Holding Count: " + holdingCount);
 
             for (int i = 0; i < holdingCount; i++) {
-                logger.debug(
-                        "Current Holding: " + holdings.item(i).getAttributes().getNamedItem("href").getTextContent());
-                NodeList childNodes = holdings.item(i).getChildNodes();
-                childCount = childNodes.getLength();
-                logger.debug("The Count of Children: " + childCount);
-                Map<String, Map<String, String>> catalogItems = new HashMap<String, Map<String, String>>();
+                logger.debug("Current Holding: " + holdings.item(i).getAttributes().getNamedItem("href").getTextContent());
+                Map<String,String> holdingValues = buildCoreHolding(holdings.item(i));
 
-                String mfhd = childNodes.item(0).getChildNodes().item(1).getTextContent();
-                String fallbackLocationCode = "";
-
-                NodeList marcRecordNodes = childNodes.item(0).getChildNodes();
-                int marcRecordCount = marcRecordNodes.getLength();
-
-                for (int j = 0; j < marcRecordCount; j++) {
-                    Node marcRecordNode = marcRecordNodes.item(j);
-                    NodeList subfieldNodes = marcRecordNode.getChildNodes();
-                    int subfieldCount = subfieldNodes.getLength();
-                    if (marcRecordNode.getNodeName().contentEquals("datafield") && marcRecordNode.getAttributes().getNamedItem("tag") != null && marcRecordNode.getAttributes().getNamedItem("tag").getTextContent().equals("852")) {
-                        for (int k = 0; k < subfieldCount; k++) {
-                            Node subfieldNode = subfieldNodes.item(k);
-                            if (subfieldNode.getAttributes().getNamedItem("code") != null && subfieldNode.getAttributes().getNamedItem("code").getTextContent().equals("b")) {
-                                fallbackLocationCode = subfieldNode.getTextContent();
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                boolean validLargeVolume = false;
-                if (childCount-1 > LARGE_VOLUME_ITEM_LIMIT) {
-                    for (String location : LARGE_VOLUME_LOCATIONS) {
-                        if (fallbackLocationCode.equals(location)) {
-                            validLargeVolume = true;
-                            break;
-                        }
-                    }
-                }
-
-                logger.debug("MarcRecordLeader: " + marcRecordLeader);
-                logger.debug("MFHD: " + mfhd);
+                logger.debug("MarcRecordLeader: " + recordValues.get("marcRecordLeader"));
+                logger.debug("MFHD: " + holdingValues.get("mfhd"));
                 logger.debug("ISBN: " + recordValues.get("isbn"));
-                logger.debug("Fallback Location: " + fallbackLocationCode);
+                logger.debug("Fallback Location: " + holdingValues.get("fallbackLocationCode"));
+                logger.debug("Call Number: " + holdingValues.get("callNumber"));
+
+                Boolean validLargeVolume = Boolean.valueOf(holdingValues.get("validLargeVolume"));
+
                 logger.debug("Valid Large Volume: "+ validLargeVolume);
 
+                Map<String, Map<String, String>> catalogItems = new HashMap<String, Map<String, String>>();
+
+                NodeList childNodes = holdings.item(i).getChildNodes();
+                int childCount = childNodes.getLength();
 
                 if (validLargeVolume) {
                     //when we have a lot of items and it's a large volume candidate, just use the item data that came with the holding response, even though it's incomplete data
                     for (int j = 0; j < childCount; j++) {
                         if (childNodes.item(j) != null && childNodes.item(j).getNodeName() == "item") {
-                            NodeList itemDataNode = childNodes.item(j).getChildNodes();
-
-                            int itemDataCount = itemDataNode.getLength();
-                            Map<String, String> itemData = new HashMap<String, String>();
-                            for (int l = 0; l < itemDataCount; l++) {
-                                if (itemDataNode.item(l).getAttributes().getNamedItem("code") != null) {
-                                    itemData.put(
-                                            itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent()
-                                                    + "Code",
-                                            itemDataNode.item(l).getAttributes().getNamedItem("code").getTextContent());
-                                }
-                                itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent(),
-                                        itemDataNode.item(l).getTextContent());
-                            }
-                            catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),
-                                    itemData);
+                            catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(), buildCoreItem(childNodes.item(j)));
                         }
                     }
                 } else {
@@ -315,22 +363,13 @@ class VoyagerCatalogService extends AbstractCatalogService {
                                     + childNodes.item(j).getAttributes().getNamedItem("href").getTextContent());
                             doc = dBuilder.parse(new InputSource(new StringReader(itemResult)));
                             doc.getDocumentElement().normalize();
-                            NodeList itemDataNode = doc.getElementsByTagName("itemData");
+                            NodeList itemNodes = doc.getElementsByTagName("item");
 
-                            int itemDataCount = itemDataNode.getLength();
-                            Map<String, String> itemData = new HashMap<String, String>();
-                            for (int l = 0; l < itemDataCount; l++) {
-                                if (itemDataNode.item(l).getAttributes().getNamedItem("code") != null) {
-                                    itemData.put(
-                                            itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent()
-                                                    + "Code",
-                                            itemDataNode.item(l).getAttributes().getNamedItem("code").getTextContent());
-                                }
-                                itemData.put(itemDataNode.item(l).getAttributes().getNamedItem("name").getTextContent(),
-                                        itemDataNode.item(l).getTextContent());
+                            int itemNodesCount = itemNodes.getLength();
+                            for (int l=0;l<itemNodesCount;l++) {
+                                catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),
+                                        buildCoreItem(itemNodes.item(l)));
                             }
-                            catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(),
-                                    itemData);
                             //sleep for a moment between item requests to avoid triggering a 429 from the Voyager API
                             try {
                                 TimeUnit.MILLISECONDS.sleep(50);
@@ -340,11 +379,71 @@ class VoyagerCatalogService extends AbstractCatalogService {
                         }
                     }
                 }
-                catalogHoldings.add(new CatalogHolding(marcRecordLeader, mfhd, recordValues.get("issn"), recordValues.get("isbn"), recordValues.get("title"), recordValues.get("author"), recordValues.get("publisher"),
-                        recordValues.get("place"), recordValues.get("year"), recordValues.get("genre"), recordValues.get("edition"), fallbackLocationCode, recordValues.get("oclc"), recordValues.get("recordId"), validLargeVolume, new HashMap<String, Map<String, String>>(catalogItems)));
+                catalogHoldings.add(new CatalogHolding(recordValues.get("marcRecordLeader"), holdingValues.get("mfhd"), recordValues.get("issn"), recordValues.get("isbn"), recordValues.get("title"), recordValues.get("author"), recordValues.get("publisher"),
+                        recordValues.get("place"), recordValues.get("year"), recordValues.get("genre"), recordValues.get("edition"), holdingValues.get("fallbackLocationCode"), recordValues.get("oclc"), recordValues.get("recordId"), holdingValues.get("callNumber"), validLargeVolume, new HashMap<String, Map<String, String>>(catalogItems)));
                 catalogItems.clear();
             }
             return catalogHoldings;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public CatalogHolding getHolding(String bibId, String holdingId) {
+        logger.debug("Asking for holding from: " + getAPIBase() + "record/" + bibId + "/holdings?view=items");
+        try {
+            Map<String,String> recordValues = buildCoreRecord(bibId);
+            String result = HttpUtility.makeHttpRequest(getAPIBase() + "record/" + bibId + "/holdings?view=items",
+                    "GET", Optional.empty(), Optional.empty(), REQUEST_TIMEOUT);
+
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+
+            Document doc = dBuilder.parse(new InputSource(new StringReader(result)));
+
+            doc.getDocumentElement().normalize();
+
+            Node holdingNode = null;
+            NodeList controlFieldNodes = doc.getElementsByTagName("controlfield");
+            for (int i=0; i<controlFieldNodes.getLength();i++) {
+                Node controlFieldNode = controlFieldNodes.item(i);
+                if (controlFieldNode != null) {
+                    NamedNodeMap controlFieldAttributes = controlFieldNode.getAttributes();
+                    for (int j=0; j<controlFieldAttributes.getLength();j++) {
+                        if (controlFieldAttributes.item(j) != null && controlFieldAttributes.item(j).getNodeName() == "tag" && controlFieldAttributes.item(j).getTextContent().equals("001")) {
+                            if (controlFieldNode.getTextContent().equals(holdingId)) {
+                                holdingNode = controlFieldNode.getParentNode().getParentNode();
+                            }
+                        }
+                    }
+                }
+            }
+
+            Map<String,String> holdingValues = buildCoreHolding(holdingNode);
+
+            Map<String, Map<String, String>> catalogItems = new HashMap<String, Map<String, String>>();
+
+            NodeList childNodes = holdingNode.getChildNodes();
+            int childCount = childNodes.getLength();
+
+            for (int j = 0; j < childCount; j++) {
+                if (childNodes.item(j) != null && childNodes.item(j).getNodeName() == "item") {
+                    catalogItems.put(childNodes.item(j).getAttributes().getNamedItem("href").getTextContent(), buildCoreItem(childNodes.item(j)));
+                }
+            }
+
+            return new CatalogHolding(recordValues.get("marcRecordLeader"), holdingValues.get("mfhd"), recordValues.get("issn"), recordValues.get("isbn"), recordValues.get("title"), recordValues.get("author"), recordValues.get("publisher"),
+                    recordValues.get("place"), recordValues.get("year"), recordValues.get("genre"), recordValues.get("edition"), holdingValues.get("fallbackLocationCode"), recordValues.get("oclc"), recordValues.get("recordId"), holdingValues.get("callNumber"), Boolean.valueOf(holdingValues.get("validLargeVolume")), new HashMap<String, Map<String, String>>(catalogItems));
+
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
