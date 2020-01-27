@@ -405,9 +405,8 @@ public class GetItForMeService {
         }
 
         textCallNumberButtonContent.put("title", holding.getTitle());
-        textCallNumberButtonContent.put("callNumber", holding.getCallNumber());
-        textCallNumberButtonContent.put("locationCode", locationCode);
-        textCallNumberButtonContent.put("locationName", locationName);
+        textCallNumberButtonContent.put("call", holding.getCallNumber());
+        textCallNumberButtonContent.put("loc", locationName);
         if (holding.getCatalogItems().size() == 1) {
             textCallNumberButtonContent.put("status", itemStatus);
         }
