@@ -260,7 +260,7 @@ class VoyagerCatalogService extends AbstractCatalogService {
         Boolean validLargeVolume = false;
         if (childCount-1 > LARGE_VOLUME_ITEM_LIMIT) {
             for (String location : LARGE_VOLUME_LOCATIONS) {
-                if (holdingValues.get("fallbackLocationCode").equals(location)) {
+                if (fallbackLocationCode.equals(location)) {
                     validLargeVolume = true;
                     break;
                 }
