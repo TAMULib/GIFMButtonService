@@ -3,6 +3,7 @@ package edu.tamu.app.controller;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +25,7 @@ public class ButtonManagementController {
     @RequestMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse getAll() {
-        return new ApiResponse(SUCCESS,persistedButtonRepo.findAll());
+        return new ApiResponse(SUCCESS,persistedButtonRepo.findAll(new Sort(Sort.Direction.ASC, "name")));
     }
 
     @RequestMapping("/create")

@@ -15,6 +15,12 @@ public class MockCatalogService implements CatalogService {
     }
 
     @Override
+    public CatalogHolding getHolding(String bibId, String holdingId) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
     public String getName() {
         // TODO Auto-generated method stub
         return null;

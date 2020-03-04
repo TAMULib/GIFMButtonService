@@ -38,7 +38,7 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
     protected List<String> itemTypeCodes = new ArrayList<String>();
 
     @ElementCollection
-    protected List<Integer> itemStatusCodes = new ArrayList<Integer>();
+    protected List<String> itemStatusCodes = new ArrayList<String>();
 
     @Column
     private String linkText = "Default Link Text";
@@ -63,15 +63,17 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
 
     @Override
     public boolean fitsRecordType(String marcRecordLeader) {
-        if (recordType != null && !marcRecordLeader.substring(6, 6 + recordType.length()).contentEquals(recordType)) {
-            return false;
+        if (recordType != null) {
+            if ((recordType.contentEquals("!") && !(marcRecordLeader == null || marcRecordLeader.contentEquals(""))) || !marcRecordLeader.substring(6, 6 + recordType.length()).contentEquals(recordType)) {
+                return false;
+            }
         }
         return true;
     }
 
     @Override
     public boolean fitsLocation(String locationCode) {
-        if (locationCodes == null) {
+        if (locationCodes == null || (locationCodes.size() > 0 && locationCodes.get(0).contentEquals("!") && (locationCode == null || locationCode.contentEquals("")))) {
             return true;
         }
         if (locationCodes.size() == 1) {
@@ -82,12 +84,28 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
 
     @Override
     public boolean fitsItemType(String itemTypeCode) {
-        return (itemTypeCodes.size() > 0) ? itemTypeCodes.contains(itemTypeCode) : true;
+        boolean testResult = true;
+        if (itemTypeCodes.size() > 0) {
+            if (itemTypeCodes.get(0).contentEquals("!") && !(itemTypeCode == null || itemTypeCode.isEmpty() || itemTypeCode.contentEquals(""))) {
+                testResult = false;
+            } else {
+                testResult = itemTypeCodes.contains(itemTypeCode);
+            }
+        }
+        return testResult;
     }
 
     @Override
-    public boolean fitsItemStatus(int itemStatusCode) {
-        return (itemStatusCodes.size() > 0) ? itemStatusCodes.contains(itemStatusCode) : true;
+    public boolean fitsItemStatus(String itemStatusCode) {
+        boolean testResult = true;
+        if (itemStatusCodes.size() > 0) {
+            if (itemStatusCodes.get(0).contentEquals("!") && !(itemStatusCode == null || itemStatusCode.isEmpty() || itemStatusCode.contentEquals(""))) {
+                testResult = false;
+            } else {
+                testResult = itemStatusCodes.contains(itemStatusCode);
+            }
+        }
+        return testResult;
     }
 
     @Override
@@ -174,12 +192,12 @@ public class PersistedButton extends ValidatingBaseEntity implements GetItForMeB
         this.itemTypeCodes = Arrays.asList(itemTypeCodes);
     }
 
-    public List<Integer> getItemStatusCodes() {
+    public List<String> getItemStatusCodes() {
         return itemStatusCodes;
     }
 
     @Override
-    public void setItemStatusCodes(Integer[] itemStatusCodes) {
+    public void setItemStatusCodes(String[] itemStatusCodes) {
         this.itemStatusCodes = Arrays.asList(itemStatusCodes);
     }
 

@@ -35,7 +35,7 @@ public interface GetItForMeButton {
 	 * @param itemStatusCode
 	 * @return boolean
 	 */
-	boolean fitsItemStatus(int itemStatusCode);
+	boolean fitsItemStatus(String itemStatusCode);
 
 	/**
 	 * Get the button's SID
@@ -102,7 +102,7 @@ public interface GetItForMeButton {
 	/**
 	 * Sets the valid item status codes for a button to be used in the fitsItemStatus() test
 	 */
-	void setItemStatusCodes(Integer[] itemStatusCodes);
+	void setItemStatusCodes(String[] itemStatusCodes);
 
 	boolean getActive();
 }
