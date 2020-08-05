@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -71,6 +70,12 @@ public class GetItForMeService {
 
     @Value("${app.defaultButton.threshold:100}")
     private int defaultThreshold;
+
+    @Value("${app.buttons.patronGroupOverride:#{null}}")
+    private String patronGroupOverride;
+
+    @Value("${app.buttons.locationsOverride:#{null}}")
+    private String[] locationsOverride;
 
     @Autowired
     Environment environment;
@@ -301,7 +306,8 @@ public class GetItForMeService {
 
                                 // test the current item against the current GetItForMe button's requirements
                                 // for eligibility
-                                if (button.getActive()
+                                if (!skipAllButtons(currentLocation, itemData)
+                                        && button.getActive()
                                         && button.fitsRecordType(holding.getMarcRecordLeader())
                                         && button.fitsLocation(currentLocation)
                                         && button.fitsItemType(itemData.get("typeDesc"))
@@ -370,6 +376,26 @@ public class GetItForMeService {
             return presentableHoldings;
         }
         return null;
+    }
+
+    protected boolean skipAllButtons(String locationCode, Map<String,String> itemData) {
+        boolean skipButtons = false;
+        if (patronGroupOverride != null
+                && (locationsOverride != null && locationsOverride.length > 0)
+                && itemData.containsKey("patronGroupCode")
+                && itemData.get("patronGroupCode").toString().contentEquals(patronGroupOverride)) {
+            boolean matchesLocation = false;
+            for (String locationOverride : locationsOverride) {
+                if (locationCode.contains(locationOverride)) {
+                    matchesLocation = true;
+                    break;
+                }
+            }
+            if (!matchesLocation) {
+                skipButtons = true;
+            }
+        }
+        return skipButtons;
     }
 
     public Map<String,String> getTextCallNumberButton(String catalogName, String bibId, String holdingId) {
