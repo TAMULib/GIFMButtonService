@@ -26,21 +26,6 @@ public class CatalogAccessController {
     @Autowired
     GetItForMeService getItForMeService;
 
-    /**
-     * Provides the raw CatalogHolding data
-     *
-     * @param catalogName
-     * @param bibId
-     * @return
-     * @throws JsonProcessingException
-     * @throws IOException
-     */
-
-	@RequestMapping("/get-holdings")
-	public ApiResponse getHoldings(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId) throws JsonProcessingException, IOException {
-		return new ApiResponse(SUCCESS,getItForMeService.getHoldingsByBibId(catalogName,bibId));
-	}
-
 	/**
 	 * Provides fully formatted HTML buttons, keyed by item MFHD
 	 * @param catalogName

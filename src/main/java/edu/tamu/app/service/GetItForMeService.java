@@ -86,25 +86,6 @@ public class GetItForMeService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
-     * Get a list of CatalogHolding as provided by the CatalogServiceFactory
-     *
-     * @param catalogName
-     * @param bibId
-     * @return List<CatalogHolding>
-     */
-    public List<CatalogHolding> getHoldingsByBibId(String catalogName, String bibId) {
-        return getCatalogServiceByName(catalogName).getHoldingsByBibId(bibId);
-    }
-
-    public CatalogHolding getHolding(String catalogName, String bibId, String holdingId) {
-        return getCatalogServiceByName(catalogName).getHolding(bibId, holdingId);
-    }
-
-    protected CatalogService getCatalogServiceByName(String catalogName) {
-        return catalogServiceFactory.getOrCreateCatalogService(catalogName);
-    }
-
-    /**
      * Registers and instantiates GetItForMe button implementations on app startup
      * based on the button configuration file
      *
