@@ -3,7 +3,6 @@ package edu.tamu.app.controller;
 import static edu.tamu.weaver.response.ApiStatus.ERROR;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,15 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import edu.tamu.app.model.ButtonPresentation;
 import edu.tamu.app.service.GetItForMeService;
 import edu.tamu.weaver.response.ApiResponse;
 
 @RestController
 @RequestMapping("/catalog-access")
-public class CatalogAccessController {
+public class GetItForMeController {
     @Autowired
     GetItForMeService getItForMeService;
 

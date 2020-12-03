@@ -1,0 +1,12 @@
+{
+  "catalogs":{
+    "evans":
+      {
+        "sidPrefix":"libcat"
+      },
+    "msl":
+    {
+      "sidPrefix":"chiron"
+    }
+  }
+}

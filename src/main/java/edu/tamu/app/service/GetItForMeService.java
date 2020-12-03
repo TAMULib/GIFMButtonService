@@ -44,9 +44,6 @@ import edu.tamu.app.utilities.sort.VolumeComparator;
 
 @Service
 public class GetItForMeService {
-    @Autowired
-    private CatalogServiceFactory catalogServiceFactory;
-
     @Value("${activeButtons}")
     private String[] activeButtons;
 
@@ -79,6 +76,9 @@ public class GetItForMeService {
 
     @Autowired
     Environment environment;
+
+    @Autowired
+    CatalogService catalogService;
 
     @Autowired
     private PersistedButtonRepo persistedButtonRepo;
@@ -163,6 +163,18 @@ public class GetItForMeService {
         }
     }
 
+    public List<CatalogHolding> getHoldingsByBibId(String catalogName, String bibid) {
+        return catalogService.getHoldingsByBibId(catalogName, bibid);
+    }
+
+    public CatalogHolding getHolding(String catalogName, String bibId, String holdingId) {
+        return catalogService.getHolding(catalogName, bibId, holdingId);
+    }
+
+    public Map<String,String> getCatalogConfigurationByName(String catalogName) {
+        return catalogService.getCatalogConfigurationByName(catalogName);
+    }
+
     public List<GetItForMeButton> getRegisteredButtons() {
         List<? extends GetItForMeButton> buttons = new ArrayList<PersistedButton>();
         buttons = persistedButtonRepo.findAll();
@@ -214,7 +226,7 @@ public class GetItForMeService {
 
                             for (String parameterKey : parameterKeys) {
                                 if (parameterKey.equals("sid")) {
-                                    parameters.put(parameterKey, getCatalogServiceByName(catalogName).getSidPrefix()
+                                    parameters.put(parameterKey, getCatalogConfigurationByName(catalogName).get("SidPrefix")
                                             + ":" + button.getSID());
                                 } else {
                                     parameters.put(parameterKey, null);
@@ -253,7 +265,7 @@ public class GetItForMeService {
 
                         parameters = buildHoldingParameters(parameters, holding);
 
-                        parameters.put("sid",getCatalogServiceByName(catalogName).getSidPrefix() + ": "+defaultSIDMap.get(holding.getFallbackLocationCode()));
+                        parameters.put("sid",getCatalogConfigurationByName(catalogName).get("SidPrefix") + ": "+defaultSIDMap.get(holding.getFallbackLocationCode()));
                         defaultButtonContent.put("form",ButtonFormPresentation.buildForm(holding.getCatalogItems(), defaultAction, defaultFieldMap, defaultVolumeField, defaultText, parameters));
                         holdingButtons.add(defaultButtonContent);
 
@@ -299,7 +311,7 @@ public class GetItForMeService {
 
                                         for (String parameterKey : parameterKeys) {
                                             if (parameterKey.equals("sid")) {
-                                                parameters.put(parameterKey, getCatalogServiceByName(catalogName).getSidPrefix()
+                                                parameters.put(parameterKey, getCatalogConfigurationByName(catalogName).get("SidPrefix")
                                                         + ":" + button.getSID());
                                             } else {
                                                 parameters.put(parameterKey, itemData.get(parameterKey));
