@@ -70,6 +70,7 @@ public class CatalogService {
     public List<CatalogHolding> getHoldingsByBibId(String catalogName, String bibId) {
         Map<String,String> parameters = new HashMap<String,String>();
         parameters.put("bibId", bibId);
+        parameters.put("catalogName", catalogName);
         try {
             return objectMapper.readValue(getData("get-holdings", parameters).get("ArrayList<CatalogHolding>").toString(), new TypeReference<List<CatalogHolding>>() {});
         } catch (IOException e) {
@@ -82,6 +83,7 @@ public class CatalogService {
     public CatalogHolding getHolding(String catalogName, String bibId, String holdingId) {
         Map<String,String> parameters = new HashMap<String,String>();
         parameters.put("bibId", bibId);
+        parameters.put("catalogName", catalogName);
         parameters.put("holdingId", holdingId);
         try {
             return objectMapper.readValue(getData("get-holding", parameters).get("CatalogHolding").toString(), new TypeReference<CatalogHolding>() {});
@@ -102,7 +104,7 @@ public class CatalogService {
         if (parameters != null && !parameters.isEmpty()) {
             urlBuilder.append("?");
             parameters.forEach((k,v) -> {
-                urlBuilder.append(k + "=" + v);
+                urlBuilder.append(k + "=" + v + "&");
             });
             urlBuilder.setLength(urlBuilder.length()-1);
         }
