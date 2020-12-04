@@ -25,8 +25,8 @@ public class GetItForMeController {
 
 	/**
 	 * Provides fully formatted HTML buttons, keyed by item MFHD
-	 * @param catalogName
-	 * @param bibId
+	 * @param String catalogName (optional)
+	 * @param String bibId
 	 * @return
 	 */
 	@RequestMapping("/get-html-buttons")
@@ -42,33 +42,50 @@ public class GetItForMeController {
                 }
             }
 			return new ApiResponse(SUCCESS,buttonContents);
+		} else {
+		    return new ApiResponse(ERROR,"Error processing Catalog or Holding");
 		}
-		return new ApiResponse(ERROR,"Catalog or Holding not found");
 	}
 
 	/**
 	 * Provides the raw button data in JSON format, keyed by MFHD.
-	 * @param catalogName
-	 * @param bibId
+	 * @param String catalogName (optional)
+	 * @param String bibId
 	 * @return
 	 */
-
 	@RequestMapping("/get-buttons")
 	public ApiResponse getButtonsByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId) {
 		Map<String,ButtonPresentation> buttonData = getItForMeService.getButtonDataByBibId(catalogName, bibId);
 		if (buttonData != null) {
 			return new ApiResponse(SUCCESS,buttonData);
+		} else {
+		    return new ApiResponse(ERROR,"Error processing Catalog or Holding");
 		}
-		return new ApiResponse(ERROR,"Catalog or Holding not found");
 	}
 
+    /**
+     * Provides the current buttons configuration in JSON format
+     * @return
+     */
 	@RequestMapping("/get-button-config")
 	public ApiResponse getButtonConfiguration() {
 	    return new ApiResponse(SUCCESS,"Current Button Configuration",getItForMeService.getRegisteredButtons());
 	}
 
+    /**
+     * Provides the text a call number button data in JSON format
+     * @param String catalogName (optional)
+     * @param String bibId
+     * @param String holdingId
+     * @return
+     */
     @RequestMapping("/text-call-number")
     public ApiResponse textCall(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId, @RequestParam("holdingId") String holdingId) {
-        return new ApiResponse(SUCCESS, getItForMeService.getTextCallNumberButton(catalogName, bibId, holdingId));
+        Map<String,String> buttonData = getItForMeService.getTextCallNumberButton(catalogName, bibId, holdingId);
+        if (buttonData != null) {
+            return new ApiResponse(SUCCESS, getItForMeService.getTextCallNumberButton(catalogName, bibId, holdingId));
+        } else {
+            return new ApiResponse(ERROR,"Error processing Catalog or Holding");
+        }
     }
 }

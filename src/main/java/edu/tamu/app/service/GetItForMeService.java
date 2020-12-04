@@ -1,5 +1,6 @@
 package edu.tamu.app.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -198,7 +199,8 @@ public class GetItForMeService {
      */
 
     public Map<String,ButtonPresentation> getButtonDataByBibId(String catalogName, String bibId) {
-        List<CatalogHolding> catalogHoldings = this.getHoldingsByBibId(catalogName, bibId);
+        List<CatalogHolding> catalogHoldings;
+        catalogHoldings = this.getHoldingsByBibId(catalogName, bibId);
         if (catalogHoldings != null) {
             logger.debug("\n\nCATALOG HOLDINGS FOR " + bibId);
 
@@ -226,7 +228,7 @@ public class GetItForMeService {
 
                             for (String parameterKey : parameterKeys) {
                                 if (parameterKey.equals("sid")) {
-                                    parameters.put(parameterKey, getCatalogConfigurationByName(catalogName).get("SidPrefix")
+                                    parameters.put(parameterKey, getCatalogConfigurationByName(catalogName).get("sidPrefix")
                                             + ":" + button.getSID());
                                 } else {
                                     parameters.put(parameterKey, null);
@@ -265,7 +267,7 @@ public class GetItForMeService {
 
                         parameters = buildHoldingParameters(parameters, holding);
 
-                        parameters.put("sid",getCatalogConfigurationByName(catalogName).get("SidPrefix") + ": "+defaultSIDMap.get(holding.getFallbackLocationCode()));
+                        parameters.put("sid",getCatalogConfigurationByName(catalogName).get("sidPrefix") + ": "+defaultSIDMap.get(holding.getFallbackLocationCode()));
                         defaultButtonContent.put("form",ButtonFormPresentation.buildForm(holding.getCatalogItems(), defaultAction, defaultFieldMap, defaultVolumeField, defaultText, parameters));
                         holdingButtons.add(defaultButtonContent);
 
@@ -311,7 +313,7 @@ public class GetItForMeService {
 
                                         for (String parameterKey : parameterKeys) {
                                             if (parameterKey.equals("sid")) {
-                                                parameters.put(parameterKey, getCatalogConfigurationByName(catalogName).get("SidPrefix")
+                                                parameters.put(parameterKey, getCatalogConfigurationByName(catalogName).get("sidPrefix")
                                                         + ":" + button.getSID());
                                             } else {
                                                 parameters.put(parameterKey, itemData.get(parameterKey));
