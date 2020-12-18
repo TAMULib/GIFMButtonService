@@ -294,10 +294,10 @@ public class GetItForMeService {
                                     String itemStatusCode = itemData.containsKey("itemStatusCode") ? itemData.get("itemStatusCode"):null;
 
                                     logger.debug("Location: " + currentLocation + ": "
-                                            + button.fitsLocation(itemData.get("permLocationCode")));
+                                            + button.fitsLocation(currentLocation));
                                     logger.debug("TypeDesc: " + itemData.get("typeDesc") + ": "
                                             + button.fitsItemType(itemData.get("typeDesc")));
-                                    logger.debug("Status: " + itemData.get("itemStatusCode") + ": "
+                                    logger.debug("Status: " + itemStatusCode + ": "
                                             + button.fitsItemStatus(itemStatusCode));
 
                                     // test the current item against the current GetItForMe button's requirements
