@@ -1,0 +1,58 @@
+name: TAMULib GIFMButtonService Coverage
+
+on:
+  push:
+    branches:
+      - $default_branch
+      - sprint*-staging
+
+  pull_request:
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: "Cache Maven Dependencies"
+        uses: actions/cache@v2
+        env:
+          cache-name: gifmbuttonservice-cache-maven-dependencies
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-gifmbuttonservice-cache-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-gifmbuttonservice-cache-maven-${{ hashFiles('**/pom.xml') }}
+
+      - name: "Setup Java"
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: "Building"
+        run: mvn test-compile -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: "Cache Maven Dependencies"
+        uses: actions/cache@v2
+        env:
+          cache-name: gifmbuttonservice-cache-maven-dependencies
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-gifmbuttonservice-cache-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-gifmbuttonservice-cache-maven-${{ hashFiles('**/pom.xml') }}
+
+      - name: "Setup Java"
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: "Testing"
+        run: mvn test -B -V
