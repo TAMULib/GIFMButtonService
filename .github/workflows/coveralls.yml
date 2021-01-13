@@ -1,4 +1,4 @@
-name: TAMULib GIFMButtonService Coverage
+name: Coveralls
 
 on:
   push:
