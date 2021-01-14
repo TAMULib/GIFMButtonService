@@ -31,20 +31,20 @@ public class GetItForMeController {
 	 */
 	@RequestMapping("/get-html-buttons")
 	public ApiResponse getHtmlButtonsByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId) {
-		Map<String, ButtonPresentation> presentableHoldings = getItForMeService.getButtonDataByBibId(catalogName, bibId);
-		if (presentableHoldings != null) {
-            Map<String,List<String>> buttonContents = new HashMap<String,List<String>>();
-            for (Map.Entry<String, ButtonPresentation> entry : presentableHoldings.entrySet()) {
-                if (entry.getValue() != null) {
-                    buttonContents.put(entry.getKey(), entry.getValue().buildPresentation());
-                } else {
-                    buttonContents.put(entry.getKey(), new ArrayList<String>());
-                }
-            }
-			return new ApiResponse(SUCCESS,buttonContents);
-		} else {
-		    return new ApiResponse(ERROR,"Error processing Catalog or Holding");
-		}
+	    Map<String, ButtonPresentation> presentableHoldings = getItForMeService.getButtonDataByBibId(catalogName, bibId);
+	    if (presentableHoldings != null) {
+	        Map<String,List<String>> buttonContents = new HashMap<String,List<String>>();
+	        for (Map.Entry<String, ButtonPresentation> entry : presentableHoldings.entrySet()) {
+	            if (entry.getValue() != null) {
+	                buttonContents.put(entry.getKey(), entry.getValue().buildPresentation());
+	            } else {
+	                buttonContents.put(entry.getKey(), new ArrayList<String>());
+	            }
+	        }
+	        return new ApiResponse(SUCCESS,buttonContents);
+	    } else {
+	        return new ApiResponse(ERROR,"Error processing Catalog or Holding");
+	    }
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class GetItForMeController {
 	public ApiResponse getButtonsByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId) {
 		Map<String,ButtonPresentation> buttonData = getItForMeService.getButtonDataByBibId(catalogName, bibId);
 		if (buttonData != null) {
-			return new ApiResponse(SUCCESS,buttonData);
+		    return new ApiResponse(SUCCESS,buttonData);
 		} else {
 		    return new ApiResponse(ERROR,"Error processing Catalog or Holding");
 		}
