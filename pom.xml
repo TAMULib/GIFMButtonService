@@ -2,10 +2,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.tamu</groupId>
-  <artifactId>catalog-service</artifactId>
+  <artifactId>gifmbutton-service</artifactId>
   <version>2.2.0</version>
-  <name>Catalog-Service</name>
-  <description>A service for interfacing with Library Catalogs</description>
+  <name>GIFM Button-Service</name>
+  <description>A service providing item retrieval links for catalog holdings</description>
 
   <parent>
     <groupId>edu.tamu.weaver</groupId>
