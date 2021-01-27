@@ -33,6 +33,8 @@ public class CatalogHolding {
 
     private Map<String, Map<String, String>> catalogItems = new HashMap<String, Map<String, String>>();
 
+    public CatalogHolding() {}
+
     public CatalogHolding(String marcRecordLeader, String mfhd, String issn, String isbn, String title, String author,
             String publisher, String place, String year, String genre, String edition, String fallBackLocationCode, String oclc, String recordId, String callNumber,
             Map<String, Map<String, String>> catalogItems) {

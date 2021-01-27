@@ -1,5 +1,6 @@
 package edu.tamu.app.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,9 +45,6 @@ import edu.tamu.app.utilities.sort.VolumeComparator;
 
 @Service
 public class GetItForMeService {
-    @Autowired
-    private CatalogServiceFactory catalogServiceFactory;
-
     @Value("${activeButtons}")
     private String[] activeButtons;
 
@@ -81,28 +79,12 @@ public class GetItForMeService {
     Environment environment;
 
     @Autowired
+    CatalogService catalogService;
+
+    @Autowired
     private PersistedButtonRepo persistedButtonRepo;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    /**
-     * Get a list of CatalogHolding as provided by the CatalogServiceFactory
-     *
-     * @param catalogName
-     * @param bibId
-     * @return List<CatalogHolding>
-     */
-    public List<CatalogHolding> getHoldingsByBibId(String catalogName, String bibId) {
-        return getCatalogServiceByName(catalogName).getHoldingsByBibId(bibId);
-    }
-
-    public CatalogHolding getHolding(String catalogName, String bibId, String holdingId) {
-        return getCatalogServiceByName(catalogName).getHolding(bibId, holdingId);
-    }
-
-    protected CatalogService getCatalogServiceByName(String catalogName) {
-        return catalogServiceFactory.getOrCreateCatalogService(catalogName);
-    }
 
     /**
      * Registers and instantiates GetItForMe button implementations on app startup
@@ -182,6 +164,18 @@ public class GetItForMeService {
         }
     }
 
+    public List<CatalogHolding> getHoldingsByBibId(String catalogName, String bibid) {
+        return catalogService.getHoldingsByBibId(catalogName, bibid);
+    }
+
+    public CatalogHolding getHolding(String catalogName, String bibId, String holdingId) {
+        return catalogService.getHolding(catalogName, bibId, holdingId);
+    }
+
+    public Map<String,String> getCatalogConfigurationByName(String catalogName) {
+        return catalogService.getCatalogConfigurationByName(catalogName);
+    }
+
     public List<GetItForMeButton> getRegisteredButtons() {
         List<? extends GetItForMeButton> buttons = new ArrayList<PersistedButton>();
         buttons = persistedButtonRepo.findAll();
@@ -205,7 +199,8 @@ public class GetItForMeService {
      */
 
     public Map<String,ButtonPresentation> getButtonDataByBibId(String catalogName, String bibId) {
-        List<CatalogHolding> catalogHoldings = this.getHoldingsByBibId(catalogName, bibId);
+        List<CatalogHolding> catalogHoldings;
+        catalogHoldings = this.getHoldingsByBibId(catalogName, bibId);
         if (catalogHoldings != null) {
             logger.debug("\n\nCATALOG HOLDINGS FOR " + bibId);
 
@@ -233,7 +228,7 @@ public class GetItForMeService {
 
                             for (String parameterKey : parameterKeys) {
                                 if (parameterKey.equals("sid")) {
-                                    parameters.put(parameterKey, getCatalogServiceByName(catalogName).getSidPrefix()
+                                    parameters.put(parameterKey, getCatalogConfigurationByName(catalogName).get("sidPrefix")
                                             + ":" + button.getSID());
                                 } else {
                                     parameters.put(parameterKey, null);
@@ -272,7 +267,7 @@ public class GetItForMeService {
 
                         parameters = buildHoldingParameters(parameters, holding);
 
-                        parameters.put("sid",getCatalogServiceByName(catalogName).getSidPrefix() + ": "+defaultSIDMap.get(holding.getFallbackLocationCode()));
+                        parameters.put("sid",getCatalogConfigurationByName(catalogName).get("sidPrefix") + ": "+defaultSIDMap.get(holding.getFallbackLocationCode()));
                         defaultButtonContent.put("form",ButtonFormPresentation.buildForm(holding.getCatalogItems(), defaultAction, defaultFieldMap, defaultVolumeField, defaultText, parameters));
                         holdingButtons.add(defaultButtonContent);
 
@@ -299,10 +294,10 @@ public class GetItForMeService {
                                     String itemStatusCode = itemData.containsKey("itemStatusCode") ? itemData.get("itemStatusCode"):null;
 
                                     logger.debug("Location: " + currentLocation + ": "
-                                            + button.fitsLocation(itemData.get("permLocationCode")));
+                                            + button.fitsLocation(currentLocation));
                                     logger.debug("TypeDesc: " + itemData.get("typeDesc") + ": "
                                             + button.fitsItemType(itemData.get("typeDesc")));
-                                    logger.debug("Status: " + itemData.get("itemStatusCode") + ": "
+                                    logger.debug("Status: " + itemStatusCode + ": "
                                             + button.fitsItemStatus(itemStatusCode));
 
                                     // test the current item against the current GetItForMe button's requirements
@@ -318,7 +313,7 @@ public class GetItForMeService {
 
                                         for (String parameterKey : parameterKeys) {
                                             if (parameterKey.equals("sid")) {
-                                                parameters.put(parameterKey, getCatalogServiceByName(catalogName).getSidPrefix()
+                                                parameters.put(parameterKey, getCatalogConfigurationByName(catalogName).get("sidPrefix")
                                                         + ":" + button.getSID());
                                             } else {
                                                 parameters.put(parameterKey, itemData.get(parameterKey));
