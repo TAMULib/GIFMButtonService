@@ -72,7 +72,7 @@ public class CatalogService {
         parameters.put("bibId", bibId);
         parameters.put("catalogName", catalogName);
         try {
-            return objectMapper.readValue(getData("get-holdings", parameters).get("ArrayList<CatalogHolding>").toString(), new TypeReference<List<CatalogHolding>>() {});
+            return objectMapper.readValue(getData("get-holdings", parameters).get("ArrayList<HoldingsRecord>").toString(), new TypeReference<List<CatalogHolding>>() {});
         } catch (IOException e) {
             logger.error("Unable to retrieve Holdings from Catalog Service");
             e.printStackTrace();
