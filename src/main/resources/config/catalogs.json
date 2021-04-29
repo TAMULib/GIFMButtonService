@@ -1,12 +1,13 @@
 {
-  "catalogs":{
-    "evans":
-      {
-        "sidPrefix":"libcat"
-      },
-    "msl":
-    {
-      "sidPrefix":"chiron"
+  "catalogs": {
+    "evans": {
+      "sidPrefix": "libcat"
+    },
+    "msl": {
+      "sidPrefix": "chiron"
+    },
+    "folio": {
+      "sidPrefix": "vufind"
     }
   }
 }
