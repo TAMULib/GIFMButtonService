@@ -281,9 +281,12 @@ public class GetItForMeService {
                                 currentLocation = itemData.get("tempLocationCode");
                             } else if (itemData.containsKey("permLocationCode")) {
                                 currentLocation = itemData.get("permLocationCode");
+                            } else if (itemData.containsKey("locationCode")) {
+                                currentLocation = itemData.get("locationCode");
                             } else {
                                 currentLocation = holding.getFallbackLocationCode();
                             }
+
                             logger.debug("Current Location is: " + currentLocation);
                             //check if the global override blocks buttons for this item
                             if (!skipAllButtons(currentLocation, itemData)) {
@@ -327,7 +330,7 @@ public class GetItForMeService {
                                         Map<String, String> buttonContent = new HashMap<String,String>();
                                         if (holding.isMultiVolume()) {
                                             logger.debug("Generating a multi volume button");
-                                            parameters.put("edition", itemData.get("enumeration") + " " + itemData.get("chron"));
+                                            parameters.put("edition", itemData.getOrDefault("enumeration","") + " " + itemData.getOrDefault("chron",""));
                                             buttonContent = ButtonLinkPresentation.buildMultiVolumeButtonProperties(parameters, button);
                                         } else {
                                             logger.debug("Generating a single item button");
