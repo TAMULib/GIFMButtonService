@@ -294,7 +294,12 @@ public class GetItForMeService {
                                 for (GetItForMeButton button : this.getRegisteredButtons(catalogName)) {
                                     logger.debug("Analyzing: " + button.toString());
 
-                                    String itemStatusCode = itemData.containsKey("itemStatusCode") ? itemData.get("itemStatusCode"):null;
+                                    String itemStatusCode = null;
+                                    if (itemData.containsKey("itemStatusCode")) {
+                                        itemStatusCode = itemData.get("itemStatusCode");
+                                    } else if (itemData.containsKey("status")) {
+                                        itemStatusCode = itemData.get("status");
+                                    }
 
                                     logger.debug("Location: " + currentLocation + ": "
                                             + button.fitsLocation(currentLocation));
@@ -316,8 +321,9 @@ public class GetItForMeService {
 
                                         for (String parameterKey : parameterKeys) {
                                             if (parameterKey.equals("sid")) {
-                                                parameters.put(parameterKey, getCatalogConfigurationByName(catalogName).get("sidPrefix")
-                                                        + ":" + button.getSID());
+                                                String fullSid = (getCatalogConfigurationByName(catalogName) != null ? getCatalogConfigurationByName(catalogName).get("sidPrefix")
+                                                        + ":":"") + button.getSID();
+                                                parameters.put(parameterKey, fullSid);
                                             } else {
                                                 parameters.put(parameterKey, itemData.get(parameterKey));
                                             }
