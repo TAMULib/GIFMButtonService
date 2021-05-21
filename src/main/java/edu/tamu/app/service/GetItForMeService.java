@@ -409,53 +409,6 @@ public class GetItForMeService {
         return skipButtons;
     }
 
-    public Map<String,String> getTextCallNumberButton(String catalogName, String bibId, String holdingId) {
-        Map<String,String> textCallNumberButtonContent = new HashMap<String,String>();
-        String locationCode = "";
-        String locationName = "";
-        String itemStatus = "";
-
-        CatalogHolding holding = this.getHolding(catalogName, bibId, holdingId);
-
-        Iterator<Map.Entry<String, Map<String,String>>> itemsIterator = holding.getCatalogItems().entrySet().iterator();
-        while(itemsIterator.hasNext()) {
-            Map.Entry<String,Map<String,String>> entry = itemsIterator.next();
-            Map<String,String> itemData = entry.getValue();
-            itemStatus = itemData.get("itemStatus");
-            if (catalogName.equals("evans") && holding.getFallbackLocationCode().isEmpty() && holding.getFallbackLocationCode().equals("stk") && (holding.getCallNumber().contains("THESIS") || holding.getCallNumber().contains("RECORD") || holding.getCallNumber().contains("DISSERTATION"))) {
-                locationCode = "tdr";
-                locationName = holding.getFallbackLocationCode();
-                break;
-            } else if (itemData.containsKey("tempLocationCode")) {
-                locationCode = itemData.get("tempLocationCode");
-                locationName = itemData.get("tempLocation");
-                break;
-            } else if (itemData.containsKey("permLocationCode")) {
-                locationCode = itemData.get("permLocationCode");
-                locationName = itemData.get("permLocation");
-            } else {
-                locationCode = holding.getFallbackLocationCode();
-                //we don't have access to a friendly location name at the holding level, so reuse location code
-                locationName = holding.getFallbackLocationCode();
-            }
-
-        }
-
-        textCallNumberButtonContent.put("title", holding.getTitle());
-        textCallNumberButtonContent.put("call", holding.getCallNumber());
-        textCallNumberButtonContent.put("loc", locationName);
-        if (holding.getCatalogItems().size() == 1) {
-            textCallNumberButtonContent.put("status", itemStatus);
-        }
-
-        logger.debug("*** Text A Call Number Button for holding: "+holdingId+" ***");
-        textCallNumberButtonContent.forEach((k,v) -> {
-            logger.debug(k+": "+v);
-        });
-        return textCallNumberButtonContent;
-    }
-
-
     private Map<String,String> buildHoldingParameters(Map<String,String> parameters, CatalogHolding holding) {
         // these template parameter keys are a special case, and come from the parent
         // holding, rather than the item data itself
