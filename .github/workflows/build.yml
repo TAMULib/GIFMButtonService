@@ -22,10 +22,3 @@ jobs:
 
       - name: "Maven Test"
         run: mvn clean test jacoco:report -DdryRun=true
-
-      - name: "Send to Coveralls (build java-${{ github.run_number }})"
-        uses: MikeEdgar/github-action@raw_coverage_file
-        with:
-          github-token: ${{ secrets.github_token }}
-          path-to-file: './target/coveralls.json'
-          coverage-format: raw
