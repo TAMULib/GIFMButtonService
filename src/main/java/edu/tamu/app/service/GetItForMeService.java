@@ -337,7 +337,7 @@ public class GetItForMeService {
                                         if (holding.isMultiVolume()) {
                                             logger.debug("Generating a multi volume button");
                                             parameters.put("edition", itemData.getOrDefault("enumeration","") + " " + itemData.getOrDefault("chron",""));
-                                            buttonContent = ButtonLinkPresentation.buildMultiVolumeButtonProperties(parameters, button);
+                                            buttonContent = ButtonLinkPresentation.buildMultiVolumeButtonProperties(parameters, button, catalogName.equals("evans") || catalogName.equals("msl"));
                                         } else {
                                             logger.debug("Generating a single item button");
                                             buttonContent = ButtonLinkPresentation.buildButtonProperties(parameters, button);

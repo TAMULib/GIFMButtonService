@@ -50,9 +50,11 @@ public class ButtonLinkPresentation extends AbstractButtonPresentation {
         return buttonContent;
     }
 
-    public static Map<String,String> buildMultiVolumeButtonProperties(Map<String,String> parameters, GetItForMeButton button) {
+    public static Map<String,String> buildMultiVolumeButtonProperties(Map<String,String> parameters, GetItForMeButton button, boolean withEdition) {
         Map<String,String> buttonContent = buildButtonProperties(parameters, button);
-        buttonContent.put("linkText",parameters.get("edition")+" | "+button.getLinkText());
+        if (withEdition) {
+            buttonContent.put("linkText",parameters.get("edition")+" | "+button.getLinkText());
+        }
         return buttonContent;
     }
 }
