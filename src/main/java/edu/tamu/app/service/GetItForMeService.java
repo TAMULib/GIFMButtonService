@@ -281,9 +281,12 @@ public class GetItForMeService {
                                 currentLocation = itemData.get("tempLocationCode");
                             } else if (itemData.containsKey("permLocationCode")) {
                                 currentLocation = itemData.get("permLocationCode");
+                            } else if (itemData.containsKey("locationCode")) {
+                                currentLocation = itemData.get("locationCode");
                             } else {
                                 currentLocation = holding.getFallbackLocationCode();
                             }
+
                             logger.debug("Current Location is: " + currentLocation);
                             //check if the global override blocks buttons for this item
                             if (!skipAllButtons(currentLocation, itemData)) {
@@ -291,7 +294,12 @@ public class GetItForMeService {
                                 for (GetItForMeButton button : this.getRegisteredButtons(catalogName)) {
                                     logger.debug("Analyzing: " + button.toString());
 
-                                    String itemStatusCode = itemData.containsKey("itemStatusCode") ? itemData.get("itemStatusCode"):null;
+                                    String itemStatusCode = null;
+                                    if (itemData.containsKey("itemStatusCode")) {
+                                        itemStatusCode = itemData.get("itemStatusCode");
+                                    } else if (itemData.containsKey("status")) {
+                                        itemStatusCode = itemData.get("status");
+                                    }
 
                                     logger.debug("Location: " + currentLocation + ": "
                                             + button.fitsLocation(currentLocation));
@@ -313,8 +321,9 @@ public class GetItForMeService {
 
                                         for (String parameterKey : parameterKeys) {
                                             if (parameterKey.equals("sid")) {
-                                                parameters.put(parameterKey, getCatalogConfigurationByName(catalogName).get("sidPrefix")
-                                                        + ":" + button.getSID());
+                                                String fullSid = (getCatalogConfigurationByName(catalogName) != null ? getCatalogConfigurationByName(catalogName).get("sidPrefix")
+                                                        + ":":"") + button.getSID();
+                                                parameters.put(parameterKey, fullSid);
                                             } else {
                                                 parameters.put(parameterKey, itemData.get(parameterKey));
                                             }
@@ -327,7 +336,7 @@ public class GetItForMeService {
                                         Map<String, String> buttonContent = new HashMap<String,String>();
                                         if (holding.isMultiVolume()) {
                                             logger.debug("Generating a multi volume button");
-                                            parameters.put("edition", itemData.get("enumeration") + " " + itemData.get("chron"));
+                                            parameters.put("edition", itemData.getOrDefault("enumeration","") + " " + itemData.getOrDefault("chron",""));
                                             buttonContent = ButtonLinkPresentation.buildMultiVolumeButtonProperties(parameters, button);
                                         } else {
                                             logger.debug("Generating a single item button");
