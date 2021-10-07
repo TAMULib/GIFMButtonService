@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+  <ctx:context-objects xmlns:ctx="info:ofi/fmt:xml:xsd:ctx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="info:ofi/fmt:xml:xsd:ctx http://www.openurl.info/registry/docs/info:ofi/fmt:xml:xsd:ctx">
+    <ctx:context-object version="Z39.88-2004" identifier="123">
+      <ctx:referent>
+        <ctx:metadata-by-val>
+          <ctx:format>info:ofi/fmt:xml:xsd:journal</ctx:format>
+          <ctx:metadata>
+            <rft:journal xmlns:rft="info:ofi/fmt:xml:xsd:journal" xsi:schemaLocation="info:ofi/fmt:xml:xsd:journal http://www.openurl.info/registry/docs/info:ofi/fmt:xml:xsd:journal">
+                %s
+            </rft:journal>
+          </ctx:metadata>
+        </ctx:metadata-by-val>
+      </ctx:referent>
+      <ctx:referrer>
+        <ctx:identifier>sfx:e_collection</ctx:identifier>
+      </ctx:referrer>
+      <ctx:service-type>
+       <ctx:metadata-by-val>
+         <ctx:format>info:ofi/fmt:xml:xsd:sch_svc</ctx:format>
+           <ctx:metadata>
+           <sv:fulltext xmlns:sv="info:ofi/fmt:xml:xsd:sch_svc">yes</sv:fulltext>
+         </ctx:metadata>
+       </ctx:metadata-by-val>
+      </ctx:service-type>
+      <sfx>
+        <metadata-by-val>
+          <metadata>
+            <ignore_date_threshold>1</ignore_date_threshold>
+          </metadata>
+        </metadata-by-val>
+      </sfx>
+    </ctx:context-object>
+  </ctx:context-objects>

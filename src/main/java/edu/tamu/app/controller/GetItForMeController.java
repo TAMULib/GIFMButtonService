@@ -3,25 +3,37 @@ package edu.tamu.app.controller;
 import static edu.tamu.weaver.response.ApiStatus.ERROR;
 import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import edu.tamu.app.model.ButtonPresentation;
 import edu.tamu.app.service.GetItForMeService;
+import edu.tamu.app.service.SfxService;
+import edu.tamu.app.service.TextCallNumberService;
 import edu.tamu.weaver.response.ApiResponse;
 
 @RestController
 @RequestMapping("/catalog-access")
 public class GetItForMeController {
     @Autowired
-    GetItForMeService getItForMeService;
+    private GetItForMeService getItForMeService;
+
+    @Autowired
+    private TextCallNumberService textCallNumberService;
+
+    @Autowired
+    private SfxService sfxService;
 
 	/**
 	 * Provides fully formatted HTML buttons, keyed by item MFHD
@@ -81,11 +93,30 @@ public class GetItForMeController {
      */
     @RequestMapping("/text-call-number")
     public ApiResponse textCall(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId, @RequestParam("holdingId") String holdingId) {
-        Map<String,String> buttonData = getItForMeService.getTextCallNumberButton(catalogName, bibId, holdingId);
+        Map<String,String> buttonData = textCallNumberService.getTextCallNumberButton(catalogName, bibId, holdingId);
         if (buttonData != null) {
-            return new ApiResponse(SUCCESS, getItForMeService.getTextCallNumberButton(catalogName, bibId, holdingId));
+            return new ApiResponse(SUCCESS, buttonData);
         } else {
             return new ApiResponse(ERROR,"Error processing Catalog or Holding");
         }
+    }
+
+    /**
+     * Returns the result of a check for full text for a given openurl
+     *
+     * @param url String a urlencoded url
+     * @return
+     */
+
+    @RequestMapping("/check-full-text")
+    public ApiResponse checkFullText(@RequestParam("url") String url) {
+        String[] urlChunks = URLDecoder.decode(url, StandardCharsets.UTF_8).split("=", 2);
+        MultiValueMap<String, String> parameters =
+                UriComponentsBuilder.fromUriString(urlChunks[1]).build().getQueryParams();
+        Map<String,String> resolverValues = new HashMap<String,String>();
+        parameters.forEach((k,v) -> {
+            resolverValues.put(k,v.get(0));
+        });
+        return new ApiResponse(SUCCESS, sfxService.hasFullText(resolverValues));
     }
 }
