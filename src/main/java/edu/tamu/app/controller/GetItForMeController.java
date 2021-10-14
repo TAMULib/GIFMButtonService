@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import edu.tamu.app.model.ButtonPresentation;
+import edu.tamu.app.model.CatalogHolding;
+import edu.tamu.app.service.CatalogService;
 import edu.tamu.app.service.GetItForMeService;
 import edu.tamu.app.service.SfxService;
 import edu.tamu.app.service.TextCallNumberService;
@@ -34,6 +36,9 @@ public class GetItForMeController {
 
     @Autowired
     private SfxService sfxService;
+
+    @Autowired
+    private CatalogService catalogService;
 
 	/**
 	 * Provides fully formatted HTML buttons, keyed by item MFHD
@@ -118,5 +123,21 @@ public class GetItForMeController {
             resolverValues.put(k,v.get(0));
         });
         return new ApiResponse(SUCCESS, sfxService.hasFullText(resolverValues));
+    }
+
+    /**
+     * Forwards the record data from the Catalog Service.
+     * @param String catalogName (optional)
+     * @param String recordId
+     * @return
+     */
+    @RequestMapping("/get-record")
+    public ApiResponse getRecord(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("recordId") String recordId) {
+        List<CatalogHolding> catalogHoldings = catalogService.getHoldingsByBibId(catalogName, recordId);
+        if (catalogHoldings != null) {
+            return new ApiResponse(SUCCESS, catalogHoldings);
+        } else {
+            return new ApiResponse(ERROR,"Error retrieving Catalog or Holding");
+        }
     }
 }
