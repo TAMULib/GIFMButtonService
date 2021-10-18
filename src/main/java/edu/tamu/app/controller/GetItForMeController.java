@@ -71,8 +71,8 @@ public class GetItForMeController {
 	 * @return
 	 */
 	@RequestMapping("/get-buttons")
-	public ApiResponse getButtonsByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId) {
-		Map<String,ButtonPresentation> buttonData = getItForMeService.getButtonDataByBibId(catalogName, bibId);
+	public ApiResponse getButtonsByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId, @RequestParam(value="verbose",defaultValue="false") boolean verbose) {
+		Map<String,ButtonPresentation> buttonData = getItForMeService.getButtonDataByBibId(catalogName, bibId, verbose);
 		if (buttonData != null) {
 		    return new ApiResponse(SUCCESS,buttonData);
 		} else {
@@ -85,8 +85,8 @@ public class GetItForMeController {
      * @return
      */
 	@RequestMapping("/get-button-config")
-	public ApiResponse getButtonConfiguration() {
-	    return new ApiResponse(SUCCESS,"Current Button Configuration",getItForMeService.getRegisteredButtons());
+	public ApiResponse getButtonConfiguration(@RequestParam(value="catalogName",defaultValue="evans") String catalogName) {
+	    return new ApiResponse(SUCCESS,"Current Button Configuration",getItForMeService.getRegisteredButtons(catalogName));
 	}
 
     /**
