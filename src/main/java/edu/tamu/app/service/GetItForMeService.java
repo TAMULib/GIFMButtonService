@@ -261,16 +261,19 @@ public class GetItForMeService {
                                     logger.debug(buttonContent.get("linkHref"));
                                 }
                                 if (buttonMatch && verbose) {
-                                    buttonContent.put("analysis", "valid");
+                                    buttonContent.put("analysis", "Analysis for "+((PersistedButton) button).getName()+": met requirements");
+                                    buttonContent.put("valid", Boolean.TRUE.toString());
                                 } else {
                                     StringBuilder analysis = new StringBuilder();
+                                    analysis.append("Analysis for "+((PersistedButton) button).getName()+":");
                                     if (!button.fitsRecordType(holding.getMarcRecordLeader())) {
-                                        analysis.append("/ Did not find Record Type ("+holding.getMarcRecordLeader()+") in: "+((PersistedButton) button).getRecordType().toString());
+                                        analysis.append(" / Did not find Record Type ("+holding.getMarcRecordLeader()+") in: "+((PersistedButton) button).getRecordType().toString());
                                     }
                                     if (!button.fitsLocation(holding.getFallbackLocationCode())) {
-                                        analysis.append("/ Did not find Location ("+holding.getFallbackLocationCode()+" in: "+((PersistedButton) button).getLocationCodes().toString());
+                                        analysis.append(" / Did not find Location ("+holding.getFallbackLocationCode()+" in: "+((PersistedButton) button).getLocationCodes().toString());
                                     }
                                     buttonContent.put("analysis", analysis.toString());
+                                    buttonContent.put("valid", Boolean.FALSE.toString());
                                 }
 
                                 // add the button to the list for the holding's MFHD
@@ -395,25 +398,28 @@ public class GetItForMeService {
                                         buttonContent.put("itemKey", itemIdentifier);
 
                                         if (buttonMatch && verbose) {
-                                            buttonContent.put("analysis","valid");
+                                            buttonContent.put("analysis", "Analysis for "+((PersistedButton) button).getName()+": met requirements");
+                                            buttonContent.put("valid", Boolean.TRUE.toString());
                                         } else {
                                             StringBuilder analysis = new StringBuilder();
+                                            analysis.append("Analysis for "+((PersistedButton) button).getName()+":");
                                             if (!button.getActive()) {
-                                                analysis.append("/ Button is inactive");
+                                                analysis.append(" / Button is inactive");
                                             }
                                             if (!button.fitsRecordType(holding.getMarcRecordLeader())) {
-                                                analysis.append("/ Did not find Record Type ("+holding.getMarcRecordLeader()+") in: "+((PersistedButton) button).getRecordType());
+                                                analysis.append(" / Did not find Record Type ("+holding.getMarcRecordLeader()+") in: "+((PersistedButton) button).getRecordType());
                                             }
                                             if (!button.fitsLocation(currentLocation)) {
-                                                analysis.append("/ Did not find Location ("+currentLocation+") in: "+((PersistedButton) button).getLocationCodes().toString());
+                                                analysis.append(" / Did not find Location ("+currentLocation+") in: "+((PersistedButton) button).getLocationCodes().toString());
                                             }
                                             if (!button.fitsItemType(itemData.get("typeDesc"))) {
-                                                analysis.append("/ Did not find Item Type ("+itemData.get("typeDesc")+") in: "+((PersistedButton) button).getItemTypeCodes().toString());
+                                                analysis.append(" / Did not find Item Type ("+itemData.get("typeDesc")+") in: "+((PersistedButton) button).getItemTypeCodes().toString());
                                             }
                                             if (!button.fitsItemStatus(itemStatusCode)) {
-                                                analysis.append("/ Did not find Item Status ("+itemStatusCode+") in: "+((PersistedButton) button).getItemStatusCodes().toString());
+                                                analysis.append(" / Did not find Item Status ("+itemStatusCode+") in: "+((PersistedButton) button).getItemStatusCodes().toString());
                                             }
                                             buttonContent.put("analysis", analysis.toString());
+                                            buttonContent.put("valid", Boolean.FALSE.toString());
                                         }
 
                                         // add the button to the list for the holding's MFHD
