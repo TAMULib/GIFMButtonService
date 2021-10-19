@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import edu.tamu.app.model.ButtonPresentation;
-import edu.tamu.app.service.CatalogService;
 import edu.tamu.app.service.GetItForMeService;
 import edu.tamu.app.service.SfxService;
 import edu.tamu.app.service.TextCallNumberService;
