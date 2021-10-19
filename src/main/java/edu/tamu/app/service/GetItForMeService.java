@@ -1,11 +1,9 @@
 package edu.tamu.app.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -236,7 +234,6 @@ public class GetItForMeService {
                             boolean buttonMatch = button.fitsRecordType(holding.getMarcRecordLeader())
                                                     && button.fitsLocation(holding.getFallbackLocationCode());
                             if (buttonMatch || verbose) {
-                                logger.debug("Generating itemless button: "+button.getLinkText());
                                 // used to build the button's link from the template parameter keys it provides
 
                                 List<String> parameterKeys = button.getTemplateParameterKeys();
@@ -255,25 +252,27 @@ public class GetItForMeService {
 
                                 // generate the button data
                                 Map<String, String> buttonContent = ButtonLinkPresentation.buildButtonProperties(parameters, button);
+
                                 if (buttonMatch) {
-                                    logger.debug("We want the itemless button with text: " + button.getLinkText());
-                                    logger.debug("It looks like: ");
-                                    logger.debug(buttonContent.get("linkHref"));
-                                }
-                                if (buttonMatch && verbose) {
-                                    buttonContent.put("analysis", "Analysis for "+((PersistedButton) button).getName()+": met requirements");
-                                    buttonContent.put("valid", Boolean.TRUE.toString());
+                                    String analysis = "Analysis for "+((PersistedButton) button).getName()+": met requirements";
+                                    if (verbose) {
+                                        buttonContent.put("analysis", analysis);
+                                        buttonContent.put("valid", Boolean.TRUE.toString());
+                                    }
+                                    logger.debug(analysis);
                                 } else {
-                                    StringBuilder analysis = new StringBuilder();
-                                    analysis.append("Analysis for "+((PersistedButton) button).getName()+":");
+                                    StringBuilder analysisBuilder = new StringBuilder();
+                                    analysisBuilder.append("Analysis for "+((PersistedButton) button).getName()+":");
                                     if (!button.fitsRecordType(holding.getMarcRecordLeader())) {
-                                        analysis.append(" / Did not find Record Type ("+holding.getMarcRecordLeader()+") in: "+((PersistedButton) button).getRecordType().toString());
+                                        analysisBuilder.append(" / Did not find Record Type ("+holding.getMarcRecordLeader()+") in: "+((PersistedButton) button).getRecordType().toString());
                                     }
                                     if (!button.fitsLocation(holding.getFallbackLocationCode())) {
-                                        analysis.append(" / Did not find Location ("+holding.getFallbackLocationCode()+" in: "+((PersistedButton) button).getLocationCodes().toString());
+                                        analysisBuilder.append(" / Did not find Location ("+holding.getFallbackLocationCode()+" in: "+((PersistedButton) button).getLocationCodes().toString());
                                     }
-                                    buttonContent.put("analysis", analysis.toString());
+                                    String analysis = analysisBuilder.toString();
+                                    buttonContent.put("analysis", analysis);
                                     buttonContent.put("valid", Boolean.FALSE.toString());
+                                    logger.debug(analysis);
                                 }
 
                                 // add the button to the list for the holding's MFHD
@@ -309,7 +308,7 @@ public class GetItForMeService {
                     } else {
                         // Path 3: The 'normal' approach: Check all the items for each holding and create a button if a given item passes the tests
                         holding.getCatalogItems().forEach((itemIdentifier, itemData) -> {
-                            logger.debug("Checking holding URI: " + itemIdentifier);
+                            logger.debug("Checking item: " + itemIdentifier);
                             String currentLocation = null;
                             if (itemData.containsKey("tempLocationCode")) {
                                 currentLocation = itemData.get("tempLocationCode");
@@ -321,26 +320,18 @@ public class GetItForMeService {
                                 currentLocation = holding.getFallbackLocationCode();
                             }
 
-                            logger.debug("Current Location is: " + currentLocation);
                             //check if the global override blocks buttons for this item
                             if (!skipAllButtons(currentLocation, itemData)) {
                                 // check all registered button for each item
                                 for (GetItForMeButton button : this.getRegisteredButtons(catalogName)) {
-                                    logger.debug("Analyzing: " + button.toString());
+                                    String currentButtonName = ((PersistedButton) button).getName();
+                                    logger.debug("Analyzing: " + currentButtonName);
 
                                     String itemStatusCode = null;
                                     if (itemData.containsKey("itemStatusCode")) {
                                         itemStatusCode = itemData.get("itemStatusCode");
                                     } else if (itemData.containsKey("status")) {
                                         itemStatusCode = itemData.get("status");
-                                    }
-                                    if (logger.isDebugEnabled()) {
-                                        logger.debug("Location: " + currentLocation + ": "
-                                                + button.fitsLocation(currentLocation));
-                                        logger.debug("TypeDesc: " + itemData.get("typeDesc") + ": "
-                                                + button.fitsItemType(itemData.get("typeDesc")));
-                                        logger.debug("Status: " + itemStatusCode + ": "
-                                                + button.fitsItemStatus(itemStatusCode));
                                     }
 
                                     // test the current item against the current GetItForMe button's requirements
@@ -373,60 +364,63 @@ public class GetItForMeService {
                                         Map<String, String> buttonContent = new HashMap<String,String>();
                                         if (holding.isMultiVolume()) {
                                             if (buttonMatch) {
-                                                logger.debug("Generating a multi volume button");
+                                                logger.debug("Generating "+currentButtonName+" as a multi volume button");
                                             }
                                             parameters.put("edition", itemData.getOrDefault("enumeration","") + " " + itemData.getOrDefault("chron",""));
                                             buttonContent = ButtonLinkPresentation.buildMultiVolumeButtonProperties(parameters, button, catalogName.equals("evans") || catalogName.equals("msl"));
                                         } else {
                                             if (buttonMatch) {
-                                                logger.debug("Generating a single item button");
+                                                logger.debug("Generating "+currentButtonName+" as a single item button "+currentButtonName);
                                             }
                                             buttonContent = ButtonLinkPresentation.buildButtonProperties(parameters, button);
                                         }
 
                                         // generate unique link for the current button
                                         String linkHref = ButtonLinkPresentation.renderTemplate(parameters, button.getLinkTemplate());
-                                        if (buttonMatch) {
-                                            logger.debug("We want the button with text: " + button.getLinkText());
-                                            logger.debug("It looks like: ");
-                                            logger.debug(linkHref);
-                                        }
 
                                         buttonContent.put("linkHref", linkHref);
                                         buttonContent.put("cssClasses", "button-gifm" + ((button.getCssClasses() != null) ? " "+button.getCssClasses():""));
                                         //add the item's unique identifier to the corresponding button
                                         buttonContent.put("itemKey", itemIdentifier);
 
-                                        if (buttonMatch && verbose) {
-                                            buttonContent.put("analysis", "Analysis for "+((PersistedButton) button).getName()+": met requirements");
-                                            buttonContent.put("valid", Boolean.TRUE.toString());
+                                        if (buttonMatch) {
+                                            String analysis = "Analysis for "+currentButtonName+": met requirements";
+                                            if (verbose) {
+                                                buttonContent.put("analysis", analysis);
+                                                buttonContent.put("valid", Boolean.TRUE.toString());
+                                            }
+                                            logger.debug(analysis);
                                         } else {
-                                            StringBuilder analysis = new StringBuilder();
-                                            analysis.append("Analysis for "+((PersistedButton) button).getName()+":");
+                                            StringBuilder analysisBuilder = new StringBuilder();
+                                            analysisBuilder.append("Analysis for "+currentButtonName+":");
                                             if (!button.getActive()) {
-                                                analysis.append(" / Button is inactive");
+                                                analysisBuilder.append(" / Button is inactive");
                                             }
                                             if (!button.fitsRecordType(holding.getMarcRecordLeader())) {
-                                                analysis.append(" / Did not find Record Type ("+holding.getMarcRecordLeader()+") in: "+((PersistedButton) button).getRecordType());
+                                                analysisBuilder.append(" / Did not find Record Type ("+holding.getMarcRecordLeader()+") in: "+((PersistedButton) button).getRecordType());
                                             }
                                             if (!button.fitsLocation(currentLocation)) {
-                                                analysis.append(" / Did not find Location ("+currentLocation+") in: "+((PersistedButton) button).getLocationCodes().toString());
+                                                analysisBuilder.append(" / Did not find Location ("+currentLocation+") in: "+((PersistedButton) button).getLocationCodes().toString());
                                             }
                                             if (!button.fitsItemType(itemData.get("typeDesc"))) {
-                                                analysis.append(" / Did not find Item Type ("+itemData.get("typeDesc")+") in: "+((PersistedButton) button).getItemTypeCodes().toString());
+                                                analysisBuilder.append(" / Did not find Item Type ("+itemData.get("typeDesc")+") in: "+((PersistedButton) button).getItemTypeCodes().toString());
                                             }
                                             if (!button.fitsItemStatus(itemStatusCode)) {
-                                                analysis.append(" / Did not find Item Status ("+itemStatusCode+") in: "+((PersistedButton) button).getItemStatusCodes().toString());
+                                                analysisBuilder.append(" / Did not find Item Status ("+itemStatusCode+") in: "+((PersistedButton) button).getItemStatusCodes().toString());
                                             }
-                                            buttonContent.put("analysis", analysis.toString());
-                                            buttonContent.put("valid", Boolean.FALSE.toString());
+                                            String analysis = analysisBuilder.toString();
+                                            if (verbose) {
+                                                buttonContent.put("analysis", analysis);
+                                                buttonContent.put("valid", Boolean.FALSE.toString());
+                                            }
+                                            logger.debug(analysis);
                                         }
 
                                         // add the button to the list for the holding's MFHD
                                         //presentableHoldings.get(holding.getMfhd()).add(buttonContent);
                                         holdingButtons.add(buttonContent);
                                     } else {
-                                        logger.debug("We should skip the button with text: " + button.getLinkText());
+                                        logger.debug("We should skip the button "+currentButtonName+" for: "+itemIdentifier);
                                     }
                                 }
                             }
