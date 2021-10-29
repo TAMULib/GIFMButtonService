@@ -1,11 +1,9 @@
 package edu.tamu.app.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -197,8 +195,21 @@ public class GetItForMeService {
      * @param bibId
      * @return Map<String,List<Map<String,String>>>
      */
-
     public Map<String,ButtonPresentation> getButtonDataByBibId(String catalogName, String bibId) {
+        return getButtonDataByBibId(catalogName, bibId, false);
+    }
+
+    /**
+     * Gets a list of CatalogHolding by bibId, runs registered button test
+     * eligibility for all the items in that holding, and builds and returns the
+     * resulting button data with optional detailed test results, keyed by the holding's MFHD.
+     *
+     * @param catalogName
+     * @param bibId
+     * @param verbose
+     * @return Map<String,List<Map<String,String>>>
+     */
+    public Map<String,ButtonPresentation> getButtonDataByBibId(String catalogName, String bibId, boolean verbose) {
         List<CatalogHolding> catalogHoldings;
         catalogHoldings = this.getHoldingsByBibId(catalogName, bibId);
         if (catalogHoldings != null) {
@@ -218,36 +229,58 @@ public class GetItForMeService {
                 if (holding.getCatalogItems().size() == 0) {
                     for (GetItForMeButton button : this.getRegisteredButtons(catalogName)) {
                         //the 'purchase' button is the only one that can show up for holdings with no items
-                        if (button.getActive() && button.getSID().equalsIgnoreCase("purchase") && button.fitsRecordType(holding.getMarcRecordLeader())
-                                && button.fitsLocation(holding.getFallbackLocationCode())) {
-                            logger.debug("Generating itemless button: "+button.getLinkText());
-                            // used to build the button's link from the template parameter keys it provides
+                        boolean isPurchaseButton = button.getActive() && button.getSID().equalsIgnoreCase("purchase");
+                        if (isPurchaseButton) {
+                            boolean buttonMatch = button.fitsRecordType(holding.getMarcRecordLeader())
+                                                    && button.fitsLocation(holding.getFallbackLocationCode());
+                            if (buttonMatch || verbose) {
+                                // used to build the button's link from the template parameter keys it provides
 
-                            List<String> parameterKeys = button.getTemplateParameterKeys();
-                            Map<String, String> parameters = new HashMap<String, String>();
+                                List<String> parameterKeys = button.getTemplateParameterKeys();
+                                Map<String, String> parameters = new HashMap<String, String>();
 
-                            for (String parameterKey : parameterKeys) {
-                                if (parameterKey.equals("sid")) {
-                                    parameters.put(parameterKey, getCatalogConfigurationByName(catalogName).get("sidPrefix")
-                                            + ":" + button.getSID());
-                                } else {
-                                    parameters.put(parameterKey, null);
+                                for (String parameterKey : parameterKeys) {
+                                    if (parameterKey.equals("sid")) {
+                                        parameters.put(parameterKey, getCatalogConfigurationByName(catalogName).get("sidPrefix")
+                                                + ":" + button.getSID());
+                                    } else {
+                                        parameters.put(parameterKey, null);
+                                    }
                                 }
+
+                                parameters = buildHoldingParameters(parameters, holding);
+
+                                // generate the button data
+                                Map<String, String> buttonContent = ButtonLinkPresentation.buildButtonProperties(parameters, button);
+
+                                if (buttonMatch) {
+                                    String analysis = "Analysis for "+((PersistedButton) button).getName()+": met requirements";
+                                    if (verbose) {
+                                        buttonContent.put("analysis", analysis);
+                                        buttonContent.put("valid", Boolean.TRUE.toString());
+                                    }
+                                    logger.debug(analysis);
+                                } else {
+                                    StringBuilder analysisBuilder = new StringBuilder();
+                                    analysisBuilder.append("Analysis for "+((PersistedButton) button).getName()+":");
+                                    if (!button.fitsRecordType(holding.getMarcRecordLeader())) {
+                                        analysisBuilder.append(" / Did not find Record Type ("+holding.getMarcRecordLeader()+") in: "+((PersistedButton) button).getRecordType().toString());
+                                    }
+                                    if (!button.fitsLocation(holding.getFallbackLocationCode())) {
+                                        analysisBuilder.append(" / Did not find Location ("+holding.getFallbackLocationCode()+" in: "+((PersistedButton) button).getLocationCodes().toString());
+                                    }
+                                    String analysis = analysisBuilder.toString();
+                                    buttonContent.put("analysis", analysis);
+                                    buttonContent.put("valid", Boolean.FALSE.toString());
+                                    logger.debug(analysis);
+                                }
+
+                                // add the button to the list for the holding's MFHD
+                                holdingButtons.add(buttonContent);
                             }
 
-                            parameters = buildHoldingParameters(parameters, holding);
-
-                            // generate the button data
-                            Map<String, String> buttonContent = ButtonLinkPresentation.buildButtonProperties(parameters, button);
-
-                            logger.debug("We want the itemless button with text: " + button.getLinkText());
-                            logger.debug("It looks like: ");
-                            logger.debug(buttonContent.get("linkHref"));
-
-                            // add the button to the list for the holding's MFHD
-                            holdingButtons.add(buttonContent);
-
                         }
+
                         if (holdingButtons.size() > 0) {
                             presentableHoldings.put(holding.getMfhd(), new ButtonLinkPresentation(holdingButtons));
                         }
@@ -275,7 +308,7 @@ public class GetItForMeService {
                     } else {
                         // Path 3: The 'normal' approach: Check all the items for each holding and create a button if a given item passes the tests
                         holding.getCatalogItems().forEach((itemIdentifier, itemData) -> {
-                            logger.debug("Checking holding URI: " + itemIdentifier);
+                            logger.debug("Checking item: " + itemIdentifier);
                             String currentLocation = null;
                             if (itemData.containsKey("tempLocationCode")) {
                                 currentLocation = itemData.get("tempLocationCode");
@@ -287,12 +320,12 @@ public class GetItForMeService {
                                 currentLocation = holding.getFallbackLocationCode();
                             }
 
-                            logger.debug("Current Location is: " + currentLocation);
                             //check if the global override blocks buttons for this item
                             if (!skipAllButtons(currentLocation, itemData)) {
                                 // check all registered button for each item
                                 for (GetItForMeButton button : this.getRegisteredButtons(catalogName)) {
-                                    logger.debug("Analyzing: " + button.toString());
+                                    String currentButtonName = ((PersistedButton) button).getName();
+                                    logger.debug("Analyzing: " + currentButtonName);
 
                                     String itemStatusCode = null;
                                     if (itemData.containsKey("itemStatusCode")) {
@@ -301,20 +334,15 @@ public class GetItForMeService {
                                         itemStatusCode = itemData.get("status");
                                     }
 
-                                    logger.debug("Location: " + currentLocation + ": "
-                                            + button.fitsLocation(currentLocation));
-                                    logger.debug("TypeDesc: " + itemData.get("typeDesc") + ": "
-                                            + button.fitsItemType(itemData.get("typeDesc")));
-                                    logger.debug("Status: " + itemStatusCode + ": "
-                                            + button.fitsItemStatus(itemStatusCode));
-
                                     // test the current item against the current GetItForMe button's requirements
                                     // for eligibility
-                                    if (button.getActive()
-                                            && button.fitsRecordType(holding.getMarcRecordLeader())
-                                            && button.fitsLocation(currentLocation)
-                                            && button.fitsItemType(itemData.get("typeDesc"))
-                                            && button.fitsItemStatus(itemStatusCode)) {
+                                    boolean buttonMatch = button.getActive()
+                                                            && button.fitsRecordType(holding.getMarcRecordLeader())
+                                                            && button.fitsLocation(currentLocation)
+                                                            && button.fitsItemType(itemData.get("typeDesc"))
+                                                            && button.fitsItemStatus(itemStatusCode);
+
+                                    if (buttonMatch || verbose) {
                                         // used to build the button's link from the template parameter keys it provides
                                         List<String> parameterKeys = button.getTemplateParameterKeys();
                                         Map<String, String> parameters = new HashMap<String, String>();
@@ -335,30 +363,64 @@ public class GetItForMeService {
                                         // button represents
                                         Map<String, String> buttonContent = new HashMap<String,String>();
                                         if (holding.isMultiVolume()) {
-                                            logger.debug("Generating a multi volume button");
+                                            if (buttonMatch) {
+                                                logger.debug("Generating "+currentButtonName+" as a multi volume button");
+                                            }
                                             parameters.put("edition", itemData.getOrDefault("enumeration","") + " " + itemData.getOrDefault("chron",""));
                                             buttonContent = ButtonLinkPresentation.buildMultiVolumeButtonProperties(parameters, button, catalogName.equals("evans") || catalogName.equals("msl"));
                                         } else {
-                                            logger.debug("Generating a single item button");
+                                            if (buttonMatch) {
+                                                logger.debug("Generating "+currentButtonName+" as a single item button "+currentButtonName);
+                                            }
                                             buttonContent = ButtonLinkPresentation.buildButtonProperties(parameters, button);
                                         }
 
                                         // generate unique link for the current button
                                         String linkHref = ButtonLinkPresentation.renderTemplate(parameters, button.getLinkTemplate());
-                                        logger.debug("We want the button with text: " + button.getLinkText());
-                                        logger.debug("It looks like: ");
-                                        logger.debug(linkHref);
 
                                         buttonContent.put("linkHref", linkHref);
                                         buttonContent.put("cssClasses", "button-gifm" + ((button.getCssClasses() != null) ? " "+button.getCssClasses():""));
                                         //add the item's unique identifier to the corresponding button
                                         buttonContent.put("itemKey", itemIdentifier);
 
+                                        if (buttonMatch) {
+                                            String analysis = "Analysis for "+currentButtonName+": met requirements";
+                                            if (verbose) {
+                                                buttonContent.put("analysis", analysis);
+                                                buttonContent.put("valid", Boolean.TRUE.toString());
+                                            }
+                                            logger.debug(analysis);
+                                        } else {
+                                            StringBuilder analysisBuilder = new StringBuilder();
+                                            analysisBuilder.append("Analysis for "+currentButtonName+":");
+                                            if (!button.getActive()) {
+                                                analysisBuilder.append(" / Button is inactive");
+                                            }
+                                            if (!button.fitsRecordType(holding.getMarcRecordLeader())) {
+                                                analysisBuilder.append(" / Did not find Record Type ("+holding.getMarcRecordLeader()+") in: "+((PersistedButton) button).getRecordType());
+                                            }
+                                            if (!button.fitsLocation(currentLocation)) {
+                                                analysisBuilder.append(" / Did not find Location ("+currentLocation+") in: "+((PersistedButton) button).getLocationCodes().toString());
+                                            }
+                                            if (!button.fitsItemType(itemData.get("typeDesc"))) {
+                                                analysisBuilder.append(" / Did not find Item Type ("+itemData.get("typeDesc")+") in: "+((PersistedButton) button).getItemTypeCodes().toString());
+                                            }
+                                            if (!button.fitsItemStatus(itemStatusCode)) {
+                                                analysisBuilder.append(" / Did not find Item Status ("+itemStatusCode+") in: "+((PersistedButton) button).getItemStatusCodes().toString());
+                                            }
+                                            String analysis = analysisBuilder.toString();
+                                            if (verbose) {
+                                                buttonContent.put("analysis", analysis);
+                                                buttonContent.put("valid", Boolean.FALSE.toString());
+                                            }
+                                            logger.debug(analysis);
+                                        }
+
                                         // add the button to the list for the holding's MFHD
                                         //presentableHoldings.get(holding.getMfhd()).add(buttonContent);
                                         holdingButtons.add(buttonContent);
                                     } else {
-                                        logger.debug("We should skip the button with text: " + button.getLinkText());
+                                        logger.debug("We should skip the button "+currentButtonName+" for: "+itemIdentifier);
                                     }
                                 }
                             }
