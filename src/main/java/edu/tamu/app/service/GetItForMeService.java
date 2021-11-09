@@ -241,8 +241,7 @@ public class GetItForMeService {
 
                                 for (String parameterKey : parameterKeys) {
                                     if (parameterKey.equals("sid")) {
-                                        parameters.put(parameterKey, getCatalogConfigurationByName(catalogName).get("sidPrefix")
-                                                + ":" + button.getSID());
+                                        parameters.put(parameterKey, buildFullSid(catalogName, button.getSID()));
                                     } else {
                                         parameters.put(parameterKey, null);
                                     }
@@ -300,7 +299,7 @@ public class GetItForMeService {
 
                         parameters = buildHoldingParameters(parameters, holding);
 
-                        parameters.put("sid",getCatalogConfigurationByName(catalogName).get("sidPrefix") + ": "+defaultSIDMap.get(holding.getFallbackLocationCode()));
+                        parameters.put("sid",buildFullSid(catalogName, defaultSIDMap.get(holding.getFallbackLocationCode())));
                         defaultButtonContent.put("form",ButtonFormPresentation.buildForm(holding.getCatalogItems(), defaultAction, defaultFieldMap, defaultVolumeField, defaultText, parameters));
                         holdingButtons.add(defaultButtonContent);
 
@@ -349,9 +348,7 @@ public class GetItForMeService {
 
                                         for (String parameterKey : parameterKeys) {
                                             if (parameterKey.equals("sid")) {
-                                                String fullSid = (getCatalogConfigurationByName(catalogName) != null ? getCatalogConfigurationByName(catalogName).get("sidPrefix")
-                                                        + ":":"") + button.getSID();
-                                                parameters.put(parameterKey, fullSid);
+                                                parameters.put(parameterKey, buildFullSid(catalogName,  button.getSID()));
                                             } else {
                                                 parameters.put(parameterKey, itemData.get(parameterKey));
                                             }
@@ -443,6 +440,12 @@ public class GetItForMeService {
             return presentableHoldings;
         }
         return null;
+    }
+
+    protected String buildFullSid(String catalogName, String sidSuffix) {
+        Map<String,String> catalogConfiguration = getCatalogConfigurationByName(catalogName);
+        String sidPrefix = catalogConfiguration != null && catalogConfiguration.containsKey("sidPrefix") ? catalogConfiguration.get("sidPrefix") +":" : "";
+        return sidPrefix + sidSuffix;
     }
 
     protected boolean skipAllButtons(String locationCode, Map<String,String> itemData) {
