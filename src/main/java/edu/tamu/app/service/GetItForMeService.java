@@ -73,6 +73,9 @@ public class GetItForMeService {
     @Value("${app.buttons.locationsOverride:#{null}}")
     private String[] locationsOverride;
 
+    @Value("${app.boundWith.locations}")
+    private String boundWithLocations;
+
     @Autowired
     Environment environment;
 
@@ -225,6 +228,23 @@ public class GetItForMeService {
                 // users can see that the MFHD was tested
                 presentableHoldings.put(holding.getMfhd(), null);
                 List<Map<String,String>> holdingButtons = new ArrayList<Map<String, String>>();
+
+                //temporary workaround for FOLIO 'boundwith' records whose holdings have 0 items
+                //we'll fake an item with the properties we want
+                if (catalogName.equals("folio") && this.boundWithLocations.length() > 0) {
+                    List<String> boundWithLocationsList = Arrays.asList(this.boundWithLocations.split(";"));
+                    if (boundWithLocationsList.contains(holding.getFallbackLocationCode())) {
+                        logger.debug("Using BoundWith override");
+                        HashMap<String,String> syntheticItem = new HashMap<String,String>();
+                        syntheticItem.put("hrid", "bound-with-item");
+                        syntheticItem.put("status", "Available");
+                        syntheticItem.put("typeDesc", "normal");
+                        HashMap<String,Map<String,String>> syntheticItemsMap = new HashMap<String,Map<String,String>>();
+                        syntheticItemsMap.put(syntheticItem.get("hrid"), syntheticItem);
+                        holding.setCatalogItems(syntheticItemsMap);
+                    }
+                }
+
                 //Path 1: if the holding has no items, check for an itemless button
                 if (holding.getCatalogItems().size() == 0) {
                     for (GetItForMeButton button : this.getRegisteredButtons(catalogName)) {
