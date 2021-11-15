@@ -231,7 +231,7 @@ public class GetItForMeService {
 
                 //temporary workaround for FOLIO 'boundwith' records whose holdings have 0 items
                 //we'll fake an item with the properties we want
-                if (catalogName.equals("folio") && this.boundWithLocations.length() > 0) {
+                if (catalogName.equals("folio") && holding.getCatalogItems().size() == 0 && this.boundWithLocations.length() > 0) {
                     List<String> boundWithLocationsList = Arrays.asList(this.boundWithLocations.split(";"));
                     if (boundWithLocationsList.contains(holding.getFallbackLocationCode())) {
                         logger.debug("Using BoundWith override");
