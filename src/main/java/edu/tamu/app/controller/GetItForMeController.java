@@ -19,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import edu.tamu.app.model.ButtonPresentation;
 import edu.tamu.app.service.GetItForMeService;
+import edu.tamu.app.service.MapService;
 import edu.tamu.app.service.SfxService;
 import edu.tamu.app.service.TextCallNumberService;
 import edu.tamu.weaver.response.ApiResponse;
@@ -34,6 +35,9 @@ public class GetItForMeController {
 
     @Autowired
     private SfxService sfxService;
+
+    @Autowired
+    private MapService mapService;
 
 	/**
 	 * Provides fully formatted HTML buttons, keyed by item MFHD
@@ -118,5 +122,10 @@ public class GetItForMeController {
             resolverValues.put(k,v.get(0));
         });
         return new ApiResponse(SUCCESS, sfxService.hasFullText(resolverValues));
+    }
+
+    @RequestMapping("/get-map-link")
+    public ApiResponse getMapLink(@RequestParam("location") String location) {
+        return new ApiResponse(SUCCESS, "Map Link", mapService.getMapLink(location));
     }
 }
