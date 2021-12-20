@@ -1,11 +1,18 @@
 package edu.tamu.app.service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
+
+import edu.tamu.app.dto.MapDetail;
+import edu.tamu.app.enums.MapType;
 
 /**
  * The MapService returns record location details
@@ -19,17 +26,33 @@ import org.springframework.stereotype.Service;
 @PropertySource("classpath:mapDetails.properties")
 public class MapService {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Value("#{'${mapDetails.stackMap}'.split(',')}")
+    private List<String> stackMapLocations;
+
+    @Value("${mapDetails.defaultMapLink}")
+    private String defaultMapLink;
+
     public final Map<String, String> mapLinks = new HashMap<String,String>();
 
     public Map<String, String> getMapLinks() {
         return mapLinks;
     }
 
-    public String getMapLink(String location) {
-        if (getMapLinks().containsKey(location.toLowerCase())) {
-            return getMapLinks().get(location);
-        }
-        return getMapLinks().get("default");
+    public MapDetail getMapLink(String location) {
+        MapDetail mapDetail = new MapDetail();
 
+        if (stackMapLocations.contains(location)) {
+            mapDetail.type = MapType.StackMap;
+        } else {
+            mapDetail.type = MapType.URL;
+            if (getMapLinks().containsKey(location.toLowerCase())) {
+                mapDetail.url = getMapLinks().get(location);
+            } else {
+                mapDetail.url = defaultMapLink;
+            }
+        }
+        return mapDetail;
     }
 }
