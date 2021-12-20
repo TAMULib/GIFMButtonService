@@ -126,6 +126,6 @@ public class GetItForMeController {
 
     @RequestMapping("/get-map-link")
     public ApiResponse getMapLink(@RequestParam("location") String location) {
-        return new ApiResponse(SUCCESS, "Map Link", mapService.getMapLink(location));
+        return new ApiResponse(SUCCESS, "Map Details", mapService.getMapLink(location));
     }
 }
