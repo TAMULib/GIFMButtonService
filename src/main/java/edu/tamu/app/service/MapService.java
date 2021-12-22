@@ -28,7 +28,7 @@ public class MapService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("#{'${mapDetails.stackMap}'.split(',')}")
+    @Value("#{'${mapDetails.stackMap}'.split(';')}")
     private List<String> stackMapLocations;
 
     @Value("${mapDetails.defaultMapLink}")
@@ -42,7 +42,6 @@ public class MapService {
 
     public MapDetail getMapLink(String location) {
         MapDetail mapDetail = new MapDetail();
-
         if (stackMapLocations.contains(location)) {
             mapDetail.type = MapType.StackMap;
         } else {
