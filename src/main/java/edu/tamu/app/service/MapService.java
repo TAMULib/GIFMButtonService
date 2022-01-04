@@ -41,13 +41,14 @@ public class MapService {
     }
 
     public MapDetail getMapLink(String location) {
+        String locationPrefix = location.split(",")[0];
         MapDetail mapDetail = new MapDetail();
-        if (stackMapLocations.contains(location)) {
+        if (stackMapLocations.contains(locationPrefix)) {
             mapDetail.type = MapType.StackMap;
         } else {
             mapDetail.type = MapType.URL;
-            if (getMapLinks().containsKey(location.toLowerCase())) {
-                mapDetail.url = getMapLinks().get(location);
+            if (getMapLinks().containsKey(locationPrefix.toLowerCase())) {
+                mapDetail.url = getMapLinks().get(locationPrefix);
             } else {
                 mapDetail.url = defaultMapLink;
             }
