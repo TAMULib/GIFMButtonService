@@ -51,6 +51,7 @@ public class MapService {
             mapDetail = buildUnknownMapDetail();
         } else if (stackMapLocations.contains(locationPrefix)) {
             mapDetail.type = MapType.StackMap;
+            mapDetail.url = null;
         } else {
             if (getMapLinks().containsKey(locationPrefix)) {
                 mapDetail.type = MapType.URL;
