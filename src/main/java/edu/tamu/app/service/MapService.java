@@ -31,6 +31,9 @@ public class MapService {
     @Value("#{'${mapDetails.stackMap}'.split(';')}")
     private List<String> stackMapLocations;
 
+    @Value("#{'${mapDetails.bypassCodes}'.split(';')}")
+    private List<String> bypassCodes;
+
     @Value("${mapDetails.defaultMapLink}")
     private String defaultMapLink;
 
@@ -43,16 +46,26 @@ public class MapService {
     public MapDetail getMapLink(String location) {
         String locationPrefix = location.split(",")[0];
         MapDetail mapDetail = new MapDetail();
-        if (stackMapLocations.contains(locationPrefix)) {
+
+        if (bypassCodes.contains(location)) {
+            mapDetail = buildUnknownMapDetail();
+        } else if (stackMapLocations.contains(locationPrefix)) {
             mapDetail.type = MapType.StackMap;
         } else {
-            mapDetail.type = MapType.URL;
-            if (getMapLinks().containsKey(locationPrefix.toLowerCase())) {
+            if (getMapLinks().containsKey(locationPrefix)) {
+                mapDetail.type = MapType.URL;
                 mapDetail.url = getMapLinks().get(locationPrefix);
             } else {
-                mapDetail.url = defaultMapLink;
+                mapDetail = buildUnknownMapDetail();
             }
         }
+        return mapDetail;
+    }
+
+    private MapDetail buildUnknownMapDetail() {
+        MapDetail mapDetail = new MapDetail();
+        mapDetail.type = MapType.Unknown;
+        mapDetail.url = defaultMapLink;
         return mapDetail;
     }
 }
