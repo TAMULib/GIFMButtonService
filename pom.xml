@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.tamu</groupId>
   <artifactId>gifmbutton-service</artifactId>
-  <version>2.6.1</version>
+  <version>2.7.0</version>
   <name>GIFM Button-Service</name>
   <description>A service providing item retrieval links for catalog holdings</description>
 
