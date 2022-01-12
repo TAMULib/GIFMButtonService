@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import edu.tamu.app.dto.MapDetail;
 import edu.tamu.app.model.ButtonPresentation;
 import edu.tamu.app.service.GetItForMeService;
 import edu.tamu.app.service.MapService;
