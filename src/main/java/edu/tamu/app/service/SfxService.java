@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Map;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -47,7 +48,7 @@ public class SfxService {
         StringBuilder rftXml = new StringBuilder();
         resolverValues.forEach((k,v) -> {
            String key = fieldMapping.containsKey(k) ? fieldMapping.get(k):k;
-           rftXml.append("<"+key+">"+v+"</"+key+">");
+           rftXml.append("<rft:"+key+">"+StringEscapeUtils.escapeHtml4(v)+"</rft:"+key+">\r\n");
         });
         Resource xmlTemplateResource = resourceLoader.getResource("classpath:templates/sfx_rft.xml");
         try {

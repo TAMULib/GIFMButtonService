@@ -6,10 +6,15 @@ import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -115,13 +120,18 @@ public class GetItForMeController {
 
     @RequestMapping("/check-full-text")
     public ApiResponse checkFullText(@RequestParam("url") String url) {
-        String[] urlChunks = URLDecoder.decode(url, StandardCharsets.UTF_8).split("=", 2);
-        MultiValueMap<String, String> parameters =
-                UriComponentsBuilder.fromUriString(urlChunks[1]).build().getQueryParams();
+        String[] urlChunks = URLDecoder.decode(url, StandardCharsets.UTF_8).split("\\?url=", 2);
+
+        List<String> parameters = Arrays.asList("sid","title","issn");
+        Pattern buildParameters = Pattern.compile("(?:\\?sid=)(?<sid>.*?)(?:&rft\\.jtitle=)(?<title>.*?)(?:&issn=)(?<issn>.*)");
+        Matcher matcher = buildParameters.matcher(urlChunks[1]);
+
         Map<String,String> resolverValues = new HashMap<String,String>();
-        parameters.forEach((k,v) -> {
-            resolverValues.put(k,v.get(0));
-        });
+        while (matcher.find()) {
+            for (int i = 1; i <= matcher.groupCount(); i++) {
+                resolverValues.put(parameters.get(i-1), matcher.group(i));
+            }
+        }
         return new ApiResponse(SUCCESS, sfxService.hasFullText(resolverValues));
     }
 
