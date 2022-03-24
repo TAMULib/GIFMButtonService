@@ -112,27 +112,20 @@ public class GetItForMeController {
     }
 
     /**
-     * Returns the result of a check for full text for a given openurl
+     * Returns the result of a check for full text for a given title and issn
      *
-     * @param url String a urlencoded url
-     * @return
+     * @param title String The title to check
+     * @param issn the Issn to check
+     * @return ApiResponse
      */
 
     @RequestMapping("/check-full-text")
-    public ApiResponse checkFullText(@RequestParam("url") String url) {
-        String[] urlChunks = URLDecoder.decode(url, StandardCharsets.UTF_8).split("\\?url=", 2);
-
-        List<String> parameters = Arrays.asList("sid","title","issn");
-        Pattern buildParameters = Pattern.compile("(?:\\?sid=)(?<sid>.*?)(?:&rft\\.jtitle=)(?<title>.*?)(?:&issn=)(?<issn>.*)");
-        Matcher matcher = buildParameters.matcher(urlChunks[1]);
-
-        Map<String,String> resolverValues = new HashMap<String,String>();
-        while (matcher.find()) {
-            for (int i = 1; i <= matcher.groupCount(); i++) {
-                resolverValues.put(parameters.get(i-1), matcher.group(i));
-            }
+    public ApiResponse checkFullText(@RequestParam("title") String title, @RequestParam("issn") String issn) {
+        try {
+            return new ApiResponse(SUCCESS, "Full Text results", sfxService.hasFullText(title, issn));
+        } catch (RuntimeException e) {
+            return new ApiResponse(ERROR,e.getMessage());
         }
-        return new ApiResponse(SUCCESS, sfxService.hasFullText(resolverValues));
     }
 
     @RequestMapping("/get-map-link")
