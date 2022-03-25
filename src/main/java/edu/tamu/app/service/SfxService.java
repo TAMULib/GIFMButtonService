@@ -41,7 +41,7 @@ public class SfxService {
     @Value("${app.sfx.resolverUrl}")
     private String sfxResolverUrl;
 
-    private Resource xmlTemplateResource;
+    private String xmlTemplate = null;
 
     public boolean hasFullText(String title, String issn) throws RuntimeException {
         StringBuilder rftXml = new StringBuilder();
@@ -72,9 +72,9 @@ public class SfxService {
     }
 
     private String getXmlTemplate() throws IOException {
-        if (this.xmlTemplateResource == null) {
-            this.xmlTemplateResource = resourceLoader.getResource("classpath:templates/sfx_rft.xml");
+        if (this.xmlTemplate == null) {
+            this.xmlTemplate =  Files.readString(resourceLoader.getResource("classpath:templates/sfx_rft.xml").getFile().toPath());
         }
-        return Files.readString(this.xmlTemplateResource.getFile().toPath());
+        return this.xmlTemplate;
     }
 }
