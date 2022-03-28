@@ -6,10 +6,15 @@ import static edu.tamu.weaver.response.ApiStatus.SUCCESS;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -107,22 +112,20 @@ public class GetItForMeController {
     }
 
     /**
-     * Returns the result of a check for full text for a given openurl
+     * Returns the result of a check for full text for a given title and issn
      *
-     * @param url String a urlencoded url
-     * @return
+     * @param title String The title to check
+     * @param issn the Issn to check
+     * @return ApiResponse
      */
 
     @RequestMapping("/check-full-text")
-    public ApiResponse checkFullText(@RequestParam("url") String url) {
-        String[] urlChunks = URLDecoder.decode(url, StandardCharsets.UTF_8).split("=", 2);
-        MultiValueMap<String, String> parameters =
-                UriComponentsBuilder.fromUriString(urlChunks[1]).build().getQueryParams();
-        Map<String,String> resolverValues = new HashMap<String,String>();
-        parameters.forEach((k,v) -> {
-            resolverValues.put(k,v.get(0));
-        });
-        return new ApiResponse(SUCCESS, sfxService.hasFullText(resolverValues));
+    public ApiResponse checkFullText(@RequestParam("title") String title, @RequestParam("issn") String issn) {
+        try {
+            return new ApiResponse(SUCCESS, "Full Text results", sfxService.hasFullText(title, issn));
+        } catch (RuntimeException e) {
+            return new ApiResponse(ERROR,e.getMessage());
+        }
     }
 
     @RequestMapping("/get-map-link")

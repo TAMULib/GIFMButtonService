@@ -2,8 +2,8 @@ package edu.tamu.app.service;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Map;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -41,17 +41,15 @@ public class SfxService {
     @Value("${app.sfx.resolverUrl}")
     private String sfxResolverUrl;
 
-    private Map<String,String> fieldMapping = Map.of("title","jtitle");
+    private String xmlTemplate = null;
 
-    public boolean hasFullText(Map<String,String> resolverValues) {
+    public boolean hasFullText(String title, String issn) throws RuntimeException {
         StringBuilder rftXml = new StringBuilder();
-        resolverValues.forEach((k,v) -> {
-           String key = fieldMapping.containsKey(k) ? fieldMapping.get(k):k;
-           rftXml.append("<"+key+">"+v+"</"+key+">");
-        });
-        Resource xmlTemplateResource = resourceLoader.getResource("classpath:templates/sfx_rft.xml");
+        rftXml.append("<rft:title>"+StringEscapeUtils.escapeHtml4(title)+"</rft:title>\r\n");
+        rftXml.append("<rft:issn>"+StringEscapeUtils.escapeHtml4(issn)+"</rft:issn>\r\n");
+
         try {
-            String postXml = String.format(Files.readString(xmlTemplateResource.getFile().toPath()),rftXml);
+            String postXml = String.format(getXmlTemplate(),rftXml);
             MultiValueMap<String, String> formValues = new LinkedMultiValueMap<>();
             formValues.add("url_ver", "Z39.88-2004");
             formValues.add("url_ctx_fmt", "info:ofi/fmt:xml:xsd:ctx");
@@ -68,8 +66,15 @@ public class SfxService {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            throw new RuntimeException("The SFX API returned an error");
         }
         return false;
     }
 
+    private String getXmlTemplate() throws IOException {
+        if (this.xmlTemplate == null) {
+            this.xmlTemplate =  Files.readString(resourceLoader.getResource("classpath:templates/sfx_rft.xml").getFile().toPath());
+        }
+        return this.xmlTemplate;
+    }
 }
