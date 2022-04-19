@@ -23,13 +23,14 @@ import edu.tamu.app.model.repo.UserRepo;
 import edu.tamu.weaver.auth.resolver.WeaverCredentialsArgumentResolver;
 import edu.tamu.weaver.auth.resolver.WeaverUserArgumentResolver;
 import edu.tamu.weaver.validation.resolver.WeaverValidatedModelMethodProcessor;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @EnableWebMvc
 @Configuration
 @EntityScan(basePackages = { "edu.tamu.app.model" })
 @EnableJpaRepositories(basePackages = { "edu.tamu.app.model.repo" })
 @PropertySource("classpath:buttons.properties")
-public class AppWebMvcConfig {
+public class AppWebMvcConfig implements WebMvcConfigurer {
 
     @Value("${app.security.allow-access}")
     private String[] hosts;
