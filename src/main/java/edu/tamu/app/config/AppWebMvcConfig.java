@@ -16,7 +16,6 @@ import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 
 import edu.tamu.app.model.User;
@@ -30,7 +29,7 @@ import edu.tamu.weaver.validation.resolver.WeaverValidatedModelMethodProcessor;
 @EntityScan(basePackages = { "edu.tamu.app.model" })
 @EnableJpaRepositories(basePackages = { "edu.tamu.app.model.repo" })
 @PropertySource("classpath:buttons.properties")
-public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
+public class AppWebMvcConfig {
 
     @Value("${app.security.allow-access}")
     private String[] hosts;
@@ -59,7 +58,6 @@ public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
         return new ConfigurableMimeFileTypeMap();
     }
 
-    @Override
     public void addCorsMappings(CorsRegistry registry) {
         // @formatter:off
         registry.addMapping("/**")
@@ -71,7 +69,6 @@ public class AppWebMvcConfig extends WebMvcConfigurerAdapter {
         // @formatter:on
     }
 
-    @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         argumentResolvers.add(new WeaverValidatedModelMethodProcessor(converters));
         argumentResolvers.add(new WeaverCredentialsArgumentResolver());
