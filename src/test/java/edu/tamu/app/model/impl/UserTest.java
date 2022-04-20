@@ -55,12 +55,12 @@ public class UserTest {
         // Test disallow duplicate UINs
         userRepo.create(new User(TEST_CREDENTIALS));
         List<User> allUsers = (List<User>) userRepo.findAll();
-        assertEquals("Duplicate UIN found.", 1, allUsers.size());
+        assertEquals(1, allUsers.size(), "Duplicate UIN found.");
 
         // Test delete user
         userRepo.delete(testUser1);
         allUsers = (List<User>) userRepo.findAll();
-        assertEquals("Test User1 was not removed.", 0, allUsers.size());
+        assertEquals(0, allUsers.size(), "Test User1 was not removed.");
 
     }
 
@@ -74,11 +74,11 @@ public class UserTest {
     @Test
     public void testStaticUtilityMethods() {
         User testUser1 = userRepo.create(new User(TEST_CREDENTIALS));
-        assertEquals("Value was not false", false, testUser1.isAccountNonExpired());
-        assertEquals("Value was not false", false, testUser1.isAccountNonLocked());
-        assertEquals("Value was not false", false, testUser1.isCredentialsNonExpired());
-        assertEquals("Value was not true", true, testUser1.isEnabled());
-        assertEquals("Value was not null", null, testUser1.getPassword());
+        assertEquals(false, testUser1.isAccountNonExpired(), "Value was not false");
+        assertEquals(false, testUser1.isAccountNonLocked(), "Value was not false");
+        assertEquals(false, testUser1.isCredentialsNonExpired(), "Value was not false");
+        assertEquals(true, testUser1.isEnabled(), "Value was not true");
+        assertEquals(null, testUser1.getPassword(), "Value was not null");
     }
 
     @AfterEach
