@@ -3,18 +3,13 @@ package edu.tamu.app.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
 import edu.tamu.app.WebServerInit;
 import edu.tamu.app.dto.MapDetail;
 import edu.tamu.app.enums.MapType;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = { WebServerInit.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = { WebServerInit.class })
 public class MapServiceTest {
 
     @Autowired

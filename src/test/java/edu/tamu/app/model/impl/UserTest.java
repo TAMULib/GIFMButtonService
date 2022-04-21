@@ -10,20 +10,15 @@ import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
 import edu.tamu.app.WebServerInit;
 import edu.tamu.app.model.User;
 import edu.tamu.app.model.repo.UserRepo;
 import edu.tamu.weaver.auth.model.Credentials;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = { WebServerInit.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = { WebServerInit.class })
 public class UserTest {
 
     @Autowired
@@ -45,12 +40,11 @@ public class UserTest {
 
     @Test
     public void testMethod() {
-
         // Test create user
         User testUser1 = userRepo.create(new User(TEST_CREDENTIALS));
         Optional<User> assertUser = userRepo.findByUsername("123456789");
 
-        assertEquals("Test User1 was not added.", testUser1.getUsername(), assertUser.get().getUsername());
+        assertEquals(testUser1.getUsername(), assertUser.get().getUsername(), "Test User1 was not added.");
 
         // Test disallow duplicate UINs
         userRepo.create(new User(TEST_CREDENTIALS));
@@ -61,7 +55,6 @@ public class UserTest {
         userRepo.delete(testUser1);
         allUsers = (List<User>) userRepo.findAll();
         assertEquals(0, allUsers.size(), "Test User1 was not removed.");
-
     }
 
     @Test
