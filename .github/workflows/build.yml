@@ -21,21 +21,4 @@ jobs:
           java-version: 11
 
       - name: "Maven Test"
-        run: mvn clean test jacoco:report coveralls:report -DdryRun=true
-
-      - name: "Coverage Report"
-        uses: MikeEdgar/github-action@raw_coverage_file
-        with:
-          github-token: ${{ secrets.github_token }}
-          path-to-file: 'target/coveralls.json'
-          coverage-format: raw
-
-      - name: "Deploy GH-Pages"
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: JamesIves/github-pages-deploy-action@3.7.1
-        with:
-          github_token: ${{ secrets.github_token }}
-          branch: gh-pages
-          folder: target/generated-docs
-          clean: true
-          single_commit: true
+        run: mvn clean test jacoco:report -DdryRun=true
