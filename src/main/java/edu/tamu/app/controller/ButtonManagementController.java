@@ -25,7 +25,7 @@ public class ButtonManagementController {
     @RequestMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse getAll() {
-        return new ApiResponse(SUCCESS, persistedButtonRepo.findAll(Sort.by("name")));
+        return new ApiResponse(SUCCESS, persistedButtonRepo.findAll(Sort.by(Sort.Direction.ASC, "name")));
     }
 
     @RequestMapping("/create")

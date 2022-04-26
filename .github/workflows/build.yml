@@ -22,3 +22,4 @@ jobs:
 
       - name: "Maven Test"
         run: mvn clean test jacoco:report -DdryRun=true
+

@@ -17,7 +17,7 @@
     <start-class>edu.tamu.app.WebServerInit</start-class>
   </properties>
 
-  <!-- <packaging>war</packaging> -->
+  <packaging>jar</packaging>
 
   <dependencies>
     <dependency>

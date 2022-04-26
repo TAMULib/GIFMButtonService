@@ -34,3 +34,4 @@ EXPOSE ${SERVER_PORT}
 
 #run java command
 CMD java -jar /GIFMButtonService/ROOT.jar
+
