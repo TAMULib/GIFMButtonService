@@ -48,7 +48,7 @@ public class CatalogService {
                 final JsonNode catalogsJson = objectMapper.readTree(new FileInputStream(catalogsRaw.getFile()));
                 catalogsJson.get("catalogs").fieldNames().forEachRemaining(catalogName -> {
                     try {
-                         catalogConfigurations.put(catalogName,objectMapper.readValue(catalogsJson.get("catalogs").get(catalogName).toString(),new TypeReference<HashMap<String, String>>() {}));
+                        catalogConfigurations.put(catalogName,objectMapper.readValue(catalogsJson.get("catalogs").get(catalogName).toString(),new TypeReference<HashMap<String, String>>() {}));
                     } catch (IOException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
