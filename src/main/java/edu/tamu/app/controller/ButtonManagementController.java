@@ -37,7 +37,7 @@ public class ButtonManagementController {
     @RequestMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse getButton(@PathVariable Long id) {
-        return new ApiResponse(SUCCESS, persistedButtonRepo.findById(id));
+        return new ApiResponse(SUCCESS, persistedButtonRepo.findById(id).get());
     }
 
     @RequestMapping("/update")
