@@ -1,20 +1,15 @@
 package edu.tamu.app.service;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.junit4.SpringRunner;
-
 import edu.tamu.app.WebServerInit;
 import edu.tamu.app.dto.MapDetail;
 import edu.tamu.app.enums.MapType;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = { WebServerInit.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(classes = { WebServerInit.class })
 public class MapServiceTest {
 
     @Autowired
@@ -36,31 +31,31 @@ public class MapServiceTest {
     public void testGetMapLinkStackMap() {
         MapDetail stackmapMapDetail = mapService.getMapLink(STACKMAP_CODE);
 
-        assertEquals("Stackmap Map Detail Type is incorrect", stackmapMapDetail.type, MapType.StackMap);
-        assertEquals("Stackmap Map Detail URL is incorrect", stackmapMapDetail.url, STACKMAP_URL);
+        assertEquals(stackmapMapDetail.type, MapType.StackMap, "Stackmap Map Detail Type is incorrect");
+        assertEquals(stackmapMapDetail.url, STACKMAP_URL, "Stackmap Map Detail URL is incorrect");
     }
 
     @Test
     public void testGetMapLinkLocal() {
         MapDetail localMapDetail = mapService.getMapLink(LOCAL_CODE);
 
-        assertEquals("Local Map Detail Type is incorrect", localMapDetail.type, MapType.URL);
-        assertEquals("Local Map Detail URL is incorrect", localMapDetail.url, LOCAL_URL);
+        assertEquals(localMapDetail.type, MapType.URL, "Local Map Detail Type is incorrect");
+        assertEquals(localMapDetail.url, LOCAL_URL, "Local Map Detail URL is incorrect");
     }
 
     @Test
     public void testGetMapLinkCodeBypass() {
         MapDetail bypassMapDetail = mapService.getMapLink(BYPASS_CODE);
 
-        assertEquals("Bypass Map Detail Type is incorrect", bypassMapDetail.type, MapType.Unknown);
-        assertEquals("Bypass Map Detail URL is incorrect", bypassMapDetail.url, BYPASS_URL);
+        assertEquals(bypassMapDetail.type, MapType.Unknown, "Bypass Map Detail Type is incorrect");
+        assertEquals(bypassMapDetail.url, BYPASS_URL, "Bypass Map Detail URL is incorrect");
     }
 
     @Test
-    public void testGetMapLinkUnknown() {
+    public void testGetMapLinkUnknown() throws Exception {
         MapDetail unknownMapDetail = mapService.getMapLink(UNKNOWN_CODE);
 
-        assertEquals("Unknown Map Detail Type is incorrect", unknownMapDetail.type, MapType.Unknown);
-        assertEquals("Unknown Map Detail URL is incorrect", unknownMapDetail.url, UNKNOWN_URL);
+        assertEquals(unknownMapDetail.type, MapType.Unknown, "Unknown Map Detail Type is incorrect");
+        assertEquals(unknownMapDetail.url, UNKNOWN_URL, "Unknown Map Detail URL is incorrect");
     }
 }
