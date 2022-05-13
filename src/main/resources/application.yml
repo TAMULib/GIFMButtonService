@@ -138,7 +138,7 @@ app:
     - mfhd
     - isxn
     fieldMap:
-    - Action: '10'
+      Action: '10'
       Form: '30'
       LoanAuthor: '{author}'
       LoanPublisher: '{publisher}'
@@ -165,4 +165,4 @@ app:
 
   # Configuration for the sfx/fulltext check
   sfx:
-    resolverUrl = http://linkresolver.tamu.edu:9003/tamu
+    resolverUrl: http://linkresolver.tamu.edu:9003/tamu

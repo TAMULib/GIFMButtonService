@@ -13,9 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import edu.tamu.app.config.AppConfig;
 import edu.tamu.app.model.ButtonFormPresentation;
 import edu.tamu.app.model.ButtonLinkPresentation;
 import edu.tamu.app.model.ButtonPresentation;
@@ -42,39 +44,14 @@ import edu.tamu.app.utilities.sort.VolumeComparator;
  */
 
 @Service
+@EnableConfigurationProperties(AppConfig.class)
 public class GetItForMeService {
+
     @Value("${activeButtons}")
     private String[] activeButtons;
 
-    @Value("${app.defaultButton.templateParameterKeys}")
-    private String[] defaultTemplateParameterKeys;
-
-    @Value("#{${app.defaultButton.fieldMap}}")
-    private Map<String, String> defaultFieldMap;
-
-    @Value("#{${app.defaultButton.SID}}")
-    private Map<String,String> defaultSIDMap;
-
-    @Value("${app.defaultButton.action}")
-    private String defaultAction;
-
-    @Value("${app.defaultButton.volumeField}")
-    private String defaultVolumeField;
-
-    @Value("${app.defaultButton.text}")
-    private String defaultText;
-
-    @Value("${app.defaultButton.threshold:100}")
-    private int defaultThreshold;
-
-    @Value("${app.buttons.patronGroupOverride:#{null}}")
-    private String patronGroupOverride;
-
-    @Value("${app.buttons.locationsOverride:#{null}}")
-    private String[] locationsOverride;
-
-    @Value("${app.boundWith.locations}")
-    private String boundWithLocations;
+    @Autowired
+    private AppConfig appConfig;
 
     @Autowired
     Environment environment;
@@ -96,7 +73,7 @@ public class GetItForMeService {
     private void registerButtons() {
         // only register the buttons from configuration if the repo is empty
         long buttonCount = persistedButtonRepo.count();
-        if (buttonCount == 0) {
+        if (buttonCount == 0 && activeButtons != null) {
             for (String activeButton : activeButtons) {
                 String rawLocationCodes = environment.getProperty(activeButton + ".locationCodes");
                 String[] itemTypeCodes = environment.getProperty(activeButton + ".itemTypeCodes", String[].class);
@@ -173,7 +150,7 @@ public class GetItForMeService {
         return catalogService.getHolding(catalogName, bibId, holdingId);
     }
 
-    public Map<String,String> getCatalogConfigurationByName(String catalogName) {
+    public Map<String, String> getCatalogConfigurationByName(String catalogName) {
         return catalogService.getCatalogConfigurationByName(catalogName);
     }
 
@@ -198,7 +175,7 @@ public class GetItForMeService {
      * @param bibId
      * @return Map<String,List<Map<String,String>>>
      */
-    public Map<String,ButtonPresentation> getButtonDataByBibId(String catalogName, String bibId) {
+    public Map<String, ButtonPresentation> getButtonDataByBibId(String catalogName, String bibId) {
         return getButtonDataByBibId(catalogName, bibId, false);
     }
 
@@ -231,8 +208,8 @@ public class GetItForMeService {
 
                 //temporary workaround for FOLIO 'boundwith' records whose holdings have 0 items
                 //we'll fake an item with the properties we want
-                if (catalogName.equals("folio") && holding.getCatalogItems().size() == 0 && this.boundWithLocations.length() > 0) {
-                    List<String> boundWithLocationsList = Arrays.asList(this.boundWithLocations.split(";"));
+                if (catalogName.equals("folio") && holding.getCatalogItems().size() == 0 && appConfig.getBoundWith().getLocations().length() > 0) {
+                    List<String> boundWithLocationsList = Arrays.asList(appConfig.getBoundWith().getLocations().split(";"));
                     if (boundWithLocationsList.contains(holding.getFallbackLocationCode())) {
                         logger.debug("Using BoundWith override");
                         HashMap<String,String> syntheticItem = new HashMap<String,String>();
@@ -306,12 +283,12 @@ public class GetItForMeService {
                     }
                 } else {
                     //Path 2: For holdings with lots of items, we generate a single form based button, with selectable items
-                    if (holding.isLargeVolume() && holding.getCatalogItems().size() > defaultThreshold ) {
+                    if (holding.isLargeVolume() && holding.getCatalogItems().size() > appConfig.getDefaultButton().getThreshold()) {
                         logger.debug("Generating the large volume button");
                         Map<String, String> defaultButtonContent = new HashMap<String, String>();
 
                         Map<String, String> parameters = new HashMap<String,String>();
-                        List<String> parameterKeys = Arrays.asList(defaultTemplateParameterKeys);
+                        List<String> parameterKeys = Arrays.asList(appConfig.getDefaultButton().getTemplateParameterKeys());
 
                         for (String parameterKey : parameterKeys) {
                             parameters.put(parameterKey, null);
@@ -319,8 +296,8 @@ public class GetItForMeService {
 
                         parameters = buildHoldingParameters(parameters, holding);
 
-                        parameters.put("sid",buildFullSid(catalogName, defaultSIDMap.get(holding.getFallbackLocationCode())));
-                        defaultButtonContent.put("form",ButtonFormPresentation.buildForm(holding.getCatalogItems(), defaultAction, defaultFieldMap, defaultVolumeField, defaultText, parameters));
+                        parameters.put("sid",buildFullSid(catalogName, appConfig.getDefaultButton().getSID().get(holding.getFallbackLocationCode())));
+                        defaultButtonContent.put("form",ButtonFormPresentation.buildForm(holding.getCatalogItems(), appConfig.getDefaultButton().getAction(), appConfig.getDefaultButton().getFieldMap(), appConfig.getDefaultButton().getVolumeField(), appConfig.getDefaultButton().getText(), parameters));
                         holdingButtons.add(defaultButtonContent);
 
                         presentableHoldings.put(holding.getMfhd(), new ButtonFormPresentation(holdingButtons));
@@ -470,13 +447,13 @@ public class GetItForMeService {
 
     protected boolean skipAllButtons(String locationCode, Map<String,String> itemData) {
         boolean skipButtons = false;
-        if (patronGroupOverride != null
-                && (locationsOverride != null && locationsOverride.length > 0)
+        if (appConfig.getButtons().getPatronGroupOverride() != null
+                && (appConfig.getButtons().getLocationsOverride() != null && appConfig.getButtons().getLocationsOverride().length > 0)
                 && itemData.containsKey("patronGroupCode")
-                && itemData.get("patronGroupCode").toString().contentEquals(patronGroupOverride)) {
+                && itemData.get("patronGroupCode").toString().contentEquals(appConfig.getButtons().getPatronGroupOverride())) {
             logger.debug("Matched patronGroupCode for button override");
             boolean matchesLocation = false;
-            for (String locationOverride : locationsOverride) {
+            for (String locationOverride : appConfig.getButtons().getLocationsOverride()) {
                 if (locationCode.contains(locationOverride)) {
                     matchesLocation = true;
                     break;

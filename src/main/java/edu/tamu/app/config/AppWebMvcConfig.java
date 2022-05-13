@@ -16,6 +16,7 @@ import org.springframework.mail.javamail.ConfigurableMimeFileTypeMap;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 
 import edu.tamu.app.model.User;
@@ -23,7 +24,6 @@ import edu.tamu.app.model.repo.UserRepo;
 import edu.tamu.weaver.auth.resolver.WeaverCredentialsArgumentResolver;
 import edu.tamu.weaver.auth.resolver.WeaverUserArgumentResolver;
 import edu.tamu.weaver.validation.resolver.WeaverValidatedModelMethodProcessor;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @EnableWebMvc
 @Configuration

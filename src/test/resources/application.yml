@@ -112,10 +112,21 @@ app:
     file: config/catalogs.json
 
   # Configuration for the default/large item button
-  defaultButton:
-    templateParameterKeys: sid, title, author, publisher, genre, place, year, edition, oclc, mfhd, isxn
-    fieldMap:
-    - Action: '10'
+  default-button:
+    template-parameter-keys:
+    - sid
+    - title
+    - author
+    - publisher
+    - genre
+    - place
+    - year
+    - edition
+    - oclc
+    - mfhd
+    - isxn
+    field-map:
+      Action: '10'
       Form: '30'
       LoanAuthor: '{author}'
       LoanPublisher: '{publisher}'
@@ -126,21 +137,21 @@ app:
       LoanDate: '{year}'
       LoanPlace: '{place}'
       Notes: '{oclc}|{mfhd}'
-    volumeField: LoanEdition
-    SID: {'rs,jlf':'Remote Storage (Joint Library Facility)','rs,hdr':'Remote Storage (Austin)'}
+    volume-field: LoanEdition
+    sid: {'rs,jlf':'Remote Storage (Joint Library Facility)','rs,hdr':'Remote Storage (Austin)'}
     text: "Get It: 4 days"
     action: https://getitforme.library.tamu.edu/illiad/EvansLocal/openurl.asp
     threshold: 200
 
   # Configuration for FOLIO Bound With workaround
-  boundWith:
+  bound-with:
     locations: stk;blcc,stk;BookStacks;psel,stk;udoc;txdoc
 
   # Configuration for the buttons kill switch
   buttons:
-    patronGroupOverride: remhathi
-    locationsOverride: cush
+    patron-group-override: remhathi
+    locations-override: cush
 
   # Configuration for the sfx/fulltext check
   sfx:
-    resolverUrl = http://linkresolver.tamu.edu:9003/tamu
+    resolver-url: http://linkresolver.tamu.edu:9003/tamu

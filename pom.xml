@@ -16,9 +16,25 @@
   <properties>
     <start-class>edu.tamu.app.WebServerInit</start-class>
     <java.version>11</java.version>
+    <maven.packaging>jar</maven.packaging>
   </properties>
 
-  <packaging>jar</packaging>
+  <packaging>${maven.packaging}</packaging>
+
+  <profiles>
+    <profile>
+      <id>war</id>
+      <properties>
+        <maven.packaging>war</maven.packaging>
+      </properties>
+    </profile>
+    <profile>
+      <id>jar</id>
+      <properties>
+        <maven.packaging>jar</maven.packaging>
+      </properties>
+    </profile>
+  </profiles>
 
   <dependencies>
     <dependency>
