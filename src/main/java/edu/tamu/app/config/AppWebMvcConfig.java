@@ -59,6 +59,7 @@ public class AppWebMvcConfig implements WebMvcConfigurer {
         return new ConfigurableMimeFileTypeMap();
     }
 
+    @Override
     public void addCorsMappings(CorsRegistry registry) {
         // @formatter:off
         registry.addMapping("/**")
@@ -70,6 +71,7 @@ public class AppWebMvcConfig implements WebMvcConfigurer {
         // @formatter:on
     }
 
+    @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         argumentResolvers.add(new WeaverValidatedModelMethodProcessor(converters));
         argumentResolvers.add(new WeaverCredentialsArgumentResolver());
