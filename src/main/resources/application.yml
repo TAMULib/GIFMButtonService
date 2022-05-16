@@ -43,6 +43,8 @@ spring:
 
 # logging
 logging:
+  file:
+    name: logs/application.log
   level:
     org.tdl: INFO
     edu.tamu: INFO

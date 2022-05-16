@@ -33,6 +33,8 @@ spring:
 
 # logging
 logging:
+  file:
+    name: logs/application-test.log
   level:
     edu:
       tamu: ERROR
