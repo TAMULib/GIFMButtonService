@@ -5,7 +5,6 @@ import java.nio.file.Files;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -26,7 +25,6 @@ import edu.tamu.app.config.AppConfig;
  *
  */
 @Service
-@EnableConfigurationProperties(AppConfig.class)
 public class SfxService {
 
     @Autowired
