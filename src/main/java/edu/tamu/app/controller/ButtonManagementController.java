@@ -25,7 +25,7 @@ public class ButtonManagementController {
     @RequestMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse getAll() {
-        return new ApiResponse(SUCCESS,persistedButtonRepo.findAll(new Sort(Sort.Direction.ASC, "name")));
+        return new ApiResponse(SUCCESS, persistedButtonRepo.findAll(Sort.by(Sort.Direction.ASC, "name")));
     }
 
     @RequestMapping("/create")
@@ -37,7 +37,7 @@ public class ButtonManagementController {
     @RequestMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse getButton(@PathVariable Long id) {
-        return new ApiResponse(SUCCESS, persistedButtonRepo.findOne(id));
+        return new ApiResponse(SUCCESS, persistedButtonRepo.findById(id).get());
     }
 
     @RequestMapping("/update")

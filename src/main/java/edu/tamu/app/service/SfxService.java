@@ -5,8 +5,6 @@ import java.nio.file.Files;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,16 +16,19 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import edu.tamu.app.config.AppConfig;
+
 /**
  * The SfxService checks with the linkresolver to find out if the full text is available for the given url
  *
  * @author Jason Savell <jsavell@library.tamu.edu>
  *
  */
-
-
 @Service
 public class SfxService {
+
+    @Autowired
+    AppConfig appConfig;
 
     @Autowired
     CatalogService catalogService;
@@ -37,9 +38,6 @@ public class SfxService {
 
     @Autowired
     private RestTemplate restTemplate;
-
-    @Value("${app.sfx.resolverUrl}")
-    private String sfxResolverUrl;
 
     private String xmlTemplate = null;
 
@@ -60,7 +58,7 @@ public class SfxService {
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(formValues, headers);
-            ResponseEntity<String> response = restTemplate.postForEntity(sfxResolverUrl, request, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity(appConfig.getSfx().getResolverUrl(), request, String.class);
             if (response.getStatusCode().equals(HttpStatus.OK) && response.getBody().contains("<services>yes</services>")) {
                 return true;
             }

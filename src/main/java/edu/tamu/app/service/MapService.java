@@ -22,19 +22,19 @@ import edu.tamu.app.enums.MapType;
  */
 
 @Service
-@ConfigurationProperties("mapDetails")
-@PropertySource("classpath:mapDetails.properties")
+@ConfigurationProperties("map-details")
+@PropertySource("classpath:map-details.properties")
 public class MapService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("#{'${mapDetails.stackMap}'.split(';')}")
+    @Value("#{'${map-details.stack-map}'.split(';')}")
     private List<String> stackMapLocations;
 
-    @Value("#{'${mapDetails.bypassCodes}'.split(';')}")
+    @Value("#{'${map-details.bypass-codes}'.split(';')}")
     private List<String> bypassCodes;
 
-    @Value("${mapDetails.defaultMapLink}")
+    @Value("${map-details.default-map-link}")
     private String defaultMapLink;
 
     public final Map<String, String> mapLinks = new HashMap<String,String>();
