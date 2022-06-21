@@ -1,5 +1,7 @@
-server.port: 9000
-server.contextPath:
+server:
+  port: 9100
+  servlet:
+    context-path:
 
 security:
   basic:
@@ -34,7 +36,7 @@ spring:
 # logging
 logging:
   file:
-    name: logs/application-test.log
+    name: logs/gifmbutton-service-test.log
   level:
     edu:
       tamu: ERROR
