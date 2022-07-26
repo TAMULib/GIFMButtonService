@@ -59,4 +59,4 @@ WORKDIR $HOME_DIR
 COPY --from=maven $SOURCE_DIR/target/ROOT.jar ./gifmbutton-service.jar
 
 # Run java command.
-CMD ["java", "-jar", "/gifmbutton-service.jar"]
+CMD ["java", "-jar", "./gifmbutton-service.jar"]
