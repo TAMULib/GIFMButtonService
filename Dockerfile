@@ -56,7 +56,7 @@ USER $USER_NAME
 WORKDIR $HOME_DIR
 
 # Copy over the built artifact from the maven image.
-COPY --from=maven $SOURCE_DIR/target/ROOT.jar ./gifmbutton-service.jar
+COPY --from=maven $SOURCE_DIR/target/ROOT.jar ./gifmbutton.jar
 
 # Run java command.
-CMD ["java", "-jar", "./gifmbutton-service.jar"]
+CMD ["java", "-jar", "./gifmbutton.jar"]
