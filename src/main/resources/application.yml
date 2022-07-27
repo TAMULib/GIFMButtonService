@@ -124,7 +124,7 @@ app:
 
   # Catalog Configuration file
   catalogsConfiguration:
-    file: config/catalogs.json
+    file: classpath:/config/catalogs.json
 
   # Configuration for the default/large item button
     # Configuration for the default/large item button
