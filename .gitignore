@@ -30,3 +30,5 @@ replay_pid*
 # Application specific gitignore
 # Maven
 target/
+
+logs/
