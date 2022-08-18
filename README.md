@@ -1,9 +1,11 @@
 [![Build Status][build-badge]][build-status]
 [![Coverage Status][coverage-badge]][coverage-status]
 
-# Get It For Me (GIFM) Button Service
+# Get It For Me Button Service
 
-A service for interfacing with Library Catalogs developed and maintained by [Texas A&M University Libraries][tamu-library].
+A *Spring* backend for the *Get It For Me (GIFM) Button Service* developed and maintained by [Texas A&M University Libraries][tamu-library].
+
+This is a service for interfacing with *Library Catalogs*.
 
 <details>
 <summary>Table of contents</summary>
@@ -14,6 +16,7 @@ A service for interfacing with Library Catalogs developed and maintained by [Tex
 
 </details>
 
+
 ## Deployment
 
 For a quick and easy deployment using `docker-compose` consider using the [GIFM Button App Repo][app-repo].
@@ -23,6 +26,7 @@ This process is further described in the [Deployment Guide][deployment-guide].
 
 <div align="right">(<a href="#readme-top">back to top</a>)</div>
 
+
 ## Developer Documentation
 
 - [Contributors Documentation][contribute-guide]
@@ -31,15 +35,17 @@ This process is further described in the [Deployment Guide][deployment-guide].
 
 <div align="right">(<a href="#readme-top">back to top</a>)</div>
 
+
 ## Additional Resources
 
 Please feel free to file any issues concerning GIFM Button Service to the issues section of the repository.
 
 Any questions concerning GIFM Button Service can be directed to helpdesk@library.tamu.edu.
 
+Copyright © 2022 Texas A&M University Libraries under the [MIT License][license].
+
 <div align="right">(<a href="#readme-top">back to top</a>)</div>
 
-Copyright © 2022 Texas A&M University Libraries under the [The MIT License][license].
 
 <!-- LINKS -->
 [app-repo]: https://github.com/TAMULib/GIFMButton
