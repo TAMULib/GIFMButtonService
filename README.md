@@ -5,7 +5,8 @@
 
 A *Spring* backend for the *Get It For Me (GIFM) Button Service* developed and maintained by [Texas A&M University Libraries][tamu-library].
 
-This is a service for interfacing with *Library Catalogs*.
+This is a service for providing links to the [Illiad request management system][illiad-url].
+These links are customized based on the individual item in the library catalog.
 
 <details>
 <summary>Table of contents</summary>
@@ -56,6 +57,8 @@ Copyright © 2022 Texas A&M University Libraries under the [MIT License][license
 
 [api-documentation]: https://tamulib.github.io/GIFMButtonService
 [tamu-library]: http://library.tamu.edu
+[illiad-url]: https://www.atlas-sys.com/illiad/
+
 [deployment-guide]: DEPLOYING.md
 [contribute-guide]: CONTRIBUTING.md
 [license]: LICENSE
