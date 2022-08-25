@@ -108,12 +108,12 @@ app:
   http:
     timeout: 10000
 
-  # Catalog Service location
-  catalogServiceUrl: http://localhost:9000/catalog-access/
+  # Catalog Service location *requires trailing forward slash
+  catalogServiceUrl: https://api-dev.library.tamu.edu/catalog/3x/
 
   # Catalog Configuration file
   catalogsConfiguration:
-    file: config/catalogs.json
+    file: classpath:/config/catalogs.json
 
   # Configuration for the default/large item button
   default-button:

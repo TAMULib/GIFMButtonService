@@ -1,7 +1,5 @@
 package edu.tamu.app.service;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -13,10 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,8 +29,8 @@ public class CatalogService {
     @Value("${app.catalogServiceUrl}")
     private String catalogServiceUrl;
 
-    @Value("${app.catalogsConfiguration.file:''}")
-    private String catalogsFile;
+    @Value("${app.catalogsConfiguration.file:'classpath:/config/catalogs.json'}")
+    private Resource catalogsFile;
 
     private Map<String,Map<String,String>> catalogConfigurations = new HashMap<String,Map<String,String>>();
 
@@ -41,29 +38,19 @@ public class CatalogService {
 
     @PostConstruct
     protected void buildCatalogConfigurations() {
-
-        if (!catalogsFile.equals("")) {
-            ClassPathResource catalogsRaw = new ClassPathResource(catalogsFile);
-            try {
-                final JsonNode catalogsJson = objectMapper.readTree(new FileInputStream(catalogsRaw.getFile()));
-                catalogsJson.get("catalogs").fieldNames().forEachRemaining(catalogName -> {
-                    try {
-                        catalogConfigurations.put(catalogName,objectMapper.readValue(catalogsJson.get("catalogs").get(catalogName).toString(),new TypeReference<HashMap<String, String>>() {}));
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                });
-            } catch (JsonProcessingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        try {
+            final JsonNode catalogsJson = objectMapper.readTree(catalogsFile.getInputStream());
+            catalogsJson.get("catalogs").fieldNames().forEachRemaining(catalogName -> {
+                try {
+                    catalogConfigurations.put(catalogName,objectMapper.readValue(catalogsJson.get("catalogs").get(catalogName).toString(),new TypeReference<HashMap<String, String>>() {}));
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            });
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 

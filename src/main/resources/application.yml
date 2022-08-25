@@ -99,7 +99,7 @@ app:
   security:
     secret: verysecretsecret
     # edu.tamu.weaver.filter.CorsFilter
-    allow-access: http://localhost,http://localhost:8080, http://localhost:9000, http://localhost:9001
+    allow-access: http://localhost,http://localhost:8080,http://localhost:9000,http://localhost:9001
 
   email:
     # edu.tamu.weaver.email.config.WeaverEmailConfig
@@ -119,11 +119,12 @@ app:
   http:
     timeout: 10000
 
-  # Catalog Service location
-  catalogServiceUrl: http://localhost:9000/catalog-access/
+  # Catalog Service location *requires trailing forward slash
+  catalogServiceUrl: https://api-dev.library.tamu.edu/catalog/3x/
 
   # Catalog Configuration file
-  catalogsConfiguration.file: config/catalogs.json
+  catalogsConfiguration:
+    file: classpath:/config/catalogs.json
 
   # Configuration for the default/large item button
     # Configuration for the default/large item button
