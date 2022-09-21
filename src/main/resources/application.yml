@@ -99,7 +99,7 @@ app:
   security:
     secret: verysecretsecret
     # edu.tamu.weaver.filter.CorsFilter
-    allow-access: http://localhost,http://localhost:8080,http://localhost:9000,http://localhost:9001
+    allow-access: http://localhost,http://localhost:8080,http://localhost:9000,http://localhost:9001,https://labs.library.tamu.edu,http://labs.library.tamu.edu
 
   email:
     # edu.tamu.weaver.email.config.WeaverEmailConfig
