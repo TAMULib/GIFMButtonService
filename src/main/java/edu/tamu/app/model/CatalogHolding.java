@@ -29,6 +29,7 @@ public class CatalogHolding {
     private String oclc;
     private String recordId;
     private String callNumber;
+    private String callNumberPrefix;
     private boolean largeVolume = false;
 
     private Map<String, Map<String, String>> catalogItems = new HashMap<String, Map<String, String>>();
@@ -37,7 +38,7 @@ public class CatalogHolding {
 
     public CatalogHolding(String marcRecordLeader, String mfhd, String issn, String isbn, String title, String author,
             String publisher, String place, String year, String genre, String edition, String fallBackLocationCode, String oclc, String recordId, String callNumber,
-            Map<String, Map<String, String>> catalogItems) {
+            String callNumberPrefix, Map<String, Map<String, String>> catalogItems) {
         this.setMarcRecordLeader(marcRecordLeader);
         this.setMfhd(mfhd);
         this.setCatalogItems(catalogItems);
@@ -54,12 +55,13 @@ public class CatalogHolding {
         this.setOclc(oclc);
         this.setRecordId(recordId);
         this.setCallNumber(callNumber);
+        this.setCallNumberPrefix(callNumberPrefix);
     }
 
     public CatalogHolding(String marcRecordLeader, String mfhd, String issn, String isbn, String title, String author,
             String publisher, String place, String year, String genre, String edition, String fallBackLocationCode, String oclc, String recordId, String callNumber,
-            boolean largeVolume, Map<String, Map<String, String>> catalogItems) {
-        this(marcRecordLeader, mfhd, issn, isbn, title, author, publisher, place, year, genre, edition, fallBackLocationCode, oclc, recordId, callNumber, catalogItems);
+            String callNumberPrefix, boolean largeVolume, Map<String, Map<String, String>> catalogItems) {
+        this(marcRecordLeader, mfhd, issn, isbn, title, author, publisher, place, year, genre, edition, fallBackLocationCode, oclc, recordId, callNumber, callNumberPrefix, catalogItems);
         this.setLargeVolume(largeVolume);
     }
 
@@ -181,6 +183,14 @@ public class CatalogHolding {
 
     public void setCallNumber(String callNumber) {
         this.callNumber = callNumber;
+    }
+
+    public String getCallNumberPrefix() {
+        return callNumberPrefix;
+    }
+
+    public void setCallNumberPrefix(String callNumberPrefix) {
+        this.callNumberPrefix = callNumberPrefix;
     }
 
     public Map<String, Map<String, String>> getCatalogItems() {
