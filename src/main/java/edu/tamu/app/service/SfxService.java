@@ -71,7 +71,7 @@ public class SfxService {
 
     private String getXmlTemplate() throws IOException {
         if (this.xmlTemplate == null) {
-            this.xmlTemplate =  Files.readString(resourceLoader.getResource("classpath:templates/sfx_rft.xml").getFile().toPath());
+            this.xmlTemplate =  new String(resourceLoader.getResource("classpath:templates/sfx_rft.xml").getInputStream().readAllBytes());
         }
         return this.xmlTemplate;
     }
