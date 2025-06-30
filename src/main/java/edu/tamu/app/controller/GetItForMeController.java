@@ -97,19 +97,15 @@ public class GetItForMeController {
                 if (holdingId != null && buttonPresentation != null && buttonPresentation.getButtons() != null) {
                     for( Map<String, String> button: buttonPresentation.getButtons()) {
                         String cssClass = button.get("cssClasses");
-                        String linkText = button.get("linkText");
                         String linkHref = button.get("linkHref");
                         boolean isCushing = ( cssClass != null && cssClass.contains("btn_cushing") ) &&
-                                            ( linkText != null && linkText.contains("Request From Cushing") ) &&
                                             ( linkHref != null && linkHref.contains("aeon.library.tamu.edu") );
 
-                        if(isCushing) {
+                        if(isCushing && location.equalsIgnoreCase("cushing")) {
                             String redirectUrl = linkHref.startsWith("http") ? linkHref : "https://" + linkHref;
                             return new RedirectView(redirectUrl);
                         }
                     }
-                } else {
-                    System.out.println("\n\n Holding id or button presentation is null.");
                 }
             }
             return new ApiResponse(SUCCESS, buttonData);
