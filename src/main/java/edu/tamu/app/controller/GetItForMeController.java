@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
 import edu.tamu.app.model.ButtonPresentation;
 import edu.tamu.app.service.GetItForMeService;
@@ -70,6 +71,47 @@ public class GetItForMeController {
     public ApiResponse getButtonsByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId, @RequestParam(value="verbose",defaultValue="false") boolean verbose) {
         Map<String,ButtonPresentation> buttonData = getItForMeService.getButtonDataByBibId(catalogName, bibId, verbose);
         if (buttonData != null) {
+            return new ApiResponse(SUCCESS, buttonData);
+        } else {
+            return new ApiResponse(ERROR, "Error processing Catalog or Holding");
+        }
+    }
+
+    /**
+     * Provides the raw button data in JSON format, keyed by MFHD.
+     * If a specific button with matching criteria - Cushing is found, it performs a redirect.
+     * @param String catalogName Optional catalog name. Defaults to "evans" if not provided.
+     * @param String bibId  Required bibliographic ID. It used to retrieve holdings and associated button data.
+     * @param boolean verbose.
+     * @param String location Optional location parameter used for location-based redirect.
+     * @return ApiResponse or RedirectView based on redirectUrl.
+     */
+    @RequestMapping("/get-buttons-redirect")
+    public Object getButtonsRedirectByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId, @RequestParam(value="verbose",defaultValue="false") boolean verbose, @RequestParam(value="location", required = false, defaultValue="") String location) {
+
+        Map<String,ButtonPresentation> buttonData = getItForMeService.getButtonDataByBibId(catalogName, bibId, verbose);
+        if (buttonData != null) {
+            for (Map.Entry<String, ButtonPresentation> entry : buttonData.entrySet()) {
+                String holdingId = entry.getKey();
+                ButtonPresentation buttonPresentation = entry.getValue();
+                if (holdingId != null && buttonPresentation != null && buttonPresentation.getButtons() != null) {
+                    for( Map<String, String> button: buttonPresentation.getButtons()) {
+                        String cssClass = button.get("cssClasses");
+                        String linkText = button.get("linkText");
+                        String linkHref = button.get("linkHref");
+                        boolean isCushing = ( cssClass != null && cssClass.contains("btn_cushing") ) &&
+                                            ( linkText != null && linkText.contains("Request From Cushing") ) &&
+                                            ( linkHref != null && linkHref.contains("aeon.library.tamu.edu") );
+
+                        if(isCushing) {
+                            String redirectUrl = linkHref.startsWith("http") ? linkHref : "https://" + linkHref;
+                            return new RedirectView(redirectUrl);
+                        }
+                    }
+                } else {
+                    System.out.println("\n\n Holding id or button presentation is null.");
+                }
+            }
             return new ApiResponse(SUCCESS, buttonData);
         } else {
             return new ApiResponse(ERROR, "Error processing Catalog or Holding");
