@@ -90,6 +90,7 @@ public class GetItForMeController {
     public Object getButtonsRedirectByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId, @RequestParam(value="verbose",defaultValue="false") boolean verbose, @RequestParam(value="location", required = false, defaultValue="") String location) {
 
         Map<String,ButtonPresentation> buttonData = getItForMeService.getButtonDataByBibId(catalogName, bibId, verbose);
+        String redirectUrl = null;
         if (buttonData != null) {
             for (Map.Entry<String, ButtonPresentation> entry : buttonData.entrySet()) {
                 String holdingId = entry.getKey();
@@ -101,11 +102,19 @@ public class GetItForMeController {
                         boolean isCushing = ( cssClass != null && cssClass.contains("btn_cushing") ) &&
                                             ( linkHref != null && linkHref.contains("aeon.library.tamu.edu") );
 
-                        if(isCushing && location.equalsIgnoreCase("cushing")) {
-                            String redirectUrl = linkHref.startsWith("http") ? linkHref : "https://" + linkHref;
-                            return new RedirectView(redirectUrl);
+                        if(isCushing && location.equalsIgnoreCase("aeon") && linkHref != null ) {
+                            redirectUrl = linkHref.startsWith("http") ? linkHref : "https://" + linkHref;
+                            break;
+                        }
+
+                        if(!isCushing && location.equalsIgnoreCase("illiad") && linkHref != null ) {
+                            redirectUrl = linkHref.startsWith("http") ? linkHref : "https://" + linkHref;
+                            break;
                         }
                     }
+                }
+                if(redirectUrl != null) {
+                  return new RedirectView(redirectUrl);
                 }
             }
             return new ApiResponse(SUCCESS, buttonData);
