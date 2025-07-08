@@ -8,10 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.view.RedirectView;
 
 import edu.tamu.app.model.ButtonPresentation;
@@ -117,7 +119,7 @@ public class GetItForMeController {
                   return new RedirectView(redirectUrl);
                 }
             }
-            return new ApiResponse(SUCCESS, buttonData);
+            throw new ResponseStatusException(HttpStatus.SC_NOT_FOUND, "No valid redirect URL found.", null);
         } else {
             return new ApiResponse(ERROR, "Error processing Catalog or Holding");
         }
