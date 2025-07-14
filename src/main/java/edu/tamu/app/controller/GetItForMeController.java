@@ -121,7 +121,7 @@ public class GetItForMeController {
             }
             throw new ResponseStatusException(HttpStatus.SC_NOT_FOUND, "No valid redirect URL found.", null);
         } else {
-            return new ApiResponse(ERROR, "Error processing Catalog or Holding");
+            throw new ResponseStatusException(HttpStatus.SC_NOT_FOUND, "Error processing Catalog or Holding", null);
         }
     }
 
