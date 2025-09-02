@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -156,8 +157,16 @@ public class GetItForMeController {
             //to the other button if there are only 2 or fewer holdings
             Integer holdingCountThreshold = (hasCushing) ? 3:2;
 
+            // we can only redirect to the catalog if we have an hrid, not a uuid
+            boolean bibIdIsUUID = true;
+            try {
+                bibIdIsUUID = (UUID.fromString(bibId).toString().equals(bibId));
+            } catch (IllegalArgumentException e) {
+                bibIdIsUUID = false;
+            }
+
             //If we have too many holdings options to choose from, redirect to the catalog so the user can choose there
-            if ((!hasCushing || !wantsCushing) && holdingsWithButtonsCount >= holdingCountThreshold && publicCatalogUrl.length() > 0) {
+            if (!bibIdIsUUID && (!hasCushing || !wantsCushing) && holdingsWithButtonsCount >= holdingCountThreshold && publicCatalogUrl.length() > 0) {
                 redirectUrl = publicCatalogUrl + bibId;
             }
 
