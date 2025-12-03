@@ -123,7 +123,10 @@ app:
     timeout: 10000
 
   # Catalog Service location *requires trailing forward slash
-  catalogServiceUrl: https://api-dev.library.tamu.edu/catalog/3x/
+  catalogServiceUrl: https://api-dev.library.tamu.edu/catalog/3x/catalog-access/
+
+  # Base URL for the public facing catalog single record view
+  publicCatalogUrl: https://catalog-dev.library.tamu.edu/Record/
 
   # Catalog Configuration file
   catalogsConfiguration:
