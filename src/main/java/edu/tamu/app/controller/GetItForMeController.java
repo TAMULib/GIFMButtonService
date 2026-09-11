@@ -32,6 +32,9 @@ public class GetItForMeController {
     @Value("${app.publicCatalogUrl:}")
     private String publicCatalogUrl;
 
+    @Value("${app.externalErrorUrl:}")
+    private String externalErrorUrl;
+
     @Autowired
     private GetItForMeService getItForMeService;
 
@@ -116,6 +119,7 @@ public class GetItForMeController {
     @RequestMapping("/get-buttons-redirect")
     public Object getButtonsRedirectByBibId(@RequestParam(value="catalogName",defaultValue="evans") String catalogName, @RequestParam("bibId") String bibId, @RequestParam(value="location", required = false, defaultValue="") String location) {
         bibId = ensureBibId(bibId);
+        Boolean hasExternalErrorUrl = externalErrorUrl.length() > 0;
         Map<String,ButtonPresentation> buttonData = getItForMeService.getButtonDataByBibId(catalogName, bibId);
         String redirectUrl = null;
         if (buttonData != null) {
@@ -170,12 +174,23 @@ public class GetItForMeController {
                 redirectUrl = publicCatalogUrl + bibId;
             }
 
+            //We couldn't generate a useful url, but we can still complete a redirect
+            if (redirectUrl == null && hasExternalErrorUrl) {
+                redirectUrl = externalErrorUrl;
+            }
+
             if (redirectUrl != null) {
                 return new RedirectView(redirectUrl);
             }
+            //We have nowhere to redirect the user to, so 404
             throw new ResponseStatusException(HttpStatus.SC_NOT_FOUND, "No valid redirect URL found.", null);
         } else {
-            throw new ResponseStatusException(HttpStatus.SC_NOT_FOUND, "Error processing Catalog or Holding", null);
+            //We experienced an error retrieving the button info, so redirect to an external error page or 404
+            if (hasExternalErrorUrl) {
+                return new RedirectView(externalErrorUrl);
+            } else {
+                throw new ResponseStatusException(HttpStatus.SC_NOT_FOUND, "Error processing Catalog or Holding", null);
+            }
         }
     }
 
