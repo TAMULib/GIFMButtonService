@@ -188,9 +188,8 @@ public class GetItForMeController {
             //We experienced an error retrieving the button info, so redirect to an external error page or 404
             if (hasExternalErrorUrl) {
                 return new RedirectView(externalErrorUrl);
-            } else {
-                throw new ResponseStatusException(HttpStatus.SC_NOT_FOUND, "Error processing Catalog or Holding", null);
             }
+            throw new ResponseStatusException(HttpStatus.SC_NOT_FOUND, "Error processing Catalog or Holding", null);
         }
     }
 
