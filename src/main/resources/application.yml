@@ -176,3 +176,6 @@ app:
   # Configuration for the sfx/fulltext check
   sfx:
     resolverUrl: http://linkresolver.tamu.edu:9003/tamu
+
+  # When configured, users will be redirected to this url for certain error conditions
+  externalErrorUrl: https://library.tamu.edu/eds-error
